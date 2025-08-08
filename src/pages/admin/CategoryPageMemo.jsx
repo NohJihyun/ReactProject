@@ -1,12 +1,12 @@
 // 전체 컨테이너
 // React 라이브러리와 훅(Hook) 불러오기
 import React, { useState, useEffect } from 'react';
-import { getCategories, createCategory, updateCategory, deleteCategory } from '../api/categoryApi';
-import CategoryForm from '../components/CategoryForm';
-import CategoryList from '../components/CategoryList';
+import { getCategories, createCategory, updateCategory, deleteCategory } from '../../api/categoryApi';
+import CategoryForm from '../../components/CategoryForm';
+import CategoryList from '../../components/CategoryList';
 
 // 카테고리페이지 컴포넌트 
-const CategoryPage = () => {
+const CategoryPageMemo = () => {
     // 즉, 사용자 입력이나 서버 응답에 따라 UI가 바뀐다.
     // STATE : **React 컴포넌트 안에서 "변경되면 화면이 다시 렌더링되는 값"**을 말해요.
     // 그래서 React는 useState()를 사용해서 "반응형 데이터"를 만들어요.
@@ -22,6 +22,8 @@ const CategoryPage = () => {
     const [categories, setCategories] = useState([]);
     const [selected, setSelected] = useState(null);
 
+
+    // ✅ list
     // ✅ 비동기 api 통신  ==> 목록 불러오기 axios GET 요청
     // ✅ <CategoryList /> ==> 리스트를 리스트 컴포넌트에게 전달.
     const fetchCategories = async () => {
@@ -73,5 +75,5 @@ const CategoryPage = () => {
     );
 };
 
-export default CategoryPage;
+export default CategoryPageMemo;
 
