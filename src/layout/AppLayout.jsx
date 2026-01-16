@@ -6,6 +6,10 @@ import { useState } from 'react';
 const drawerWidth = 240;
 export default function AppLayout() {
     const [open, setOpen] = useState(false);
+    // 자바스크립트 배열안 요소 객체 키,값형태
+    // 키 label, to 값 대시보드 등
+    // 역할 : 메뉴에서 사용할 이동 경로(to)를 미리 정의한다.
+    // const : 재할당 불가
     const items = [
         { label: '대시보드', to: '/admin' },
         { label: '카테고리', to: '/admin/categories' },
@@ -31,12 +35,15 @@ export default function AppLayout() {
             }}>
                 <Toolbar />
                 <List>
+                    {/* map 배열 data 하나씩 꺼내서 반복실행
+                        i 변수에 배열에서 꺼낸 값을 넣어 실행
+                    */}
                     {items.map(i => (
                         <ListItemButton
                             key={i.to}
                             component={NavLink}
                             to={i.to}
-                            end                                 // ← 정확히 일치할 때만 active
+                            end              // ← 정확히 일치할 때만 active
                             sx={{ '&.active': { bgcolor: 'action.selected' }}} // 활성화 스타일
                         >
                             {i.label}
