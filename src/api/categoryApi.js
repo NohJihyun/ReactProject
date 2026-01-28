@@ -11,5 +11,5 @@ export const createCategory = (form) =>
 export const updateCategory = (id, form) =>
     axios.put(`/admin/categories/${id}`, form);
 
-export const deleteCategory = (id) =>
+export const deactivateCategory = (id) =>
     axios.delete(`/admin/categories/${id}`);

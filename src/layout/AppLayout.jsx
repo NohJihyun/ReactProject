@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, Box, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Outlet, NavLink, useLocation } from 'react-router-dom'; // ← NavLink 사용
+import { Outlet, NavLink } from 'react-router-dom'; // ← NavLink 사용
 import { useState } from 'react';
 
 const drawerWidth = 240;
@@ -12,9 +12,9 @@ export default function AppLayout() {
     // const : 재할당 불가
     const items = [
         { label: '대시보드', to: '/admin' },
-        { label: '카테고리', to: '/admin/categories' },
-        { label: '상품',     to: '/admin/products' },
-        { label: '주문',     to: '/admin/orders' },
+        { label: '카테고리 관리', to: '/admin/categories' },
+        { label: '여행상품 관리', to: '/admin/products' },
+        { label: '예약 관리', to: '/admin/bookings' },
     ];
 
     return (
@@ -24,7 +24,7 @@ export default function AppLayout() {
                     <IconButton edge="start" onClick={()=>setOpen(true)} sx={{ mr:2, display:{ md:'none' }}}>
                         <MenuIcon/>
                     </IconButton>
-                    <Typography variant="h6" sx={{ flex:1 }}>낚시 플랫폼 Admin</Typography>
+                    <Typography variant="h6" sx={{ flex:1 }}>로이투어 매니저</Typography>
                 </Toolbar>
             </AppBar>
 
