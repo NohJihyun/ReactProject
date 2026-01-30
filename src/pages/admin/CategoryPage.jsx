@@ -11,8 +11,8 @@ import * as api from '../../api/categoryApi';
 
 export default function CategoryPage() {
     const [rows, setRows] = useState([]);       // 카테고리 목록
-    const [selected, setSelected] = useState(null);   // 등록 OR 수정을 체크하는 상태, NULL 수정대상이 없다.
-    const [open, setOpen] = useState(false);  // 폼 UI 제어자 
+    const [selected, setSelected] = useState(null);   // 등록 OR 수정을 체크하는 상태, NULL 수정대상이 없다, 선택된 카테고리가 없음.
+    const [open, setOpen] = useState(false);  // 폼 UI 제어자 Dialog 초기상태 열고,닫힘 컨트롤
     const [toast, setToast] = useState({ open:false, msg:'', sev:'success' }); // 서버응답
 
     //비동기 통신
@@ -74,6 +74,10 @@ export default function CategoryPage() {
     /* =========================
       FORM STATE
    ========================= */
+    //초기상태 선언은 selected === null
+    //등록인지, 수정인지 체크하는 모드설정
+    //즉 !!는 "이 값이 의미 있는 값인가 ?" 를 true/false로 바꾸기위한 js 문법
+    //null은 JS에서 ‘없음’을 의미하는 falsy 값이고, !!는 그걸 boolean으로 바꿔주는 도구다.
     const isEdit = !!selected;
 
     const [form, setForm] = useState({
@@ -85,6 +89,7 @@ export default function CategoryPage() {
         isActive: 'Y'
     });
 
+    //selected 값이 변경될때 마다 실행
     useEffect(() => {
         if (selected) {
             setForm({
@@ -96,11 +101,21 @@ export default function CategoryPage() {
                 isActive: selected.isActive
             });
         }
-    }, [selected]);
-
+    }, [selected]); // [selected] : selected 값 변경될시에만 useEffect 실행
+    
+    //입력변경
+    //초기 form state 객체 {}
+    //...form 기존폼 state 복사 (불변성유지)
+    //[e.target.name] 입력폼에 key : e.target.value 값  key : 값 형태
+    //입력 필드의 name에 해당하는 값만 새 value로 변경
     const change = (e) =>
         setForm({ ...form, [e.target.name]: e.target.value });
 
+    //카테고리 목록중 부모 체크
+    //filter 배열에서 조건 만족하는것만 골라서 새배열로 만든다.
+    //[ {}, {} ] => r: 알은 배열안 객체 요소하나를 의미
+    //대분류이면서 사용 중인 카테고리를 의미
+    //상위카테고리에 사용될 목록
     const parents = rows.filter(r => r.depth === 1 && r.isActive === 'Y');
 
     /* =========================
@@ -118,7 +133,7 @@ export default function CategoryPage() {
                             <Button
                                 variant="contained"
                                 onClick={() => {
-                                    setSelected(null);
+                                    setSelected(null); // 수정상태없음 -> 등록폼
                                     setForm({
                                         depth: 1,
                                         parentId: null,
@@ -127,7 +142,7 @@ export default function CategoryPage() {
                                         sortOrder: 0,
                                         isActive: 'Y'
                                     });
-                                    setOpen(true);
+                                    setOpen(true); // Dialog 열고,닫힘 초기상태 컨트롤함
                                 }}
                             >
                                 카테고리 등록
@@ -138,7 +153,7 @@ export default function CategoryPage() {
                             <CategoryList
                                 categories={rows}
                                 onEdit={(row) => {
-                                    setSelected(row);
+                                    setSelected(row);    // useEffect 실행 (값이변경됨.)
                                     setOpen(true);
                                 }}
                                 onDeactivate={handleDeactivate}
@@ -158,9 +173,9 @@ export default function CategoryPage() {
                     {/* depth */}
                     <TextField
                         select
-                        name="depth"
+                        name="depth"            //key 
                         label="분류"
-                        value={form.depth}
+                        value={form.depth}     //화면에 보이는 값이 => state => value 보여짐
                         onChange={change}
                         fullWidth
                         margin="normal"
@@ -170,7 +185,9 @@ export default function CategoryPage() {
                         <MenuItem value={2}>소분류</MenuItem>
                     </TextField>
 
-                    {/* parent */}
+                    {/* parent
+                        depth : 2 소분류
+                    */}
                     {form.depth === 2 && (
                         <TextField
                             select
@@ -182,6 +199,21 @@ export default function CategoryPage() {
                             margin="normal"
                             disabled={isEdit}
                         >
+                            {/*
+                                “객체 배열 데이터를 select box에서 사용할 수 있는 UI 구조(JSX)로 변환했다.”
+                                parents.map <MenuItem> 옵션들로 변경
+                                즉, 배열에 들어있는 카테고리 객체 항목을
+                                [
+                                  { categoryId: 1, categoryName: '전자제품', depth: 1 },
+                                  { categoryId: 2, categoryName: '가구', depth: 1 }
+                                ]
+
+                                selectbox 안에 들어갈 메뉴 항목 하나씩 변경 => UI 표현만 변경.
+                                [
+                                    <MenuItem value={1}>전자제품</MenuItem>,
+                                    <MenuItem value={2}>가구</MenuItem>
+                                ]
+                            */}
                             {parents.map(p => (
                                 <MenuItem key={p.categoryId} value={p.categoryId}>
                                     {p.categoryName}
