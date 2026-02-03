@@ -19,6 +19,8 @@ export default function CategoryPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState(null); //Dialog 타이틀 상태 등록,수정,검색을 컨트롤
 
+
+
     /* API 영역 */
     /* =========================
      LIST API
@@ -35,7 +37,7 @@ export default function CategoryPage() {
         }
     };
 
-    //useEffect는 첫 렌더링이 끝난 뒤에 (해야 할 일을) 지시하는 훅이다. => 1.서버에서 데이터 요청 2.자동으로 수행해야될 다음작업 
+    //useEffect는 첫 렌더링이 끝난 뒤에 (해야 할 일을) 지시하는 훅이다. => 1.서버에서 데이터 요청 2.자동으로 수행해야될 다음작업
     //의존성 배열이 빈 배열이면 useEffect 안의 함수는 한 번만 실행되고, 의존성 배열 안에 변수가 있으면 그 변수가 바뀔 때마다 실행된다.
     useEffect(() => { load(); }, []);
 
@@ -52,9 +54,17 @@ export default function CategoryPage() {
             setSelected(null); // NULL은 수정대상 없음을 의미 -> 등록
             setDialogOpen(false);
             await load();
-            setToast({ open:true, msg:'저장 완료', sev:'success' });
+            setToast({
+                open: true,
+                msg: isEdit ? '카테고리를 수정합니다.' : '카테고리를 등록합니다.',
+                sev: 'success'
+            });
         } catch {
-            setToast({ open:true, msg:'저장 실패', sev:'error' });
+            setToast({
+                open: true,
+                msg: '저장에 실패했습니다.',
+                sev: 'error'
+            });
         }
     };
 
@@ -157,6 +167,9 @@ export default function CategoryPage() {
         setDialogMode(null);
     };
 
+    const modeHelp =
+        dialogMode === 'edit' ? '카테고리 정보를 수정합니다.' :
+        dialogMode === 'search' ? '조건을 선택해서 검색합니다.' : '';
     /* =========================
     RENDER
  ========================= */
@@ -234,12 +247,21 @@ export default function CategoryPage() {
             >
                 {/* ===== Dialog Title ===== */}
                 <DialogTitle>
-                    {dialogMode === 'create' && '카테고리 등록'}
-                    {dialogMode === 'edit' && '카테고리 수정'}
-                    {dialogMode === 'search' && '카테고리 검색'}
+                    카테고리 관리
                 </DialogTitle>
+
                 {/* ===== Dialog Content ===== */}
                 <DialogContent>
+                    {/* ===== 보조 문구 ===== */}
+                    {modeHelp && (
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 2 }}
+                        >
+                            {modeHelp}
+                        </Typography>
+                    )}
                     {/*
                      중요 포인트
                     dialogOpen이 true일 때만 Dialog 내부 콘텐츠를 렌더링한다.
