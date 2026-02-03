@@ -2,6 +2,7 @@ import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, Box, IconBut
 import MenuIcon from '@mui/icons-material/Menu';
 import { Outlet, NavLink } from 'react-router-dom'; // ← NavLink 사용
 import { useState } from 'react';
+import logo from '../assets/rohitour.jpg'
 
 const drawerWidth = 240;
 export default function AppLayout() {
@@ -19,7 +20,7 @@ export default function AppLayout() {
 
     return (
         <Box sx={{ display:'flex' }}>
-            <AppBar position="fixed" sx={{ zIndex:(t)=>t.zIndex.drawer+1 }}>
+            <AppBar position="fixed" sx={{ zIndex:(t)=>t.zIndex.drawer+1, backgroundColor: '#7CB342' }}>
                 <Toolbar>
                     <IconButton edge="start" onClick={()=>setOpen(true)} sx={{ mr:2, display:{ md:'none' }}}>
                         <MenuIcon/>
