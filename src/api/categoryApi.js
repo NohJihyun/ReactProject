@@ -23,3 +23,15 @@ export const deactivateCategory = (id) =>
 /* 실제 삭제 (물리 삭제) */
 export const deleteCategory = (id) =>
     axios.delete(`/admin/categories/${id}/delete`);
+
+/* 벨리데이션체크 카테고리코드 + 정렬 검증 */
+export const checkCategoryDuplicate = ({
+                                           depth,
+                                           parentId,
+                                           sortOrder,
+                                           excludeId
+                                       }) => {
+    return axios.get('/admin/categories/duplicate', {
+        params: { depth, parentId, sortOrder, excludeId }
+    });
+};
