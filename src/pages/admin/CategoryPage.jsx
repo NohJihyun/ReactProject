@@ -6,20 +6,14 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import CategoryList from '../../components/CategoryList';
-//import CategoryForm from '../../components/CategoryForm';
 import * as api from '../../api/categoryApi';
 
 export default function CategoryPage() {
     const [rows, setRows] = useState([]);       // 카테고리 목록
     const [selected, setSelected] = useState(null);   // 등록 OR 수정을 체크하는 상태, NULL 수정대상이 없다, 선택된 카테고리가 없음.
-    //const [open, setOpen] = useState(false);  // 폼 UI 제어자 Dialog 초기상태 열고,닫힘 컨트롤
     const [toast, setToast] = useState({ open:false, msg:'', sev:'success' }); // 서버응답
-    //const [filterOpen, setFilterOpen] = useState(false);  검색필터상태 ＝＞ 인라인토글 방식이 있음 한페이지 안에서 열기／닫기 상태로 제어
-    //const [searchOpen, setSearchOpen] = useState(false); //검색상태
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState(null); //Dialog 타이틀 상태 등록,수정,검색을 컨트롤
-
-
 
     /* API 영역 */
     /* =========================
@@ -48,21 +42,53 @@ export default function CategoryPage() {
      SAVE (CREATE / UPDATE) API
   ========================= */
     const handleSave = async (form) => {
+        // 0) 프론트 기본 검증
+        const msg = validateForm(form);
+        if (msg) {
+            setToast({ open: true, msg, sev: "warning" });
+            return;
+        }
+
+        // ********* 저장 모드 고정
+        const editing = !!selected?.categoryId;
+
         try {
-            if (selected?.categoryId) {
+            // 1) 서버 중복 체크 (categoryCode + sortOrder)
+            // 수정일 때는 자기 자신 제외(excludeId)
+            await api.checkCategoryDuplicate({
+                depth: Number(form.depth),
+                parentId: form.depth === 2 ? form.parentId : null,
+                sortOrder: Number(form.sortOrder),
+                excludeId: editing ? selected?.categoryId : null
+            });
+            // 2)저장
+            if (editing) {
                 await api.updateCategory(selected.categoryId, form);
             } else {
                 await api.createCategory(form);
             }                        // 함수의 판단 기준은 데이터가 아닌 상태 STATE
             setSelected(null); // NULL은 수정대상 없음을 의미 -> 등록
             setDialogOpen(false);
-            await load();
+            await load(search);      //검색조건유지
             setToast({
                 open: true,
-                msg: isEdit ? '카테고리를 수정합니다.' : '카테고리를 등록합니다.',
+                msg: editing ? '카테고리가 수정되었습니다.' : '카테고리가 등록되었습니다.',
                 sev: 'success'
             });
-        } catch {
+        } catch (error) {
+            // 3) 중복이면 서버가 409를 주도록 만들 거야
+            const status = error?.response?.status;
+            const serverMsg = error?.response?.data?.message;
+
+            if (status === 409) {
+                setToast({
+                    open: true,
+                    msg: serverMsg || "해당 카테고리에서 이미 사용 중인 정렬 순서입니다.",
+                    sev: "error"
+                });
+                return;
+            }
+
             setToast({
                 open: true,
                 msg: '저장에 실패했습니다.',
@@ -96,7 +122,7 @@ export default function CategoryPage() {
     //등록인지, 수정인지 체크하는 모드설정
     //즉 !!는 "이 값이 의미 있는 값인가 ?" 를 true/false로 바꾸기위한 js 문법
     //null은 JS에서 ‘없음’을 의미하는 falsy 값이고, !!는 그걸 boolean으로 바꿔주는 도구다.
-    const isEdit = !!selected;
+    //const isEdit = !!selected;
 
     const [form, setForm] = useState({
         depth: 1,
@@ -194,13 +220,47 @@ export default function CategoryPage() {
     };
 
     /* =========================
+       카테고리페이지 벨리데인션 검증 HANDLER
+    ========================= */
+    // 기본 검증 함수 추가 (CategoryPage 내부)
+    const validateForm = (f) => {
+        // 1) depth
+        if (![1, 2].includes(Number(f.depth))) {
+            return "분류(depth)를 선택해주세요";
+        }
+
+        // 2) 소분류면 parentId 필수
+        if (Number(f.depth) === 2 && (f.parentId === null || f.parentId === "")) {
+            return "소분류는 상위 카테고리를 선택해야 합니다";
+        }
+
+        // 3) categoryCode 필수 (등록 시에만 입력 가능하지만, 안전하게)
+        if (!String(f.categoryCode ?? "").trim()) {
+            return "카테고리 코드를 입력해주세요";
+        }
+
+        // 4) categoryName 필수
+        if (!String(f.categoryName ?? "").trim()) {
+            return "카테고리명을 입력해주세요";
+        }
+
+        // 5) sortOrder 숫자/범위 체크
+        const so = Number(f.sortOrder);
+        if (!Number.isInteger(so) || so < 1) {
+            return "정렬 순서는 1 이상의 정수만 가능합니다";
+        }
+
+        return null; // 문제 없음
+    };
+
+    /* =========================
     RENDER
  ========================= */
     return (
         /* div translate 활용해 번역 비활성화 시킴 */
         <div translate="no">
             <Grid container direction="column" spacing={2}>
-                <Grid item>
+                <Grid>
                     <Paper sx={{ p:2 }}>
                         <Box sx={{
                             display: 'flex',
@@ -264,6 +324,7 @@ export default function CategoryPage() {
             DIALOG
             ========================= */}
             <Dialog
+                translate="no"
                 key={dialogMode} // dialogMode가 변경될때마다 기존 dialog를 완전 지우고 새로생성 충돌해결
                 open={dialogOpen}
                 onClose={closeDialog}
@@ -286,12 +347,7 @@ export default function CategoryPage() {
                             {modeHelp}
                         </Typography>
                     )}
-                    {/*
-                     중요 포인트
-                    dialogOpen이 true일 때만 Dialog 내부 콘텐츠를 렌더링한다.
-                    → Dialog 닫히는 순간 내부 JSX가 동시에 변경되며
-                    removeChild 에러가 나는 문제를 원천 차단
-                    */}
+
                     {dialogOpen && (
                         <>
                             {/* =========================
