@@ -24,14 +24,17 @@ export default function CategoryPage() {
     /* API 영역 */
     /* =========================
      LIST API
+     및
+     검색조건 => searchParam
     ========================= */
     //백단에서 return json 배열 , 앞단에서 [] 배열 처리후 세터함수로 화면 렌더
-    const load = async () => {
+    const load = async (searchParam) => {
         try {
-            const data = await api.getCategories();                                      //서버에서 응답된 데이터 할당, json 배열만 들어옴
+            const data = await api.getCategories(searchParam);                                      //서버에서 응답된 데이터 할당, json 배열만 들어옴
             const list = Array.isArray(data) ? data : (data?.content ?? []);     //방어코드 어떠한 형태로오든 결국 list => [] 배열로 만듬, content 페이징처리 미리예방
             setRows(list);                                                              //list에 담긴 데이터를 useState로 상태값 변경
-            console.log('categories:', list, list.length);
+            //console.log('categories:', list, list.length);
+            console.log('rows length:', list.length, list);
         } catch {
             setRows([]);                                                          //화면이 터지지 않게 아닐시 빈배열로 만들어둠
         }
@@ -68,7 +71,7 @@ export default function CategoryPage() {
         }
     };
 
-    //DELETE
+    //DELETE 비활성화 논리
     //카테고리 삭제 x
     //비활성화로 변경
     /* =========================
@@ -156,9 +159,11 @@ export default function CategoryPage() {
             [e.target.name]: e.target.value
         });
     };
+
     const handleSearch = () => {
-        load(); // 다음 단계에서 search 파라미터 연결
+        load(search); // 다음 단계에서 search 파라미터 연결
     };
+
     /* =========================
        카테고리페이지 다이얼로그  HANDLER
     ========================= */
@@ -170,6 +175,24 @@ export default function CategoryPage() {
     const modeHelp =
         dialogMode === 'edit' ? '카테고리 정보를 수정합니다.' :
         dialogMode === 'search' ? '조건을 선택해서 검색합니다.' : '';
+    
+    /* =========================
+       카테고리페이지 삭제 HANDLER
+    ========================= */
+    const handleDelete = async (id) => {
+        if (!window.confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+            return;
+        }
+
+        try {
+            await api.deleteCategory(id);
+            await load(search); // 현재 검색 조건 유지
+            setToast({ open: true, msg: '삭제되었습니다.', sev: 'success' });
+        } catch {
+            setToast({ open: true, msg: '삭제에 실패했습니다.', sev: 'error' });
+        }
+    };
+
     /* =========================
     RENDER
  ========================= */
@@ -231,6 +254,7 @@ export default function CategoryPage() {
                                     setDialogOpen(true);
                                 }}
                                 onDeactivate={handleDeactivate}
+                                onDelete={handleDelete}
                             />
                         </Box>
                     </Paper>

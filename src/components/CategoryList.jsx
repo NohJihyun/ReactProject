@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Stack } from '@mui/material';
 
 /* 자식 page */
-const CategoryList = ({ categories = [], onEdit, onDeactivate }) => {
+const CategoryList = ({ categories = [], onEdit, onDeactivate, onDelete  }) => {
     return (
         <table
             style={{
@@ -22,7 +22,7 @@ const CategoryList = ({ categories = [], onEdit, onDeactivate }) => {
                 <th style={{ textAlign: 'center' }}>상위</th>
                 <th style={{ textAlign: 'center' }}>정렬</th>
                 <th style={{ textAlign: 'center' }}>사용</th>
-                <th style={{ width: '160px', textAlign: 'center' }}>관리</th>
+                <th style={{ width: '220px', textAlign: 'center' }}>관리</th>
             </tr>
             </thead>
 
@@ -67,7 +67,15 @@ const CategoryList = ({ categories = [], onEdit, onDeactivate }) => {
                             >
                                 수정
                             </Button>
-
+                            {/* 삭제 버튼 추가 */}
+                            <Button
+                                variant="contained"
+                                size="small"
+                                onClick={() => onDelete(cat.categoryId)}
+                            >
+                                삭제
+                            </Button>
+                            {/* 비활성화 버튼 추가 */}
                             {cat.isActive === 'Y' && (
                                 <Button
                                     variant="contained"
@@ -77,6 +85,7 @@ const CategoryList = ({ categories = [], onEdit, onDeactivate }) => {
                                     비활성화
                                 </Button>
                             )}
+
                         </Stack>
                     </td>
 
