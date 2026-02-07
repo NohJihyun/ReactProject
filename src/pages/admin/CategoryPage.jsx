@@ -7,36 +7,114 @@ import {
 import { useEffect, useState } from 'react';
 import CategoryList from '../../components/CategoryList';
 import * as api from '../../api/categoryApi';
+import Pagination from '@mui/material/Pagination';
 
 export default function CategoryPage() {
+    /* STATE 영역 */
     const [rows, setRows] = useState([]);       // 카테고리 목록
     const [selected, setSelected] = useState(null);   // 등록 OR 수정을 체크하는 상태, NULL 수정대상이 없다, 선택된 카테고리가 없음.
     const [toast, setToast] = useState({ open:false, msg:'', sev:'success' }); // 서버응답
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState(null); //Dialog 타이틀 상태 등록,수정,검색을 컨트롤
+    const [pageInfo, setPageInfo] = useState({
+        page: 1,
+        size: 10,
+        totalPages: 0,
+        totalElements: 0
+    }); // 페이지네이션 상태
+    //대분류 상태
+    const [parentOptions, setParentOptions] = useState([]);
+    /* =========================
+        SEARCH STATE
+   ========================= */
+    const [search, setSearch] = useState({
+        depth: '',
+        parentId: '',   // 소분류 선택시 내부적으로만 사용
+        categoryId: '', // depth=1 이면 대분류, depth=2이면 소분류
+        isActive: '',
+        keyword: ''
+    });
+    /* =========================
+      FORM STATE
+   ========================= */
+    //초기상태 선언은 selected === null
+    //등록인지, 수정인지 체크하는 모드설정
+    //즉 !!는 "이 값이 의미 있는 값인가 ?" 를 true/false로 바꾸기위한 js 문법
+    //null은 JS에서 ‘없음’을 의미하는 falsy 값이고, !!는 그걸 boolean으로 바꿔주는 도구다.
+    //const isEdit = !!selected;
+    const [form, setForm] = useState({
+        depth: 1,
+        parentId: null,
+        categoryCode: '',
+        categoryName: '',
+        sortOrder: 0,
+        isActive: 'Y'
+    });
 
     /* API 영역 */
     /* =========================
      LIST API
      및
      검색조건 => searchParam
+     페이지네이션 => 페이지 정보
     ========================= */
     //백단에서 return json 배열 , 앞단에서 [] 배열 처리후 세터함수로 화면 렌더
-    const load = async (searchParam) => {
+    const load = async (searchParam = search, page = 1) => {
         try {
-            const data = await api.getCategories(searchParam);                                      //서버에서 응답된 데이터 할당, json 배열만 들어옴
-            const list = Array.isArray(data) ? data : (data?.content ?? []);     //방어코드 어떠한 형태로오든 결국 list => [] 배열로 만듬, content 페이징처리 미리예방
-            setRows(list);                                                              //list에 담긴 데이터를 useState로 상태값 변경
-            //console.log('categories:', list, list.length);
-            console.log('rows length:', list.length, list);
-        } catch {
-            setRows([]);                                                          //화면이 터지지 않게 아닐시 빈배열로 만들어둠
+            const cleanedSearch = Object.fromEntries(
+                Object.entries(searchParam)
+                    .filter(([_, v]) => v !== '' && v !== null)
+            );
+
+            const data = await api.getCategories({
+                ...cleanedSearch,
+                page,
+                size: pageInfo.size
+            });
+
+            //  여기 핵심
+            setRows(data.list ?? []);
+
+            setPageInfo({
+                page: data.page,
+                size: data.size,
+                totalPages: data.totalPage,
+                totalElements: data.totalCount
+            });
+
+        } catch (e) {
+            console.error(e);
+            setRows([]);
         }
     };
 
+
+    //최조진입
     //useEffect는 첫 렌더링이 끝난 뒤에 (해야 할 일을) 지시하는 훅이다. => 1.서버에서 데이터 요청 2.자동으로 수행해야될 다음작업
     //의존성 배열이 빈 배열이면 useEffect 안의 함수는 한 번만 실행되고, 의존성 배열 안에 변수가 있으면 그 변수가 바뀔 때마다 실행된다.
-    useEffect(() => { load(); }, []);
+    //페이지네이션
+    useEffect(() => {
+        load(search, 1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // 검색다이얼로그 => rows 변화와 무관 => 초기1회 로딩
+    useEffect(() => {
+        (async () => {
+            try {
+                const data = await api.getCategories({
+                    depth: 1,
+                    isActive: 'Y',
+                    page: 1,
+                    size: 1000
+                });
+                setParentOptions(data.list ?? []);
+            } catch (e) {
+                console.error(e);
+                setParentOptions([]);
+            }
+        })();
+    }, []);
 
     /* =========================
      SAVE (CREATE / UPDATE) API
@@ -114,25 +192,6 @@ export default function CategoryPage() {
         }
     };
 
-    /* STATE 영역 */
-    /* =========================
-      FORM STATE
-   ========================= */
-    //초기상태 선언은 selected === null
-    //등록인지, 수정인지 체크하는 모드설정
-    //즉 !!는 "이 값이 의미 있는 값인가 ?" 를 true/false로 바꾸기위한 js 문법
-    //null은 JS에서 ‘없음’을 의미하는 falsy 값이고, !!는 그걸 boolean으로 바꿔주는 도구다.
-    //const isEdit = !!selected;
-
-    const [form, setForm] = useState({
-        depth: 1,
-        parentId: null,
-        categoryCode: '',
-        categoryName: '',
-        sortOrder: 0,
-        isActive: 'Y'
-    });
-
     //selected 값이 변경될때 마다 실행
     useEffect(() => {
         if (selected) {
@@ -146,16 +205,6 @@ export default function CategoryPage() {
             });
         }
     }, [selected]); // [selected] : selected 값 변경될시에만 useEffect 실행
-
-    /* =========================
-   SEARCH STATE
-    ========================= */
-    const [search, setSearch] = useState({
-        depth: '',
-        parentId: '',
-        isActive: '',
-        keyword: ''
-    });
 
     /* 이벤트 핸들러 영역 */
     /* =========================
@@ -172,9 +221,8 @@ export default function CategoryPage() {
     //카테고리 목록중 부모 체크
     //filter 배열에서 조건 만족하는것만 골라서 새배열로 만든다.
     //[ {}, {} ] => r: 알은 배열안 객체 요소하나를 의미
-    //대분류이면서 사용 중인 카테고리를 의미
-    //상위카테고리에 사용될 목록
-    const parents = rows.filter(r => r.depth === 1 && r.isActive === 'Y');
+    //등록,수정 대분류 = > 상위카테고리 사용할 목록
+    //const parents = rows.filter(r => r.depth === 1 && r.isActive === 'Y');
 
     /* =========================
        카테고리페이지 검색  HANDLER
@@ -187,7 +235,20 @@ export default function CategoryPage() {
     };
 
     const handleSearch = () => {
-        load(search); // 다음 단계에서 search 파라미터 연결
+        const fixedSearch = { ...search };
+
+        //  카테고리 선택 = 항상 하위 검색
+        if (fixedSearch.categoryId) {
+            fixedSearch.parentId = fixedSearch.categoryId;
+            delete fixedSearch.categoryId;
+
+            // depth가 없거나 대분류면 → 소분류로 자동 전환
+            if (!fixedSearch.depth || Number(fixedSearch.depth) === 1) {
+                fixedSearch.depth = 2;
+            }
+        }
+
+        load(fixedSearch, 1);
     };
 
     /* =========================
@@ -201,7 +262,7 @@ export default function CategoryPage() {
     const modeHelp =
         dialogMode === 'edit' ? '카테고리 정보를 수정합니다.' :
         dialogMode === 'search' ? '조건을 선택해서 검색합니다.' : '';
-    
+
     /* =========================
        카테고리페이지 삭제 HANDLER
     ========================= */
@@ -316,6 +377,19 @@ export default function CategoryPage() {
                                 onDeactivate={handleDeactivate}
                                 onDelete={handleDelete}
                             />
+                            {/*  페이지네이션은 여기 */}
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                <Pagination
+                                    count={pageInfo.totalPages}   // 전체 페이지 수
+                                    page={pageInfo.page}           // 현재 페이지
+                                    onChange={(e, value) => {
+                                        load(search, value);       // value = 클릭한 페이지 번호
+                                    }}
+                                    color="primary"
+                                    showFirstButton
+                                    showLastButton
+                                />
+                            </Box>
                         </Box>
                     </Paper>
                 </Grid>
@@ -381,7 +455,7 @@ export default function CategoryPage() {
                                             margin="normal"
                                             disabled={dialogMode === 'edit'}
                                         >
-                                            {parents.map(p => (
+                                            {parentOptions.map(p => (
                                                 <MenuItem key={p.categoryId} value={p.categoryId}>
                                                     {p.categoryName}
                                                 </MenuItem>
@@ -453,20 +527,22 @@ export default function CategoryPage() {
                                         <MenuItem value={2}>소분류</MenuItem>
                                     </TextField>
 
+
                                     <TextField
                                         select
-                                        label="상위 카테고리"
-                                        name="parentId"
-                                        value={search.parentId}
+                                        label="카테고리"
+                                        name="categoryId"
+                                        value={search.categoryId}
                                         onChange={handleSearchChange}
                                     >
                                         <MenuItem value="">전체</MenuItem>
-                                        {parents.map(p => (
+                                        {parentOptions.map(p => (
                                             <MenuItem key={p.categoryId} value={p.categoryId}>
                                                 {p.categoryName}
                                             </MenuItem>
                                         ))}
                                     </TextField>
+
 
                                     <TextField
                                         select
