@@ -50,6 +50,16 @@ export default function CategoryPage() {
         sortOrder: 0,
         isActive: 'Y'
     });
+    /* =========================
+     초기화 STATE
+  ========================= */
+    const initialSearch = {
+        depth: '',
+        parentId: '',
+        categoryId: '',
+        isActive: '',
+        keyword: ''
+    };
 
     /* API 영역 */
     /* =========================
@@ -313,7 +323,19 @@ export default function CategoryPage() {
 
         return null; // 문제 없음
     };
-
+    /* =========================
+        검색조건 화면 초기화  HANDLER
+    ========================= */
+    const handleResetSearch = () => {
+        setSearch(initialSearch);   // 검색 조건 초기화
+        load(initialSearch, 1);     // 전체 리스트 다시 조회
+    };
+    /* =========================
+        검색 다이얼로그 선택값 초기화  HANDLER
+    ========================= */
+    const handleDialogReset = () => {
+        setSearch(initialSearch);
+    };
     /* =========================
     RENDER
  ========================= */
@@ -334,6 +356,14 @@ export default function CategoryPage() {
                             </Typography>
 
                         <Stack direction="row" spacing={1}>
+                            {/* 초기화 추가 */}
+                            <Button
+                                variant="contained"
+                                onClick={handleResetSearch}
+                            >
+                                초기화
+                            </Button>
+
                             <Button
                                 variant="contained"
                                 onClick={() => {
@@ -581,15 +611,24 @@ export default function CategoryPage() {
                     )}
 
                     {dialogMode === 'search' && (
-                        <Button
-                            variant="contained"
-                            onClick={() => {
-                                handleSearch();
-                                closeDialog();
-                            }}
-                        >
-                            검색
-                        </Button>
+                        <>
+                            <Button
+                                variant="contained"
+                                onClick={handleDialogReset}
+                            >
+                                초기화
+                            </Button>
+
+                            <Button
+                                variant="contained"
+                                onClick={() => {
+                                    handleSearch();
+                                    closeDialog();
+                                }}
+                            >
+                                검색
+                            </Button>
+                        </>
                     )}
                 </DialogActions>
             </Dialog>
