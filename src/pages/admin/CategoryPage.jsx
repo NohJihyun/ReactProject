@@ -390,7 +390,7 @@ export default function CategoryPage() {
                                     setDialogOpen(true);
                                 }}
                             >
-                                카테고리 등록
+                                등록
                             </Button>
                           </Stack>
                         </Box>
@@ -602,7 +602,7 @@ export default function CategoryPage() {
 
                 {/* ===== Dialog Actions ===== */}
                 <DialogActions>
-                    <Button onClick={closeDialog}>취소</Button>
+                    <Button variant="contained" onClick={closeDialog}>취소</Button>
 
                     {(dialogMode === 'create' || dialogMode === 'edit') && (
                         <Button variant="contained" onClick={() => handleSave(form)}>

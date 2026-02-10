@@ -6,20 +6,24 @@
 // 로그인은 되어 있지만 권한 부족 → /forbidden 리다이렉트
 // 허용 시:
 // 그대로 children(보호된 페이지 컴포넌트) 렌더링
-import React from "react";
-import { Navigate, useLocation } from "react-router-dom";
+
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
-export default function ProtectedRoute({ children, roles }) {
-    const { user } = useAuth();
-    const location = useLocation();
+export default function ProtectedRoute({ roles }) {
+    const { user } = useAuth(); //OAuth 로그인 후 user 객체 하나로 모든 판단
 
+    // 로그인 안 됨
     if (!user) {
-        return <Navigate to="/login" replace state={{ from: location }} />;
+        return <Navigate to="/login" replace />;
     }
-    if (roles?.length) {
-        const ok = roles.some((r) => user.roles?.includes(r));
-        if (!ok) return <Navigate to="/forbidden" replace />;
+
+    // 권한 체크
+    if (roles && !roles.some((r) => user.roles?.includes(r))) {
+        return <Navigate to="/forbidden" replace />;
     }
-    return children;
+
+    return <Outlet />;
 }
+
+

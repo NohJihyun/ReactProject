@@ -2,10 +2,11 @@ import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, Box, IconBut
 import MenuIcon from '@mui/icons-material/Menu';
 import { Outlet, NavLink } from 'react-router-dom'; // ← NavLink 사용
 import { useState } from 'react';
-import logo from '../assets/rohitour.jpg'
+//import logo from '../assets/rohitour.jpg'
 
+/* 관리자 레이아웃 */
 const drawerWidth = 240;
-export default function AppLayout() {
+export default function AdminLayout() {
     const [open, setOpen] = useState(false);
     // 자바스크립트 배열안 요소 객체 키,값형태
     // 키 label, to 값 대시보드 등
