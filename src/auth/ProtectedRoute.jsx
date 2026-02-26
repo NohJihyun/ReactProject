@@ -9,8 +9,12 @@
 
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
-
-export default function ProtectedRoute({ roles }) {
+/*
+ * 화면접근 제어 문지기 역할
+ * user가 없으면 로그인 페이지로 보내고
+ * roles 조건이 있으면 권한 없을 때 /forbidden으로 리턴
+ */
+export default function ProtectedRoute({ roles = [] }) {
     const { user } = useAuth(); //OAuth 로그인 후 user 객체 하나로 모든 판단
 
     // 로그인 안 됨
@@ -18,9 +22,14 @@ export default function ProtectedRoute({ roles }) {
         return <Navigate to="/login" replace />;
     }
 
-    // 권한 체크
-    if (roles && !roles.some((r) => user.roles?.includes(r))) {
-        return <Navigate to="/forbidden" replace />;
+    // 권한 체크 (ADMIN vs ROLE_ADMIN 둘 다 대응)
+    if (roles.length > 0) {
+        const userRoles = (user.roles || []).map((r) =>
+            r.startsWith("ROLE_") ? r.slice(5) : r
+        );
+
+        const allowed = roles.some((r) => userRoles.includes(r));
+        if (!allowed) return <Navigate to="/forbidden" replace />;
     }
 
     return <Outlet />;
