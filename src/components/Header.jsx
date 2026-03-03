@@ -14,11 +14,17 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import logo from "../assets/rohitourlogo.png";
 import {useState} from "react";
+import Tooltip from "@mui/material/Tooltip";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LoginDialog from "./auth/LoginDialog"; //components/auth
+import loginImg from "../assets/login.png";
+
 
 export default function Header() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [keyword, setKeyword] = useState(""); // 키워드 초기값
+    const [loginOpen, setLoginOpen] = useState(false);
 
     return (
         <AppBar
@@ -88,8 +94,33 @@ export default function Header() {
                     </Box>
 
                     {/* 사용자 영역 */}
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                        <Typography variant="body2">로그아웃</Typography>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        {!user ? (
+                            <Tooltip title="로그인">
+                                <IconButton onClick={() => setLoginOpen(true)} sx={{ p: 0.5 }}>
+                                    <Box
+                                        component="img"
+                                        src={loginImg}
+                                        alt="login"
+                                        sx={{ width: 80, height: 80, borderRadius: 20 }}
+                                    />
+                                </IconButton>
+                            </Tooltip>
+                        ) : (
+                            <Tooltip title="로그아웃">
+                                <IconButton
+                                    onClick={() => {
+                                        logout();
+                                        navigate("/");
+                                    }}
+                                >
+                                    <LogoutIcon />
+                                </IconButton>
+                            </Tooltip>
+                        )}
+
+                        {/* 로그인 모달 */}
+                        <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
                     </Box>
                 </Box>
             </Toolbar>

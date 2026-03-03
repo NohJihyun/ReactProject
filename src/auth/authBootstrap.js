@@ -9,10 +9,23 @@ export async function bootstrapAuth() {
     const store = useAuthStore.getState();
 
     try {
-        const me = await meApi();
+        //  (선택) 새로고침 유지: localStorage → store로 토큰 주입
+        const stored = localStorage.getItem("accessToken");
+        if (stored) {
+            store.setAccessToken(stored);
+        }
+
+        const me = await meApi(); // 401이면 null 반환
         store.setUser(me);
+
+        // me가 null이면 토큰도 정리
+        if (!me) {
+            store.setAccessToken(null);
+            localStorage.removeItem("accessToken");
+        }
     } catch (e) {
-        store.setUser(null);
+        store.logoutLocal();
+        localStorage.removeItem("accessToken");
     } finally {
         store.setBootstrapped(true);
     }

@@ -12,19 +12,20 @@ import { http, httpRefresh } from "./http";
 
 export async function loginApi(body) {
     // body 예: { email, password }
-    const res = await http.post("/auth/login", body);
+    // 로그인 실패(401) "토큰 만료"가 아닌 , "자격증명 실패"
+    const res = await http.post("/api/auth/login", body, { skipAuthRefresh: true });
     // 예: { accessToken: "..." }
     return res.data;
 }
 
 export async function refreshTokenApi() {
-    const res = await httpRefresh.post("/auth/refresh");
+    const res = await httpRefresh.post("/api/auth/reissue");
     // 예: { accessToken: "..." }
     return res.data.accessToken;
 }
 
 export async function logoutApi() {
-    await http.post("/auth/logout");
+    await http.post("/api/auth/logout");
 }
 // "로그인 여부 확인용" 401이면 그냥 비로그인 처리하면 끝
 // me는 refresh 스킵 플래그를 붙인다
