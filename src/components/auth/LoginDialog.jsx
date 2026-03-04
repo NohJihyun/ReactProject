@@ -53,6 +53,7 @@ export default function LoginDialog({ open, onClose }) {
             </DialogTitle>
 
             <DialogContent>
+                <Box className="notranslate">
                 {/* 1) 일반 로그인 */}
                 <Stack spacing={2} sx={{ mt: 1 }}>
                     <TextField
@@ -61,6 +62,12 @@ export default function LoginDialog({ open, onClose }) {
                         onChange={(e) => setLoginId(e.target.value)}
                         autoComplete="username"
                         fullWidth
+                        slotProps={{
+                            htmlInput: {
+                                translate: "no",
+                                spellCheck: "false",
+                            },
+                        }}
                     />
                     <TextField
                         label="비밀번호"
@@ -69,7 +76,14 @@ export default function LoginDialog({ open, onClose }) {
                         onChange={(e) => setPassword(e.target.value)}
                         autoComplete="current-password"
                         fullWidth
+                        slotProps={{
+                            htmlInput: {
+                                translate: "no",
+                                spellCheck: "false",
+                            },
+                        }}
                     />
+
 
                     {errorMsg && <Typography color="error" variant="body2">{errorMsg}</Typography>}
 
@@ -106,6 +120,7 @@ export default function LoginDialog({ open, onClose }) {
                     <SocialImgButton img={kakaoImg} text="카카오로 계속하기" onClick={() => handleSocialLogin("kakao")} />
                     <SocialImgButton img={googleImg} text="구글로 계속하기" onClick={() => handleSocialLogin("google")} />
                 </Stack>
+                </Box>
             </DialogContent>
 
             <DialogActions sx={{ p: 2 }}>
