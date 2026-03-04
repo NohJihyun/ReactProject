@@ -6,13 +6,14 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
 
 // 로그인 인증 API
-import { loginApi, logoutApi, meApi } from "../api/authApi";
+import { loginApi, logoutApi, meApi, refreshTokenApi } from "../api/authApi";
 /*
  * 웹 시작할 때 내가 로그인 상태인지 확인하는 "초기화 담당"
  * 전역에 user, accessToken, login, logout을 제공
  * 웹 실행시 meApi() 호출 성공200, 실패401 로그인, 비로그인 상태 체크 화면 렌더
  */
 import { useAuthStore } from "../auth/authStore"; // 전역스토어 토큰 처리
+
 
 const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -57,11 +58,26 @@ export default function AuthProvider({ children }) {
             const stored = localStorage.getItem("accessToken");
             if (stored) syncAccessToken(stored);  // store에도 같이 세팅
 
+            // 선택 A: accessToken이 없으면 refreshToken 쿠키로 재발급 시도
+            if (!stored) {
+                try {
+                    const newAccessToken = await refreshTokenApi(); // string 반환
+                    if (!alive) return;
+
+                    if (newAccessToken) {
+                        syncAccessToken(newAccessToken);
+                    }
+                } catch (e) {
+                    console.log("[Auth] reissue failed -> treat as logged out");
+                    syncAccessToken(null);
+                }
+            }
+
+            // 최종적으로 me로 상태 확정
             const me = await meApi();   // 401이면 null 반환
             if (!alive) return;
 
             setUser(me);
-
             // me가 null이면 토큰도 정리(만료/무효 케이스)
             if (!me) syncAccessToken(null)
 
