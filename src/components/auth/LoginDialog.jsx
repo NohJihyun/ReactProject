@@ -104,6 +104,55 @@ export default function LoginDialog({ open, onClose }) {
                     >
                         {loading ? "로그인 중..." : "로그인"}
                     </Button>
+
+                    {/* 로그인 버튼 아래 텍스트 링크 영역 */}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: 1,
+                            mt: -0.5
+                        }}
+                    >
+                        <Button
+                            variant="text"
+                            size="small"
+                            sx={{
+                                minWidth: "auto",
+                                p: 0,
+                                color: "text.secondary",
+                                fontSize: 14,
+                                fontWeight: 500,
+                                textTransform: "none"
+                            }}
+                        >
+                            아이디 찾기
+                        </Button>
+
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ lineHeight: 1 }}
+                        >
+                            |
+                        </Typography>
+
+                        <Button
+                            variant="text"
+                            size="small"
+                            sx={{
+                                minWidth: "auto",
+                                p: 0,
+                                color: "text.secondary",
+                                fontSize: 14,
+                                fontWeight: 500,
+                                textTransform: "none"
+                            }}
+                        >
+                            비밀번호 찾기
+                        </Button>
+                    </Box>
                 </Stack>
 
                 <Box sx={{ my: 3 }}>

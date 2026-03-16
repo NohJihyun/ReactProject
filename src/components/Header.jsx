@@ -18,6 +18,8 @@ import Tooltip from "@mui/material/Tooltip";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginDialog from "./auth/LoginDialog"; //components/auth
 import loginImg from "../assets/login.png";
+import signupImg from "../assets/signup.png";
+import SignUpDialog from "./auth/SignUpDialog";
 
 
 export default function Header() {
@@ -25,6 +27,7 @@ export default function Header() {
     const navigate = useNavigate();
     const [keyword, setKeyword] = useState(""); // 키워드 초기값
     const [loginOpen, setLoginOpen] = useState(false);
+    const [signupOpen, setSignupOpen] = useState(false);
 
     return (
         <AppBar
@@ -96,6 +99,7 @@ export default function Header() {
                     {/* 사용자 영역 */}
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                         {!user ? (
+                        <>
                             <Tooltip title="로그인">
                                 <IconButton onClick={() => setLoginOpen(true)} sx={{ p: 0.5 }}>
                                     <Box
@@ -106,6 +110,18 @@ export default function Header() {
                                     />
                                 </IconButton>
                             </Tooltip>
+                            {/* 회원가입 */}
+                            <Tooltip title="회원가입">
+                                <IconButton onClick={() => setSignupOpen(true)} sx={{ p: 0.5 }}>
+                                    <Box
+                                        component="img"
+                                        src={signupImg}
+                                        alt="signup"
+                                        sx={{ width: 80, height: 80, borderRadius: 20 }}
+                                    />
+                                </IconButton>
+                            </Tooltip>
+                        </>
                         ) : (
                             <Tooltip title="로그아웃">
                                 <IconButton
@@ -121,6 +137,8 @@ export default function Header() {
 
                         {/* 로그인 모달 */}
                         <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
+                        {/* 회원가입 모달 */}
+                        <SignUpDialog open={signupOpen} onClose={() => setSignupOpen(false)} />
                     </Box>
                 </Box>
             </Toolbar>
