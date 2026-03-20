@@ -24,6 +24,7 @@ export default function SignUpDialog({ open, onClose }) {
         passwordConfirm: "",
         email: "",
         phone: "",
+        birth: "",
         agree: false
     });
 
@@ -67,6 +68,16 @@ export default function SignUpDialog({ open, onClose }) {
                             name="name"
                             value={form.name}
                             onChange={handleChange}
+                            fullWidth
+                        />
+
+                        <TextField
+                            label="생년월일"
+                            type="date"
+                            name="birth"
+                            value={form.birth}
+                            onChange={handleChange}
+                            InputLabelProps={{ shrink: true }}
                             fullWidth
                         />
 

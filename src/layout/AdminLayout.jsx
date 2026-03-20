@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, Box, IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Outlet, NavLink } from 'react-router-dom'; // ← NavLink 사용
+import { Outlet, NavLink, Link } from 'react-router-dom'; // ← NavLink 사용
 import { useState } from 'react';
 //import logo from '../assets/rohitour.jpg'
 
@@ -26,7 +26,20 @@ export default function AdminLayout() {
                     <IconButton edge="start" onClick={()=>setOpen(true)} sx={{ mr:2, display:{ md:'none' }}}>
                         <MenuIcon/>
                     </IconButton>
-                    <Typography variant="h6" sx={{ flex:1 }}>로이투어 매니저</Typography>
+                    <Typography
+                        variant="h6"
+                        component={Link}
+                        to="/"
+                        sx={{
+                            flex: 1,
+                            textDecoration: 'none',
+                            color: 'inherit',
+                            cursor: 'pointer',
+                            fontWeight: 700
+                        }}
+                    >
+                        로이투어 매니저
+                    </Typography>
                 </Toolbar>
             </AppBar>
 

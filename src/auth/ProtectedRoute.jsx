@@ -22,14 +22,16 @@ export default function ProtectedRoute({ roles = [] }) {
         return <Navigate to="/login" replace />;
     }
 
-    // 권한 체크 (ADMIN vs ROLE_ADMIN 둘 다 대응)
+    // 권한 체크
     if (roles.length > 0) {
-        const userRoles = (user.roles || []).map((r) =>
-            r.startsWith("ROLE_") ? r.slice(5) : r
-        );
+        const userRole = user?.role?.startsWith("ROLE_")
+            ? user.role.slice(5)
+            : user?.role;
 
-        const allowed = roles.some((r) => userRoles.includes(r));
-        if (!allowed) return <Navigate to="/forbidden" replace />;
+        const allowed = roles.includes(userRole);
+        if (!allowed) {
+            return <Navigate to="/forbidden" replace />;
+        }
     }
 
     return <Outlet />;

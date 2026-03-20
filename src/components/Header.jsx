@@ -20,6 +20,7 @@ import LoginDialog from "./auth/LoginDialog"; //components/auth
 import loginImg from "../assets/login.png";
 import signupImg from "../assets/signup.png";
 import SignUpDialog from "./auth/SignUpDialog";
+import adminImg from "../assets/adminpage.png";
 
 
 export default function Header() {
@@ -28,6 +29,11 @@ export default function Header() {
     const [keyword, setKeyword] = useState(""); // 키워드 초기값
     const [loginOpen, setLoginOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
+
+    const isAdmin = user?.role === "ADMIN";
+
+    console.log("Header user =", user);
+    console.log("isAdmin =", isAdmin);
 
     return (
         <AppBar
@@ -123,16 +129,31 @@ export default function Header() {
                             </Tooltip>
                         </>
                         ) : (
-                            <Tooltip title="로그아웃">
-                                <IconButton
-                                    onClick={() => {
-                                        logout();
-                                        navigate("/");
-                                    }}
-                                >
-                                    <LogoutIcon />
-                                </IconButton>
-                            </Tooltip>
+                            <>
+                                {isAdmin && (
+                                    <Tooltip title="관리자 페이지">
+                                        <IconButton onClick={() => navigate("/admin")} sx={{ p: 0.5 }}>
+                                            <Box
+                                                component="img"
+                                                src={adminImg}
+                                                alt="admin"
+                                                sx={{ width: 80, height: 80, borderRadius: 20 }}
+                                            />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+
+                                <Tooltip title="로그아웃">
+                                    <IconButton
+                                        onClick={() => {
+                                            logout();
+                                            navigate("/");
+                                        }}
+                                    >
+                                        <LogoutIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            </>
                         )}
 
                         {/* 로그인 모달 */}
@@ -182,3 +203,4 @@ export default function Header() {
         </AppBar>
     );
 }
+//console.log("Header user =", user);
