@@ -44,3 +44,18 @@ export async function meApi() {
     if (res.status === 401) return null;
     return res.data;
 }
+
+/** 이메일 인증코드 발송 */
+export async function sendEmailCodeApi(email) {
+    await http.post("/api/auth/email/send", { email }, { skipAuthRefresh: true });
+}
+
+/** 이메일 인증코드 검증 */
+export async function verifyEmailCodeApi(email, code) {
+    await http.post("/api/auth/email/verify", { email, code }, { skipAuthRefresh: true });
+}
+
+/** 회원가입 */
+export async function signUpApi(body) {
+    await http.post("/api/auth/signup", body, { skipAuthRefresh: true });
+}
