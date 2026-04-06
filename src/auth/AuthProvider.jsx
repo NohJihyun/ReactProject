@@ -108,6 +108,15 @@ export default function AuthProvider({ children }) {
         return me;
     };
 
+    // 소셜 로그인 콜백: URL에서 받은 토큰으로 로그인 처리
+    const loginWithToken = async (token) => {
+        syncAccessToken(token);
+        const me = await meApi();
+        setUser(me);
+        if (!me) syncAccessToken(null);
+        return me;
+    };
+
     // 로그아웃: 서버 로그아웃 + 메모리 초기화
     const logout = async () => {
         try {
@@ -125,6 +134,7 @@ export default function AuthProvider({ children }) {
             bootstrapped,
             isAuthenticated: !!user,
             login,
+            loginWithToken,
             logout,
         }),
         [user, accessToken, bootstrapped]

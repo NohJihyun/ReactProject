@@ -10,10 +10,10 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import logo from "../assets/rohitourlogo.png";
-import {useState} from "react";
+import { useState, useEffect } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginDialog from "./auth/LoginDialog"; //components/auth
@@ -26,9 +26,19 @@ import adminImg from "../assets/adminpage.png";
 export default function Header() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const [keyword, setKeyword] = useState(""); // 키워드 초기값
+    const location = useLocation();
+    const [keyword, setKeyword] = useState("");
     const [loginOpen, setLoginOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
+    const [oauthError, setOauthError] = useState("");
+
+    useEffect(() => {
+        if (location.state?.oauthError) {
+            setOauthError(location.state.oauthError);
+            setLoginOpen(true);
+            window.history.replaceState({}, "");
+        }
+    }, [location.state]);
 
     const isAdmin = user?.role === "ADMIN";
 
@@ -157,7 +167,11 @@ export default function Header() {
                         )}
 
                         {/* 로그인 모달 */}
-                        <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} />
+                        <LoginDialog
+                            open={loginOpen}
+                            onClose={() => { setLoginOpen(false); setOauthError(""); }}
+                            oauthError={oauthError}
+                        />
                         {/* 회원가입 모달 */}
                         <SignUpDialog open={signupOpen} onClose={() => setSignupOpen(false)} />
                     </Box>

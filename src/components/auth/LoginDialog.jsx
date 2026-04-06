@@ -1,11 +1,13 @@
 // src/components/auth/LoginDialog.jsx
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Button, Stack, IconButton, Typography, Divider, Box
+    TextField, Button, Stack, IconButton, Typography, Divider, Box, Alert, CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import { useAuth } from "../../auth/AuthProvider";
+import { findLoginIdApi, sendPasswordResetApi } from "../../api/authApi";
+import { getErrorMessage } from "../../api/errorMessage";
 
 import naverImg from "../../assets/naver.png";
 import kakaoImg from "../../assets/kakao.png";
@@ -21,12 +23,29 @@ const OAUTH_START_URL = {
     google: `${API_BASE}/oauth2/authorization/google`,
 };
 
-export default function LoginDialog({ open, onClose }) {
-    const { login } = useAuth(); // AuthProvider에 login()이 있다고 가정
+export default function LoginDialog({ open, onClose, oauthError = "" }) {
+    const { login } = useAuth();
     const [loginId, setLoginId] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+
+    // 아이디 찾기
+    const [findIdMode, setFindIdMode] = useState(false);
+    const [findName, setFindName] = useState("");
+    const [findPhone, setFindPhone] = useState("");
+    const [findLoading, setFindLoading] = useState(false);
+    const [findResult, setFindResult] = useState("");
+    const [findError, setFindError] = useState("");
+
+    // 비밀번호 찾기
+    const [findPwMode, setFindPwMode] = useState(false);
+    const [pwLoginId, setPwLoginId] = useState("");
+    const [pwName, setPwName] = useState("");
+    const [pwPhone, setPwPhone] = useState("");
+    const [pwLoading, setPwLoading] = useState(false);
+    const [pwResult, setPwResult] = useState(false);
+    const [pwError, setPwError] = useState("");
 
     const handleNormalLogin = async () => {
         setErrorMsg("");
@@ -35,7 +54,7 @@ export default function LoginDialog({ open, onClose }) {
             await login({ email: loginId, password });
             onClose();
         } catch (e) {
-            setErrorMsg(e?.message || "로그인 실패");
+            setErrorMsg(getErrorMessage(e));
         } finally {
             setLoading(false);
         }
@@ -45,17 +64,167 @@ export default function LoginDialog({ open, onClose }) {
         window.location.href = OAUTH_START_URL[provider];
     };
 
+    const handleFindId = async () => {
+        setFindError("");
+        setFindResult("");
+        if (!findName || !findPhone) {
+            setFindError("이름과 휴대폰 번호를 입력해주세요.");
+            return;
+        }
+        setFindLoading(true);
+        try {
+            const id = await findLoginIdApi(findName, findPhone);
+            setFindResult(id);
+        } catch (e) {
+            setFindError(getErrorMessage(e));
+        } finally {
+            setFindLoading(false);
+        }
+    };
+
+    const handleCloseFindId = () => {
+        setFindIdMode(false);
+        setFindName("");
+        setFindPhone("");
+        setFindResult("");
+        setFindError("");
+    };
+
+    const handleFindPw = async () => {
+        setPwError("");
+        if (!pwLoginId || !pwName || !pwPhone) {
+            setPwError("모든 항목을 입력해주세요.");
+            return;
+        }
+        setPwLoading(true);
+        try {
+            await sendPasswordResetApi(pwLoginId, pwName, pwPhone);
+            setPwResult(true);
+        } catch (e) {
+            setPwError(getErrorMessage(e));
+        } finally {
+            setPwLoading(false);
+        }
+    };
+
+    const handleCloseFindPw = () => {
+        setFindPwMode(false);
+        setPwLoginId("");
+        setPwName("");
+        setPwPhone("");
+        setPwResult(false);
+        setPwError("");
+    };
+
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs"
+            slotProps={{ paper: { translate: "no" } }}
+        >
             <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
-                <Typography fontWeight={800} sx={{ flex: 1 }}>로그인</Typography>
+                <Typography fontWeight={800} sx={{ flex: 1 }}>
+                    {findIdMode ? "아이디 찾기" : findPwMode ? "비밀번호 찾기" : "로그인"}
+                </Typography>
                 <IconButton onClick={onClose}><CloseIcon /></IconButton>
             </DialogTitle>
 
             <DialogContent>
-                <Box className="notranslate">
+                <Box className="notranslate" translate="no">
+
+                {/* 아이디 찾기 화면 */}
+                <Box sx={{ display: findIdMode ? "block" : "none" }}>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        {findError && <Alert severity="error">{findError}</Alert>}
+                        {findResult && (
+                            <Alert severity="success">
+                                회원님의 아이디: <strong>{findResult}</strong>
+                            </Alert>
+                        )}
+                        <TextField
+                            label="이름"
+                            value={findName}
+                            onChange={(e) => setFindName(e.target.value)}
+                            fullWidth
+                        />
+                        <TextField
+                            label="휴대폰 번호"
+                            value={findPhone}
+                            onChange={(e) => setFindPhone(e.target.value)}
+                            fullWidth
+                            placeholder="010-0000-0000"
+                        />
+                        <Button
+                            variant="contained"
+                            size="large"
+                            fullWidth
+                            disabled={findLoading}
+                            onClick={handleFindId}
+                            sx={{ backgroundColor: "#7CB342", fontWeight: 600, py: 1.5, "&:hover": { backgroundColor: "#689F38" } }}
+                        >
+                            {findLoading ? <CircularProgress size={24} color="inherit" /> : "아이디 찾기"}
+                        </Button>
+                        <Button variant="text" onClick={handleCloseFindId} sx={{ color: "text.secondary" }}>
+                            로그인으로 돌아가기
+                        </Button>
+                    </Stack>
+                </Box>
+
+                {/* 비밀번호 찾기 화면 */}
+                <Box sx={{ display: findPwMode ? "block" : "none" }}>
+                    <Stack spacing={2} sx={{ mt: 1 }}>
+                        <Typography sx={{ color: "error.main", fontSize: 12, whiteSpace: "nowrap" }}>
+                            * 재설정 링크 받기를 클릭하시면 최초 회원가입 시 인증한 이메일로 발송됩니다.
+                        </Typography>
+                        {pwError && <Alert severity="error">{pwError}</Alert>}
+                        {pwResult ? (
+                            <Alert severity="success">
+                                입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.<br />
+                                이메일을 확인해주세요.
+                            </Alert>
+                        ) : (
+                            <>
+                                <TextField
+                                    label="아이디"
+                                    value={pwLoginId}
+                                    onChange={(e) => setPwLoginId(e.target.value)}
+                                    fullWidth
+                                    slotProps={{ htmlInput: { translate: "no", spellCheck: "false" } }}
+                                />
+                                <TextField
+                                    label="이름"
+                                    value={pwName}
+                                    onChange={(e) => setPwName(e.target.value)}
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="휴대폰 번호"
+                                    value={pwPhone}
+                                    onChange={(e) => setPwPhone(e.target.value)}
+                                    fullWidth
+                                    placeholder="010-0000-0000"
+                                />
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    fullWidth
+                                    disabled={pwLoading}
+                                    onClick={handleFindPw}
+                                    sx={{ backgroundColor: "#7CB342", fontWeight: 600, py: 1.5, "&:hover": { backgroundColor: "#689F38" } }}
+                                >
+                                    {pwLoading ? <CircularProgress size={24} color="inherit" /> : "재설정 링크 받기"}
+                                </Button>
+                            </>
+                        )}
+                        <Button variant="text" onClick={handleCloseFindPw} sx={{ color: "text.secondary" }}>
+                            로그인으로 돌아가기
+                        </Button>
+                    </Stack>
+                </Box>
+
                 {/* 1) 일반 로그인 */}
+                <Box sx={{ display: (findIdMode || findPwMode) ? "none" : "block" }}>
+                <>
                 <Stack spacing={2} sx={{ mt: 1 }}>
+                    {oauthError && <Alert severity="error">{oauthError}</Alert>}
                     <TextField
                         label="아이디"
                         value={loginId}
@@ -83,7 +252,6 @@ export default function LoginDialog({ open, onClose }) {
                             },
                         }}
                     />
-
 
                     {errorMsg && <Typography color="error" variant="body2">{errorMsg}</Typography>}
 
@@ -118,6 +286,7 @@ export default function LoginDialog({ open, onClose }) {
                         <Button
                             variant="text"
                             size="small"
+                            onClick={() => setFindIdMode(true)}
                             sx={{
                                 minWidth: "auto",
                                 p: 0,
@@ -141,6 +310,7 @@ export default function LoginDialog({ open, onClose }) {
                         <Button
                             variant="text"
                             size="small"
+                            onClick={() => setFindPwMode(true)}
                             sx={{
                                 minWidth: "auto",
                                 p: 0,
@@ -169,6 +339,8 @@ export default function LoginDialog({ open, onClose }) {
                     <SocialImgButton img={kakaoImg} text="카카오로 계속하기" onClick={() => handleSocialLogin("kakao")} />
                     <SocialImgButton img={googleImg} text="구글로 계속하기" onClick={() => handleSocialLogin("google")} />
                 </Stack>
+                </>
+                </Box>
                 </Box>
             </DialogContent>
 

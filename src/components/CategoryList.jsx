@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Stack } from '@mui/material';
 
 /* 자식 page */
-const CategoryList = ({ categories = [], onEdit, onDeactivate, onDelete  }) => {
+const CategoryList = ({ categories = [], startIndex = 0, onEdit, onDeactivate, onDelete  }) => {
     return (
         <table
             style={{
@@ -15,8 +15,8 @@ const CategoryList = ({ categories = [], onEdit, onDeactivate, onDelete  }) => {
         >
             <thead>
             <tr>
-                <th style={{ textAlign: 'center' }}>ID</th>
-                <th style={{ textAlign: 'left' }}>코드</th>
+                <th style={{ textAlign: 'center' }}>#</th>
+                <th style={{ textAlign: 'left' }}>상품 코드</th>
                 <th style={{ textAlign: 'left' }}>이름</th>
                 <th style={{ textAlign: 'center' }}>Depth</th>
                 <th style={{ textAlign: 'center' }}>상위</th>
@@ -35,7 +35,7 @@ const CategoryList = ({ categories = [], onEdit, onDeactivate, onDelete  }) => {
                 </tr>
             )}
 
-            {categories.map(cat => (
+            {categories.map((cat, idx) => (
                 <tr
                     key={cat.categoryId}
                     style={
@@ -47,7 +47,7 @@ const CategoryList = ({ categories = [], onEdit, onDeactivate, onDelete  }) => {
                             : {}
                     }
                 >
-                    <td style={{ textAlign: 'center' }}>{cat.categoryId}</td>
+                    <td style={{ textAlign: 'center' }}>{startIndex + idx + 1}</td>
                     <td style={{ textAlign: 'left' }}>{cat.categoryCode}</td>
                     <td style={{ textAlign: 'left' }}>{cat.categoryName}</td>
                     <td style={{ textAlign: 'center' }}>{cat.depth === 1 ? '대분류' : '소분류'}</td>

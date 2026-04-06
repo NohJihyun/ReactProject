@@ -59,3 +59,19 @@ export async function verifyEmailCodeApi(email, code) {
 export async function signUpApi(body) {
     await http.post("/api/auth/signup", body, { skipAuthRefresh: true });
 }
+
+/** 아이디 찾기 - 이름 + 휴대폰 */
+export async function findLoginIdApi(name, phone) {
+    const res = await http.post("/api/auth/find-id", { name, phone }, { skipAuthRefresh: true });
+    return res.data.loginId;
+}
+
+/** 비밀번호 재설정 이메일 발송 - loginId + 이름 + 휴대폰 */
+export async function sendPasswordResetApi(loginId, name, phone) {
+    await http.post("/api/auth/password/send", { loginId, name, phone }, { skipAuthRefresh: true });
+}
+
+/** 비밀번호 재설정 - 토큰 + 새 비밀번호 */
+export async function resetPasswordApi(token, newPassword) {
+    await http.post("/api/auth/password/reset", { token, newPassword }, { skipAuthRefresh: true });
+}

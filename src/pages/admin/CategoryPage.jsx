@@ -399,6 +399,7 @@ export default function CategoryPage() {
                         <Box sx={{ width:'100%', overflowX:'auto' }}>
                             <CategoryList
                                 categories={rows}
+                                startIndex={(pageInfo.page - 1) * pageInfo.size}
                                 onEdit={(row) => {
                                     setSelected(row);    // useEffect 실행 (값이변경됨.)
                                     setDialogMode('edit');
@@ -495,7 +496,7 @@ export default function CategoryPage() {
 
                                     <TextField
                                         name="categoryCode"
-                                        label="카테고리 코드"
+                                        label="카테고리 상품 코드"
                                         value={form.categoryCode}
                                         onChange={change}
                                         fullWidth

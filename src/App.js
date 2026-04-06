@@ -8,12 +8,14 @@ import AdminLayout from './layout/AdminLayout';
 import LoginPage from "./pages/LoginPage";
 import Forbidden from "./pages/Forbidden";
 import OAuthCallback from "./pages/OAuthCallback";
+import PasswordResetPage from "./pages/PasswordResetPage";
 
 import ClientHome from "./pages/client/ClientHome";
 import OtherClientPage from "./pages/client/OtherClientPage";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryPage from './pages/admin/CategoryPage';
+import ProductPage from './pages/admin/ProductPage';
 
 // auth
 import AuthProvider from "./auth/AuthProvider";
@@ -30,6 +32,7 @@ export default function App() {
                         <Route path="/" element={<ClientHome />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/oauth/callback" element={<OAuthCallback />} />
+                        <Route path="/password-reset" element={<PasswordResetPage />} />
                     </Route>
 
                     {/* 클라이언트 영역 (USER, ADMIN) */}
@@ -47,6 +50,7 @@ export default function App() {
                         <Route element={<AdminLayout />}>
                             <Route path="/admin" element={<AdminDashboard />} />
                             <Route path="/admin/categories" element={<CategoryPage />} />
+                            <Route path="/admin/products" element={<ProductPage />} />
                         </Route>
                     </Route>
 
