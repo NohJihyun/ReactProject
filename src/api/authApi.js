@@ -75,3 +75,8 @@ export async function sendPasswordResetApi(loginId, name, phone) {
 export async function resetPasswordApi(token, newPassword) {
     await http.post("/api/auth/password/reset", { token, newPassword }, { skipAuthRefresh: true });
 }
+
+/** 소셜 로그인 신규 사용자 약관 동의 */
+export async function agreeTermsApi(body) {
+    await http.post("/api/users/terms", body, { skipAuthRefresh: true });
+}

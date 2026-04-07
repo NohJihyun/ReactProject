@@ -23,8 +23,8 @@ const OAUTH_START_URL = {
     google: `${API_BASE}/oauth2/authorization/google`,
 };
 
-export default function LoginDialog({ open, onClose, oauthError = "" }) {
-    const { login } = useAuth();
+export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTerms }) {
+    const { login, loginWithToken } = useAuth();
     const [loginId, setLoginId] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -61,7 +61,37 @@ export default function LoginDialog({ open, onClose, oauthError = "" }) {
     };
 
     const handleSocialLogin = (provider) => {
-        window.location.href = OAUTH_START_URL[provider];
+        const url = OAUTH_START_URL[provider];
+
+        localStorage.setItem("oauth_popup_mode", "true");
+        window.open(url, "socialLogin", "width=500,height=650,top=100,left=100,noopener,noreferrer");
+
+        // storage 이벤트: noopener 환경에서도 동일 origin 창 간 통신 가능
+        const handleStorage = (e) => {
+            if (e.key !== "oauth_result") return;
+            window.removeEventListener("storage", handleStorage);
+            clearTimeout(cleanup);
+
+            try {
+                const data = JSON.parse(e.newValue);
+                localStorage.removeItem("oauth_result");
+                if (data?.type === "OAUTH_SUCCESS") {
+                    loginWithToken(data.token).then(() => onClose());
+                } else if (data?.type === "OAUTH_NEEDS_TERMS") {
+                    onClose();
+                    onNeedsTerms?.(data.token);
+                } else if (data?.type === "OAUTH_ERROR") {
+                    setErrorMsg(data.message || "소셜 로그인에 실패했습니다.");
+                }
+            } catch {}
+        };
+
+        window.addEventListener("storage", handleStorage);
+
+        // 10분 후 자동 정리
+        const cleanup = setTimeout(() => {
+            window.removeEventListener("storage", handleStorage);
+        }, 10 * 60 * 1000);
     };
 
     const handleFindId = async () => {

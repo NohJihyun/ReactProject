@@ -52,37 +52,33 @@ export default function AuthProvider({ children }) {
         // 웹 켜짐 => meApi() 호출 => 성공(200) 로그인상태, => 실패(401) 비로그인상태
         // bootstrapped가 끝나야 화면(Routes)을 보여줌
         (async () => {
-            console.log("[Auth] bootstrap start");
-
-            // 웹 시작 시: localStorage 토큰이 있으면 메모리에도 싱크
+            // 저장된 AT가 있으면 Zustand에 먼저 세팅
             const stored = localStorage.getItem("accessToken");
-            if (stored) syncAccessToken(stored);  // store에도 같이 세팅
+            if (stored) syncAccessToken(stored);
 
-            // 선택 A: accessToken이 없으면 refreshToken 쿠키로 재발급 시도
-            if (!stored) {
+            // AT로 사용자 확인 시도
+            let me = await meApi();
+
+            // AT가 만료됐거나 없으면 RT 쿠키로 재발급 시도
+            if (!me) {
                 try {
-                    const newAccessToken = await refreshTokenApi(); // string 반환
+                    const newToken = await refreshTokenApi();
                     if (!alive) return;
-
-                    if (newAccessToken) {
-                        syncAccessToken(newAccessToken);
+                    if (newToken) {
+                        syncAccessToken(newToken);
+                        me = await meApi();
                     }
                 } catch (e) {
-                    console.log("[Auth] reissue failed -> treat as logged out");
-                    syncAccessToken(null);
+                    // RT도 없거나 만료 → 비로그인 처리
                 }
             }
 
-            // 최종적으로 me로 상태 확정
-            const me = await meApi();   // 401이면 null 반환
             if (!alive) return;
 
             setUser(me);
-            // me가 null이면 토큰도 정리(만료/무효 케이스)
-            if (!me) syncAccessToken(null)
+            if (!me) syncAccessToken(null);
 
             clearTimeout(safetyTimer);
-            console.log("[Auth] bootstrap done");
             setBootstrapped(true);
         })();
 

@@ -22,25 +22,47 @@ export default function OAuthCallback() {
     const { loginWithToken } = useAuth();
 
     useEffect(() => {
-        const token = searchParams.get("token");
-        const error = searchParams.get("error");
+        const token      = searchParams.get("token");
+        const error      = searchParams.get("error");
+        const needsTerms = searchParams.get("needsTerms") === "true";
+
+        const isPopup = localStorage.getItem("oauth_popup_mode") === "true";
+        if (isPopup) localStorage.removeItem("oauth_popup_mode");
 
         if (error) {
             const message = error === "already_registered"
                 ? "일반 회원가입으로 이미 가입된 계정입니다. 아이디/비밀번호로 로그인해주세요."
                 : "소셜 로그인에 실패했습니다. 다시 시도해주세요.";
-            navigate("/", { replace: true, state: { oauthError: message } });
+            if (isPopup) {
+                localStorage.setItem("oauth_result", JSON.stringify({ type: "OAUTH_ERROR", message }));
+                window.close();
+            } else {
+                navigate("/", { replace: true, state: { oauthError: message } });
+            }
             return;
         }
 
         if (!token) {
-            navigate("/", { replace: true });
+            if (isPopup) window.close();
+            else navigate("/", { replace: true });
             return;
         }
 
-        loginWithToken(token)
-            .then(() => navigate("/", { replace: true }))
-            .catch(() => navigate("/", { replace: true }));
+        if (isPopup) {
+            const type = needsTerms ? "OAUTH_NEEDS_TERMS" : "OAUTH_SUCCESS";
+            localStorage.setItem("oauth_result", JSON.stringify({ type, token }));
+            window.close();
+        } else {
+            if (needsTerms) {
+                // 비팝업 fallback: 홈으로 보내고 약관 다이얼로그 열기
+                localStorage.setItem("oauth_pending_token", token);
+                navigate("/", { replace: true, state: { oauthNeedsTerms: true } });
+            } else {
+                loginWithToken(token)
+                    .then(() => navigate("/", { replace: true }))
+                    .catch(() => navigate("/", { replace: true }));
+            }
+        }
     }, []);
 
     return (

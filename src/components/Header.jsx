@@ -16,10 +16,11 @@ import logo from "../assets/rohitourlogo.png";
 import { useState, useEffect } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import LogoutIcon from "@mui/icons-material/Logout";
-import LoginDialog from "./auth/LoginDialog"; //components/auth
+import LoginDialog from "./auth/LoginDialog";
+import SignUpDialog from "./auth/SignUpDialog";
+import SocialTermsDialog from "./auth/SocialTermsDialog";
 import loginImg from "../assets/login.png";
 import signupImg from "../assets/signup.png";
-import SignUpDialog from "./auth/SignUpDialog";
 import adminImg from "../assets/adminpage.png";
 
 
@@ -31,6 +32,8 @@ export default function Header() {
     const [loginOpen, setLoginOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
     const [oauthError, setOauthError] = useState("");
+    const [termsOpen, setTermsOpen] = useState(false);
+    const [pendingOAuthToken, setPendingOAuthToken] = useState(null);
 
     useEffect(() => {
         if (location.state?.oauthError) {
@@ -38,12 +41,22 @@ export default function Header() {
             setLoginOpen(true);
             window.history.replaceState({}, "");
         }
+        if (location.state?.oauthNeedsTerms) {
+            const token = localStorage.getItem("oauth_pending_token");
+            if (token) {
+                setPendingOAuthToken(token);
+                setTermsOpen(true);
+            }
+            window.history.replaceState({}, "");
+        }
     }, [location.state]);
 
-    const isAdmin = user?.role === "ADMIN";
+    const handleNeedsTerms = (token) => {
+        setPendingOAuthToken(token);
+        setTermsOpen(true);
+    };
 
-    console.log("Header user =", user);
-    console.log("isAdmin =", isAdmin);
+    const isAdmin = user?.role === "ADMIN";
 
     return (
         <AppBar
@@ -171,9 +184,15 @@ export default function Header() {
                             open={loginOpen}
                             onClose={() => { setLoginOpen(false); setOauthError(""); }}
                             oauthError={oauthError}
+                            onNeedsTerms={handleNeedsTerms}
                         />
-                        {/* 회원가입 모달 */}
                         <SignUpDialog open={signupOpen} onClose={() => setSignupOpen(false)} />
+                        <SocialTermsDialog
+                            open={termsOpen}
+                            pendingToken={pendingOAuthToken}
+                            onSuccess={() => { setTermsOpen(false); setPendingOAuthToken(null); }}
+                            onClose={() => { setTermsOpen(false); setPendingOAuthToken(null); }}
+                        />
                     </Box>
                 </Box>
             </Toolbar>
