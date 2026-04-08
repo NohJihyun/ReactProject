@@ -16,6 +16,7 @@ import OtherClientPage from "./pages/client/OtherClientPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryPage from './pages/admin/CategoryPage';
 import ProductPage from './pages/admin/ProductPage';
+import ProductFormPage from './pages/admin/ProductFormPage';
 
 // auth
 import AuthProvider from "./auth/AuthProvider";
@@ -51,6 +52,8 @@ export default function App() {
                             <Route path="/admin" element={<AdminDashboard />} />
                             <Route path="/admin/categories" element={<CategoryPage />} />
                             <Route path="/admin/products" element={<ProductPage />} />
+                            <Route path="/admin/products/new" element={<ProductFormPage />} />
+                            <Route path="/admin/products/:id" element={<ProductFormPage />} />
                         </Route>
                     </Route>
 
