@@ -1,13 +1,21 @@
-import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, Box, IconButton } from '@mui/material';
+import { AppBar, Toolbar, Typography, Drawer, List, ListItemButton, Box, IconButton, Fab, Zoom } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Outlet, NavLink, Link } from 'react-router-dom'; // ← NavLink 사용
-import { useState } from 'react';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { Outlet, NavLink, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 //import logo from '../assets/rohitour.jpg'
 
 /* 관리자 레이아웃 */
 const drawerWidth = 240;
 export default function AdminLayout() {
     const [open, setOpen] = useState(false);
+    const [showTop, setShowTop] = useState(false);
+
+    useEffect(() => {
+        const onScroll = () => setShowTop(window.scrollY > 300);
+        window.addEventListener("scroll", onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
+    }, []);
     // 자바스크립트 배열안 요소 객체 키,값형태
     // 키 label, to 값 대시보드 등
     // 역할 : 메뉴에서 사용할 이동 경로(to)를 미리 정의한다.
@@ -89,13 +97,32 @@ export default function AdminLayout() {
 
             {/* 본문은 서랍 폭만큼 밀기 */}
             <Box component="main" sx={{
-                flexGrow:1, p:3,
+                flexGrow:1, p:{ xs: 1.5, md: 3 },
                 ml:{ md: `${drawerWidth}px` },
                 width:{ md: `calc(100% - ${drawerWidth}px)` }
             }}>
                 <Toolbar />
                 <Outlet />
             </Box>
+
+            {/* 스크롤 상단 버튼 */}
+            <Zoom in={showTop}>
+                <Fab
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    size="medium"
+                    sx={{
+                        position: "fixed",
+                        bottom: 32,
+                        right: 24,
+                        bgcolor: "#000",
+                        color: "#fff",
+                        "&:hover": { bgcolor: "#333" },
+                        zIndex: 1000,
+                    }}
+                >
+                    <KeyboardArrowUpIcon />
+                </Fab>
+            </Zoom>
         </Box>
     );
 }

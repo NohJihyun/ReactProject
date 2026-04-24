@@ -97,8 +97,9 @@ export default function ProductFileTab({ productId, onUpdate }) {
                     <Typography variant="caption">PDF, Excel, Word 등을 업로드하세요.</Typography>
                 </Box>
             ) : (
+                <Box sx={{ width: '100%', overflowX: 'auto' }}>
                 <table
-                    style={{ width: '100%', borderCollapse: 'collapse' }}
+                    style={{ width: '100%', borderCollapse: 'collapse', minWidth: 360 }}
                     border="1"
                     cellPadding="10"
                 >
@@ -141,6 +142,7 @@ export default function ProductFileTab({ productId, onUpdate }) {
                         ))}
                     </tbody>
                 </table>
+                </Box>
             )}
         </Box>
     );

@@ -161,7 +161,7 @@ export default function ProductImageTab({ productId, onUpdate }) {
                 <Typography variant="subtitle2" color="text.secondary" fontWeight={600} mb={1.5}>
                     썸네일 (1장)
                 </Typography>
-                <Stack direction="row" spacing={2} alignItems="flex-start">
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="flex-start">
                     {thumbnail ? (
                         <Box sx={{ position: 'relative', width: 180, height: 180, flexShrink: 0 }}>
                             <img

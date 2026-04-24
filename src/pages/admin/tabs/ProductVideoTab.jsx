@@ -110,22 +110,22 @@ export default function ProductVideoTab({ productId, onUpdate }) {
                         현재 동영상
                     </Typography>
                     {embedUrl ? (
-                        <Box>
+                        <Box sx={{ width: '100%', maxWidth: 480, aspectRatio: '16/9' }}>
                             <iframe
-                                width="480" height="270"
+                                width="100%" height="100%"
                                 src={embedUrl}
                                 title="동영상 미리보기"
                                 frameBorder="0"
                                 allowFullScreen
-                                style={{ borderRadius: 8 }}
+                                style={{ borderRadius: 8, display: 'block' }}
                             />
                         </Box>
                     ) : currentVideo?.videoPath ? (
-                        <Box>
+                        <Box sx={{ width: '100%', maxWidth: 480 }}>
                             <video
-                                width="480" height="270" controls
+                                width="100%" controls
                                 src={`http://localhost:8080${currentVideo.videoPath}`}
-                                style={{ borderRadius: 8 }}
+                                style={{ borderRadius: 8, display: 'block' }}
                             />
                         </Box>
                     ) : null}
@@ -154,7 +154,7 @@ export default function ProductVideoTab({ productId, onUpdate }) {
                 {/* 유튜브 URL 입력 */}
                 {videoType === 'youtube' && (
                     <Box mt={2}>
-                        <Stack direction="row" spacing={1} alignItems="flex-start">
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start">
                             <TextField
                                 label="유튜브 URL"
                                 value={youtubeUrl}
@@ -172,14 +172,16 @@ export default function ProductVideoTab({ productId, onUpdate }) {
                         {getYoutubeEmbedUrl(youtubeUrl) && (
                             <Box mt={2}>
                                 <Typography variant="caption" color="text.secondary" mb={0.5} display="block">미리보기</Typography>
-                                <iframe
-                                    width="480" height="270"
-                                    src={getYoutubeEmbedUrl(youtubeUrl)}
-                                    title="미리보기"
-                                    frameBorder="0"
-                                    allowFullScreen
-                                    style={{ borderRadius: 8 }}
-                                />
+                                <Box sx={{ width: '100%', maxWidth: 480, aspectRatio: '16/9' }}>
+                                    <iframe
+                                        width="100%" height="100%"
+                                        src={getYoutubeEmbedUrl(youtubeUrl)}
+                                        title="미리보기"
+                                        frameBorder="0"
+                                        allowFullScreen
+                                        style={{ borderRadius: 8, display: 'block' }}
+                                    />
+                                </Box>
                             </Box>
                         )}
                     </Box>

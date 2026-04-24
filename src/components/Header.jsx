@@ -5,9 +5,16 @@ import {
     Typography,
     Box,
     InputBase,
-    Button
+    Button,
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Divider,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -24,6 +31,14 @@ import signupImg from "../assets/signup.png";
 import adminImg from "../assets/adminpage.png";
 
 
+const NAV_ITEMS = [
+    { label: '수학여행', path: '/tour/school' },
+    { label: '국내여행', path: '/tour/domestic' },
+    { label: '해외여행', path: '/tour/overseas' },
+];
+
+const BRAND_GREEN = '#2e7d32';
+
 export default function Header() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -34,6 +49,7 @@ export default function Header() {
     const [oauthError, setOauthError] = useState("");
     const [termsOpen, setTermsOpen] = useState(false);
     const [pendingOAuthToken, setPendingOAuthToken] = useState(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     useEffect(() => {
         if (location.state?.oauthError) {
@@ -59,6 +75,7 @@ export default function Header() {
     const isAdmin = user?.role === "ADMIN";
 
     return (
+        <>
         <AppBar
             position="sticky"
             elevation={0}
@@ -74,20 +91,20 @@ export default function Header() {
                         mx: "auto",
                         display: "flex",
                         alignItems: "center",
-                        gap: 3,
-                        px: 2
+                        gap: { xs: 1, md: 3 },
+                        px: { xs: 1, md: 2 }
                     }}
                 >
                     {/* 로고 */}
                     <Box sx={{ cursor: "pointer" }} onClick={() => navigate("/")}>
-                        <Box component="img" src={logo} sx={{ height: 150 }} />
+                        <Box component="img" src={logo} sx={{ height: { xs: 60, md: 150 } }} />
                     </Box>
 
-                    {/* 검색 + 실시간 */}
+                    {/* 검색 + 실시간 — PC만 표시 */}
                     <Box
                         sx={{
                             flexGrow: 1,
-                            display: "flex",
+                            display: { xs: "none", md: "flex" },
                             alignItems: "center",
                             gap: 2,
                             maxWidth: 720
@@ -110,8 +127,8 @@ export default function Header() {
                                 placeholder="어디로 떠나실까요?"
                                 sx={{ flex: 1 }}
                                 inputProps={{
-                                    translate: "no",    //번역금지, 텍스트가 변경되는 요인 제거
-                                    lang: "ko"          //언어 한국어
+                                    translate: "no",
+                                    lang: "ko"
                                 }}
                             />
                         </Box>
@@ -125,6 +142,13 @@ export default function Header() {
                         </Typography>
                     </Box>
 
+                    {/* 검색 아이콘 — 모바일만 표시 */}
+                    <Box sx={{ display: { xs: "flex", md: "none" }, flexGrow: 1, justifyContent: "flex-end" }}>
+                        <IconButton>
+                            <SearchIcon />
+                        </IconButton>
+                    </Box>
+
                     {/* 사용자 영역 */}
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                         {!user ? (
@@ -135,7 +159,7 @@ export default function Header() {
                                         component="img"
                                         src={loginImg}
                                         alt="login"
-                                        sx={{ width: 80, height: 80, borderRadius: 20 }}
+                                        sx={{ width: { xs: 40, md: 80 }, height: { xs: 40, md: 80 }, borderRadius: 20 }}
                                     />
                                 </IconButton>
                             </Tooltip>
@@ -146,7 +170,7 @@ export default function Header() {
                                         component="img"
                                         src={signupImg}
                                         alt="signup"
-                                        sx={{ width: 80, height: 80, borderRadius: 20 }}
+                                        sx={{ width: { xs: 40, md: 80 }, height: { xs: 40, md: 80 }, borderRadius: 20 }}
                                     />
                                 </IconButton>
                             </Tooltip>
@@ -160,7 +184,7 @@ export default function Header() {
                                                 component="img"
                                                 src={adminImg}
                                                 alt="admin"
-                                                sx={{ width: 80, height: 80, borderRadius: 20 }}
+                                                sx={{ width: { xs: 40, md: 80 }, height: { xs: 40, md: 80 }, borderRadius: 20 }}
                                             />
                                         </IconButton>
                                     </Tooltip>
@@ -217,23 +241,59 @@ export default function Header() {
                         px: 2
                     }}
                 >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1, cursor: "pointer" }}
+                        onClick={() => setDrawerOpen(true)}
+                    >
                         <MenuIcon fontSize="small" />
-                        <Typography variant="body2" fontWeight={600}>
-                            전체메뉴
-                        </Typography>
+                        <Typography variant="body2" fontWeight={600}>전체메뉴</Typography>
                     </Box>
 
-                    <Box sx={{ display: "flex", gap: 3 }}>
-                        <Typography variant="body2">해외여행</Typography>
-                        <Typography variant="body2">국내여행</Typography>
-                        <Typography variant="body2">비행기</Typography>
-                        <Typography variant="body2">호텔</Typography>
-                        <Typography variant="body2">크루즈</Typography>
+                    <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
+                        {NAV_ITEMS.map(item => (
+                            <Typography
+                                key={item.path}
+                                variant="body2"
+                                fontWeight={600}
+                                sx={{
+                                    cursor: "pointer",
+                                    color: location.pathname.startsWith(item.path) ? BRAND_GREEN : "inherit",
+                                    '&:hover': { color: BRAND_GREEN },
+                                }}
+                                onClick={() => { navigate(item.path); window.scrollTo(0, 0); }}
+                            >
+                                {item.label}
+                            </Typography>
+                        ))}
                     </Box>
                 </Box>
             </Toolbar>
         </AppBar>
+
+        {/* 전체메뉴 Drawer */}
+        <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+            <Box sx={{ width: 280 }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 2 }}>
+                    <Typography variant="h6" fontWeight={700}>메뉴</Typography>
+                    <IconButton onClick={() => setDrawerOpen(false)}><CloseIcon /></IconButton>
+                </Box>
+                <Divider />
+                <List>
+                    {NAV_ITEMS.map(item => (
+                        <ListItem key={item.path} disablePadding>
+                            <ListItemButton
+                                selected={location.pathname.startsWith(item.path)}
+                                onClick={() => { navigate(item.path); setDrawerOpen(false); window.scrollTo(0, 0); }}
+                                sx={{ '&.Mui-selected': { color: BRAND_GREEN, fontWeight: 700 } }}
+                            >
+                                <ListItemText primary={item.label} />
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                </List>
+            </Box>
+        </Drawer>
+        </>
     );
 }
 //console.log("Header user =", user);

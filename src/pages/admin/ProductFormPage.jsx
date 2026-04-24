@@ -222,13 +222,13 @@ export default function ProductFormPage() {
                         {tab === 0 && (
                             <Button variant="contained" onClick={handleSave}>저장</Button>
                         )}
-                        {!isEdit && tabsUnlocked && (
+                        {tabsUnlocked && (
                             <Button
                                 variant="contained"
                                 color="success"
                                 onClick={() => navigate('/admin/products')}
                             >
-                                등록 완료
+                                {isEdit ? '수정 완료' : '등록 완료'}
                             </Button>
                         )}
                     </Stack>
@@ -241,6 +241,8 @@ export default function ProductFormPage() {
                         setTab(v);
                         if (activeProductId) loadMediaSummary(activeProductId);
                     }}
+                    variant="scrollable"
+                    scrollButtons="auto"
                     sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
                 >
                     <Tab label="기본정보" />
@@ -354,7 +356,7 @@ export default function ProductFormPage() {
                                     <MenuItem value="INDIVIDUAL">개인/가족</MenuItem>
                                     <MenuItem value="GROUP">단체</MenuItem>
                                 </TextField>
-                                <Stack direction="row" spacing={2}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                                     <TextField
                                         name="minPeople" label="최소 인원"
                                         value={form.minPeople} onChange={change}
@@ -418,7 +420,7 @@ export default function ProductFormPage() {
                                         label="활성 여부"
                                     />
                                 </Stack>
-                                <Stack direction="row" spacing={2}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                                     <TextField
                                         name="exposureStartAt" label="노출 시작일"
                                         type="datetime-local" value={form.exposureStartAt}

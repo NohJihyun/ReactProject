@@ -102,12 +102,12 @@ export default function ProductPage() {
         <div translate="no">
             <Paper sx={{ p: 2 }}>
                 {/* 헤더 */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
                     <Typography variant="h6">여행상품 리스트</Typography>
                     <Stack direction="row" spacing={1}>
-                        <Button variant="contained" onClick={handleResetSearch}>초기화</Button>
-                        <Button variant="contained" onClick={() => setSearchOpen(true)}>검색</Button>
-                        <Button variant="contained" onClick={() => navigate('/admin/products/new')}>등록</Button>
+                        <Button variant="contained" size="small" onClick={handleResetSearch}>초기화</Button>
+                        <Button variant="contained" size="small" onClick={() => setSearchOpen(true)}>검색</Button>
+                        <Button variant="contained" size="small" onClick={() => navigate('/admin/products/new')}>등록</Button>
                     </Stack>
                 </Box>
 

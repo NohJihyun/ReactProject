@@ -12,6 +12,8 @@ import PasswordResetPage from "./pages/PasswordResetPage";
 
 import ClientHome from "./pages/client/ClientHome";
 import OtherClientPage from "./pages/client/OtherClientPage";
+import TourListPage from "./pages/client/TourListPage";
+import TourDetailPage from "./pages/client/TourDetailPage";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryPage from './pages/admin/CategoryPage';
@@ -31,6 +33,8 @@ export default function App() {
                     {/* 메인 / 공용 (비인증) */}
                     <Route element={<MainLayout />}>
                         <Route path="/" element={<ClientHome />} />
+                        <Route path="/tour/:category" element={<TourListPage />} />
+                        <Route path="/tour/:category/:id" element={<TourDetailPage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/oauth/callback" element={<OAuthCallback />} />
                         <Route path="/password-reset" element={<PasswordResetPage />} />

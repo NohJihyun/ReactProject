@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Chip, Container, Skeleton, Stack } from '@mui/material';
 import SchoolIcon       from '@mui/icons-material/School';
 import LandscapeIcon    from '@mui/icons-material/Landscape';
@@ -19,6 +20,7 @@ const IMG_BASE = 'http://localhost:8080';
 const SECTIONS = [
     {
         key:   '수학여행',
+        id:    'school',
         label: '수학여행',
         icon:  <SchoolIcon />,
         color: '#3f51b5',
@@ -27,6 +29,7 @@ const SECTIONS = [
     },
     {
         key:   '국내여행',
+        id:    'domestic',
         label: '국내여행',
         icon:  <LandscapeIcon />,
         color: '#2e7d32',
@@ -35,6 +38,7 @@ const SECTIONS = [
     },
     {
         key:   '해외여행',
+        id:    'overseas',
         label: '해외여행',
         icon:  <FlightIcon />,
         color: '#e65100',
@@ -49,11 +53,12 @@ const formatPrice = (price) => {
 };
 
 /* ── 상품 카드 ── */
-function ProductCard({ product }) {
+function ProductCard({ product, onClick }) {
     const price = formatPrice(product.pricePerPerson);
 
     return (
         <Box
+            onClick={onClick}
             sx={{
                 borderRadius: 3,
                 overflow: 'hidden',
@@ -181,6 +186,7 @@ function CardSkeleton() {
 function CategorySection({ section }) {
     const [products, setProducts] = useState([]);
     const [loading,  setLoading]  = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         getProductsByCategory(section.key)
@@ -219,7 +225,7 @@ function CategorySection({ section }) {
 
                 {/* 스켈레톤 */}
                 {loading && (
-                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3 }}>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
                         {[1, 2, 3].map(i => <CardSkeleton key={i} />)}
                     </Box>
                 )}
@@ -236,25 +242,45 @@ function CategorySection({ section }) {
 
                 {/* Swiper */}
                 {!loading && products.length > 0 && (
-                    <Swiper
-                        modules={[Navigation, Pagination, Autoplay]}
-                        spaceBetween={28}
-                        slidesPerView={1}
-                        navigation
-                        pagination={{ clickable: true }}
-                        autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
-                        breakpoints={{
-                            600: { slidesPerView: 2 },
-                            960: { slidesPerView: 3 },
-                        }}
-                        style={{ paddingBottom: '44px' }}
-                    >
-                        {products.map(p => (
-                            <SwiperSlide key={p.productId}>
-                                <ProductCard product={p} />
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
+                    <Box sx={{
+                        '& .swiper-button-prev, & .swiper-button-next': {
+                            top: 'auto',
+                            bottom: '0px',
+                            width: '28px',
+                            height: '28px',
+                            zIndex: 20,
+                            color: '#1976d2',
+                            '&::after': { fontSize: '14px', fontWeight: '900' },
+                            '&.swiper-button-disabled': { opacity: 0.3 },
+                        },
+                        '& .swiper-button-prev': { left: 'calc(50% - 72px)' },
+                        '& .swiper-button-next': { right: 'calc(50% - 72px)' },
+                        '& .swiper-pagination': { bottom: '4px', zIndex: 10 },
+                        '& .swiper-pagination-bullet-active': { background: '#1976d2' },
+                    }}>
+                        <Swiper
+                            modules={[Navigation, Pagination, Autoplay]}
+                            spaceBetween={28}
+                            slidesPerView={1}
+                            navigation
+                            pagination={{ clickable: true }}
+                            autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+                            breakpoints={{
+                                600: { slidesPerView: 2 },
+                                960: { slidesPerView: 3 },
+                            }}
+                            style={{ paddingBottom: '40px' }}
+                        >
+                            {products.map(p => (
+                                <SwiperSlide key={p.productId}>
+                                    <ProductCard
+                                        product={p}
+                                        onClick={() => { navigate(`/tour/${section.id}/${p.productId}`); window.scrollTo(0, 0); }}
+                                    />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </Box>
                 )}
             </Container>
         </Box>
