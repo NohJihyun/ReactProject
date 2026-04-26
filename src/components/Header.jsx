@@ -32,10 +32,10 @@ import adminImg from "../assets/adminpage.png";
 
 
 const NAV_ITEMS = [
-    { label: '수학여행',      path: '/tour/school' },
     { label: '국내여행',      path: '/tour/domestic' },
     { label: '항공 해외여행', path: '/tour/air' },
     { label: '크루즈 해외여행', path: '/tour/cruise' },
+    { label: '수학여행',      path: '/tour/school' },
 ];
 
 const BRAND_GREEN = '#2e7d32';

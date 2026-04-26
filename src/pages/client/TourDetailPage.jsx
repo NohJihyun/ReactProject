@@ -150,7 +150,7 @@ export default function TourDetailPage() {
                         <Tab
                             icon={<PlayCircleIcon fontSize="small" />}
                             iconPosition="start"
-                            label={hasVideo ? '동영상 ✓' : '동영상'}
+                            label={hasVideo ? '유튜브 동영상 ✓' : '유튜브 동영상'}
                             disabled={!hasVideo}
                         />
                     </Tabs>

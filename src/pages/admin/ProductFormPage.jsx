@@ -78,7 +78,7 @@ export default function ProductFormPage() {
             ]);
             setMediaSummary({
                 imageCount: images.length,
-                hasVideo:   !!(product.videoPath || product.videoUrl),
+                hasVideo:   !!product.videoUrl,
                 fileCount:  files.length,
             });
         } catch { /* 조용히 무시 */ }
@@ -178,7 +178,7 @@ export default function ProductFormPage() {
                 // 최초 등록
                 const result = await api.createProduct(payload);
                 setSavedProductId(result.productId);
-                setToast({ open: true, msg: '저장되었습니다. 이미지·동영상·첨부파일을 이어서 등록하세요.', sev: 'success' });
+                setToast({ open: true, msg: '저장되었습니다. 이미지·첨부파일을 이어서 등록하세요.', sev: 'success' });
                 setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 800);
             }
         } catch (error) {
@@ -258,8 +258,8 @@ export default function ProductFormPage() {
                         disabled={!tabsUnlocked}
                         label={
                             tabsUnlocked
-                                ? `동영상 ${mediaSummary.hasVideo ? '✓' : '-'}`
-                                : '동영상'
+                                ? `유튜브 동영상 ${mediaSummary.hasVideo ? '✓' : '-'}`
+                                : '유튜브 동영상'
                         }
                     />
                     <Tab
@@ -275,7 +275,7 @@ export default function ProductFormPage() {
                 {/* 신규 등록 시 탭 안내 문구 */}
                 {!isEdit && !tabsUnlocked && (
                     <Alert severity="info" sx={{ mb: 2 }}>
-                        기본정보를 저장하면 이미지·동영상·첨부파일 탭이 활성화됩니다.
+                        기본정보를 저장하면 이미지·유튜브 동영상·첨부파일 탭이 활성화됩니다. 동영상은 유튜브 URL로 등록합니다.
                     </Alert>
                 )}
 
@@ -479,7 +479,7 @@ export default function ProductFormPage() {
                     />
                 )}
 
-                {/* ── 동영상 탭 ── */}
+                {/* ── 유튜브 동영상 탭 ── */}
                 {tab === 2 && (
                     <ProductVideoTab
                         productId={activeProductId}

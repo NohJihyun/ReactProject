@@ -20,15 +20,6 @@ const IMG_BASE = 'http://localhost:8080';
 
 const SECTIONS = [
     {
-        key:   '수학여행',
-        id:    'school',
-        label: '수학여행',
-        icon:  <SchoolIcon />,
-        color: '#3f51b5',
-        gradient: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
-        desc:  '소중한 추억을 만드는 특별한 여행',
-    },
-    {
         key:   '국내여행',
         id:    'domestic',
         label: '국내여행',
@@ -54,6 +45,15 @@ const SECTIONS = [
         color: '#0277bd',
         gradient: 'linear-gradient(135deg, #0277bd 0%, #0288d1 100%)',
         desc:  '바다 위에서 즐기는 럭셔리 여행',
+    },
+    {
+        key:   '수학여행',
+        id:    'school',
+        label: '수학여행',
+        icon:  <SchoolIcon />,
+        color: '#3f51b5',
+        gradient: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
+        desc:  '소중한 추억을 만드는 특별한 여행',
     },
 ];
 
