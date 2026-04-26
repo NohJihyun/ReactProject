@@ -12,7 +12,8 @@ const IMG_BASE = 'http://localhost:8080';
 const CATEGORY_MAP = {
     school:   '수학여행',
     domestic: '국내여행',
-    overseas: '해외여행',
+    air:      '항공 해외여행',
+    cruise:   '크루즈 해외여행',
 };
 
 const formatPrice = (price) => {

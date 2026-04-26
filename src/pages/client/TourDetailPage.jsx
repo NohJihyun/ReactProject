@@ -22,20 +22,18 @@ const IMG_BASE = 'http://localhost:8080';
 const CATEGORY_MAP = {
     school:   '수학여행',
     domestic: '국내여행',
-    overseas: '해외여행',
+    air:      '항공 해외여행',
+    cruise:   '크루즈 해외여행',
 };
 
-const INQUIRY_BUTTONS = {
-    school: [
-        { icon: <PhoneIcon fontSize="small" />,      label: '전화 문의하기' },
-        { icon: <EmailIcon fontSize="small" />,      label: '이메일 문의하기' },
-        { icon: <AssignmentIcon fontSize="small" />, label: '입찰 견적 요청하기' },
-    ],
-    default: [
-        { icon: <PhoneIcon fontSize="small" />,      label: '전화 문의하기' },
-        { icon: <EmailIcon fontSize="small" />,      label: '이메일 문의하기' },
-        { icon: <AssignmentIcon fontSize="small" />, label: '상담 신청하기' },
-    ],
+const CONTACT_ITEMS = [
+    { icon: <PhoneIcon fontSize="small" />,  label: '전화 문의하기',  value: '031-466-9600' },
+    { icon: <EmailIcon fontSize="small" />,  label: '이메일 문의하기', value: 'with@rohitour.com' },
+];
+
+const INQUIRY_ACTION_BUTTONS = {
+    school:  { icon: <AssignmentIcon fontSize="small" />, label: '입찰 견적 요청하기' },
+    default: { icon: <AssignmentIcon fontSize="small" />, label: '상담 신청하기' },
 };
 
 const TRAVEL_TYPE_LABEL = {
@@ -113,7 +111,7 @@ export default function TourDetailPage() {
 
     const hasVideo = !!(product.videoUrl || product.videoPath);
     const embedUrl = getYoutubeEmbedUrl(product.videoUrl, mediaTab === 1);
-    const inquiryButtons = INQUIRY_BUTTONS[category] ?? INQUIRY_BUTTONS.default;
+    const inquiryActionButton = INQUIRY_ACTION_BUTTONS[category] ?? INQUIRY_ACTION_BUTTONS.default;
 
     return (
         <Box sx={{ bgcolor: '#f7f8fc', minHeight: '100vh' }}>
@@ -271,29 +269,40 @@ export default function TourDetailPage() {
                                         )}
                                     </Box>
 
-                                    {/* 문의 버튼 — 이미지 탭 */}
-                                    <Stack spacing={1} sx={{ mt: 1.5 }}>
-                                        {inquiryButtons.map((btn) => (
-                                            <Button
-                                                key={btn.label}
-                                                variant="contained"
-                                                fullWidth
-                                                sx={{
-                                                    bgcolor: '#1976d2',
-                                                    '&:hover': { bgcolor: '#1565c0' },
-                                                    py: 1.2, borderRadius: 2,
-                                                    fontWeight: 700,
-                                                    boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
-                                                }}
-                                            >
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: 150 }}>
-                                                    <Box sx={{ width: 22, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
-                                                        {btn.icon}
-                                                    </Box>
-                                                    <span>{btn.label}</span>
+                                    {/* 문의 정보 — 이미지 탭 */}
+                                    <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                                        {CONTACT_ITEMS.map(item => (
+                                            <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5 }}>
+                                                <Box sx={{ color: '#1976d2', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                                    {item.icon}
                                                 </Box>
-                                            </Button>
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.3 }}>
+                                                        {item.label}
+                                                    </Typography>
+                                                    <Typography fontWeight={700} variant="body2">
+                                                        {item.value}
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
                                         ))}
+                                        <Button
+                                            variant="contained"
+                                            fullWidth
+                                            sx={{
+                                                bgcolor: '#1976d2',
+                                                '&:hover': { bgcolor: '#1565c0' },
+                                                py: 1.2, borderRadius: 2,
+                                                fontWeight: 700,
+                                                boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
+                                                mt: 0.5,
+                                            }}
+                                        >
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                {inquiryActionButton.icon}
+                                                <span>{inquiryActionButton.label}</span>
+                                            </Box>
+                                        </Button>
                                     </Stack>
                                 </>
                             )}
@@ -333,28 +342,40 @@ export default function TourDetailPage() {
                                         ) : null}
                                     </Box>
 
-                                    <Stack spacing={1} sx={{ mt: 1.5 }}>
-                                        {inquiryButtons.map((btn) => (
-                                            <Button
-                                                key={btn.label}
-                                                variant="contained"
-                                                fullWidth
-                                                sx={{
-                                                    bgcolor: '#1976d2',
-                                                    '&:hover': { bgcolor: '#1565c0' },
-                                                    py: 1.2, borderRadius: 2,
-                                                    fontWeight: 700,
-                                                    boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
-                                                }}
-                                            >
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: 150 }}>
-                                                    <Box sx={{ width: 22, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
-                                                        {btn.icon}
-                                                    </Box>
-                                                    <span>{btn.label}</span>
+                                    {/* 문의 정보 — 동영상 탭 */}
+                                    <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                                        {CONTACT_ITEMS.map(item => (
+                                            <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5 }}>
+                                                <Box sx={{ color: '#1976d2', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                                    {item.icon}
                                                 </Box>
-                                            </Button>
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.3 }}>
+                                                        {item.label}
+                                                    </Typography>
+                                                    <Typography fontWeight={700} variant="body2">
+                                                        {item.value}
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
                                         ))}
+                                        <Button
+                                            variant="contained"
+                                            fullWidth
+                                            sx={{
+                                                bgcolor: '#1976d2',
+                                                '&:hover': { bgcolor: '#1565c0' },
+                                                py: 1.2, borderRadius: 2,
+                                                fontWeight: 700,
+                                                boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
+                                                mt: 0.5,
+                                            }}
+                                        >
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                {inquiryActionButton.icon}
+                                                <span>{inquiryActionButton.label}</span>
+                                            </Box>
+                                        </Button>
                                     </Stack>
                                 </>
                             )}

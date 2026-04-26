@@ -216,6 +216,22 @@ export default function CategoryPage() {
         }
     }, [selected]); // [selected] : selected 값 변경될시에만 useEffect 실행
 
+    // 소분류 등록 시 상위 카테고리 선택되면 정렬순서 자동 계산
+    useEffect(() => {
+        if (dialogMode !== 'create') return;
+        if (Number(form.depth) !== 2 || !form.parentId) return;
+
+        (async () => {
+            try {
+                const data = await api.getCategories({ parentId: form.parentId, depth: 2, page: 1, size: 1000 });
+                const list = data.list ?? [];
+                const maxOrder = list.length > 0 ? Math.max(...list.map(c => c.sortOrder)) : 0;
+                setForm(prev => ({ ...prev, sortOrder: maxOrder + 1 }));
+            } catch { /* 조용히 무시 */ }
+        })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form.parentId, form.depth, dialogMode]);
+
     /* 이벤트 핸들러 영역 */
     /* =========================
        카테고리 등록 대분류, 소분류  HANDLER
@@ -502,6 +518,7 @@ export default function CategoryPage() {
                                         fullWidth
                                         margin="normal"
                                         disabled={dialogMode === 'edit'}
+                                        placeholder="나라 및 지역명 영어로 작성 (예: JEJU, TOKYO)"
                                     />
 
                                     <TextField
@@ -511,6 +528,7 @@ export default function CategoryPage() {
                                         onChange={change}
                                         fullWidth
                                         margin="normal"
+                                        placeholder="나라 및 지역명 한글로 작성 (예: 제주도, 도쿄)"
                                     />
 
                                     <TextField

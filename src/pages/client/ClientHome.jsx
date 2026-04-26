@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Chip, Container, Skeleton, Stack } from '@mui/material';
-import SchoolIcon       from '@mui/icons-material/School';
-import LandscapeIcon    from '@mui/icons-material/Landscape';
-import FlightIcon       from '@mui/icons-material/Flight';
-import PeopleIcon       from '@mui/icons-material/People';
-import AttachMoneyIcon  from '@mui/icons-material/AttachMoney';
+import SchoolIcon           from '@mui/icons-material/School';
+import LandscapeIcon        from '@mui/icons-material/Landscape';
+import FlightIcon           from '@mui/icons-material/Flight';
+import DirectionsBoatIcon   from '@mui/icons-material/DirectionsBoat';
+import PeopleIcon           from '@mui/icons-material/People';
+import AttachMoneyIcon      from '@mui/icons-material/AttachMoney';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -37,13 +38,22 @@ const SECTIONS = [
         desc:  '우리나라 곳곳의 숨겨진 명소 탐방',
     },
     {
-        key:   '해외여행',
-        id:    'overseas',
-        label: '해외여행',
+        key:   '항공 해외여행',
+        id:    'air',
+        label: '항공 해외여행',
         icon:  <FlightIcon />,
         color: '#e65100',
         gradient: 'linear-gradient(135deg, #e65100 0%, #ef6c00 100%)',
         desc:  '세계 각지의 특별한 경험',
+    },
+    {
+        key:   '크루즈 해외여행',
+        id:    'cruise',
+        label: '크루즈 해외여행',
+        icon:  <DirectionsBoatIcon />,
+        color: '#0277bd',
+        gradient: 'linear-gradient(135deg, #0277bd 0%, #0288d1 100%)',
+        desc:  '바다 위에서 즐기는 럭셔리 여행',
     },
 ];
 
@@ -337,7 +347,7 @@ function HeroBanner() {
                     variant="h6"
                     sx={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400, maxWidth: 480 }}
                 >
-                    수학여행부터 국내·해외 단체여행까지<br />
+                    수학여행부터 국내·해외 개인·단체여행까지<br />
                     로이투어가 함께합니다.
                 </Typography>
             </Container>
