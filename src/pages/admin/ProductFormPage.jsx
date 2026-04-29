@@ -13,23 +13,33 @@ import ProductVideoTab from './tabs/ProductVideoTab';
 import ProductFileTab  from './tabs/ProductFileTab';
 
 const EMPTY_FORM = {
-    categoryId:      '',
-    productCode:     '',
-    productName:     '',
-    productSubname:  '',
-    summary:         '',
-    description:     '',
-    status:          'DRAFT',
-    isFeatured:      'N',
-    isActive:        'Y',
-    travelType:      'BOTH',
-    minPeople:       '',
-    maxPeople:       '',
-    pricePerPerson:  '',
-    exposureStartAt: '',
-    exposureEndAt:   '',
-    seoTitle:        '',
-    seoDescription:  '',
+    categoryId:        '',
+    productCode:       '',
+    productName:       '',
+    productSubname:    '',
+    summary:           '',
+    description:       '',
+    status:            'DRAFT',
+    isFeatured:        'N',
+    isActive:          'Y',
+    travelType:        'BOTH',
+    minPeople:         '',
+    maxPeople:         '',
+    pricePerPerson:    '',
+    exposureStartAt:   '',
+    exposureEndAt:     '',
+    transportType:    '',
+    hasShopping:      'N',
+    hasGuideFee:      'N',
+    hasEscort:        'N',
+    hasOptionalTour:  'N',
+    departureLocation: '',
+    departureAt:       '',
+    arrivalLocation:   '',
+    arrivalAt:         '',
+    hashtags:          '',
+    seoTitle:          '',
+    seoDescription:    '',
 };
 
 const toDatetimeLocal = (val) => (val ? String(val).substring(0, 16) : '');
@@ -120,10 +130,20 @@ export default function ProductFormPage() {
                     minPeople:       data.minPeople       ?? '',
                     maxPeople:       data.maxPeople       ?? '',
                     pricePerPerson:  data.pricePerPerson  ?? '',
-                    exposureStartAt: toDatetimeLocal(data.exposureStartAt),
-                    exposureEndAt:   toDatetimeLocal(data.exposureEndAt),
-                    seoTitle:        data.seoTitle        ?? '',
-                    seoDescription:  data.seoDescription  ?? '',
+                    exposureStartAt:   toDatetimeLocal(data.exposureStartAt),
+                    exposureEndAt:     toDatetimeLocal(data.exposureEndAt),
+                    transportType:    data.transportType    ?? '',
+                    hasShopping:      data.hasShopping      ?? 'N',
+                    hasGuideFee:      data.hasGuideFee      ?? 'N',
+                    hasEscort:        data.hasEscort        ?? 'N',
+                    hasOptionalTour:  data.hasOptionalTour  ?? 'N',
+                    departureLocation: data.departureLocation ?? '',
+                    departureAt:       toDatetimeLocal(data.departureAt),
+                    arrivalLocation:   data.arrivalLocation   ?? '',
+                    arrivalAt:         toDatetimeLocal(data.arrivalAt),
+                    hashtags:          data.hashtags          ?? '',
+                    seoTitle:          data.seoTitle          ?? '',
+                    seoDescription:    data.seoDescription    ?? '',
                 });
             } catch (e) {
                 console.error(e);
@@ -161,10 +181,20 @@ export default function ProductFormPage() {
             minPeople:       form.minPeople      !== '' ? Number(form.minPeople)      : null,
             maxPeople:       form.maxPeople      !== '' ? Number(form.maxPeople)      : null,
             pricePerPerson:  form.pricePerPerson !== '' ? Number(form.pricePerPerson) : null,
-            exposureStartAt: nullIfEmpty(form.exposureStartAt),
-            exposureEndAt:   nullIfEmpty(form.exposureEndAt),
-            seoTitle:        nullIfEmpty(form.seoTitle),
-            seoDescription:  nullIfEmpty(form.seoDescription),
+            exposureStartAt:   nullIfEmpty(form.exposureStartAt),
+            exposureEndAt:     nullIfEmpty(form.exposureEndAt),
+            transportType:    nullIfEmpty(form.transportType),
+            hasShopping:      form.hasShopping     || 'N',
+            hasGuideFee:      form.hasGuideFee     || 'N',
+            hasEscort:        form.hasEscort       || 'N',
+            hasOptionalTour:  form.hasOptionalTour || 'N',
+            departureLocation: nullIfEmpty(form.departureLocation),
+            departureAt:       nullIfEmpty(form.departureAt),
+            arrivalLocation:   nullIfEmpty(form.arrivalLocation),
+            arrivalAt:         nullIfEmpty(form.arrivalAt),
+            hashtags:          nullIfEmpty(form.hashtags),
+            seoTitle:          nullIfEmpty(form.seoTitle),
+            seoDescription:    nullIfEmpty(form.seoDescription),
         };
 
         try {
@@ -387,6 +417,80 @@ export default function ProductFormPage() {
 
                         <Divider />
 
+                        {/* 여행 특성 */}
+                        <Box>
+                            <SectionTitle>여행 특성</SectionTitle>
+                            <Stack spacing={2}>
+                                <TextField
+                                    select name="transportType" label="교통수단"
+                                    value={form.transportType} onChange={change} fullWidth
+                                >
+                                    <MenuItem value="">선택 안함</MenuItem>
+                                    <MenuItem value="CRUISE">🚢 크루즈</MenuItem>
+                                    <MenuItem value="DOMESTIC_AIR">✈️ 국내항공</MenuItem>
+                                    <MenuItem value="INTERNATIONAL_AIR">🌐 외국항공</MenuItem>
+                                </TextField>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
+                                    {[
+                                        { name: 'hasShopping',     label: '🛍️ 쇼핑' },
+                                        { name: 'hasGuideFee',     label: '💲 가이드비용' },
+                                        { name: 'hasEscort',       label: '🧑‍✈️ 인솔자' },
+                                        { name: 'hasOptionalTour', label: '🎯 선택관광' },
+                                    ].map(({ name, label }) => (
+                                        <FormControlLabel
+                                            key={name}
+                                            control={
+                                                <Switch
+                                                    checked={form[name] === 'Y'}
+                                                    onChange={(e) => setForm({ ...form, [name]: e.target.checked ? 'Y' : 'N' })}
+                                                />
+                                            }
+                                            label={label}
+                                        />
+                                    ))}
+                                </Stack>
+                            </Stack>
+                        </Box>
+
+                        <Divider />
+
+                        {/* 출발 / 도착 정보 */}
+                        <Box>
+                            <SectionTitle>출발 / 도착 정보</SectionTitle>
+                            <Stack spacing={2}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                    <TextField
+                                        name="departureLocation" label="출발 장소"
+                                        value={form.departureLocation} onChange={change}
+                                        fullWidth inputProps={{ maxLength: 200 }}
+                                        placeholder="예) 인천항, 부산항, 서울 (선택)"
+                                    />
+                                    <TextField
+                                        name="arrivalLocation" label="도착 장소"
+                                        value={form.arrivalLocation} onChange={change}
+                                        fullWidth inputProps={{ maxLength: 200 }}
+                                        placeholder="예) 인천항, 부산항, 서울 (선택)"
+                                    />
+                                </Stack>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                    <TextField
+                                        name="departureAt" label="출발 일시"
+                                        type="datetime-local" value={form.departureAt}
+                                        onChange={change} fullWidth
+                                        InputLabelProps={{ shrink: true }}
+                                    />
+                                    <TextField
+                                        name="arrivalAt" label="도착 일시"
+                                        type="datetime-local" value={form.arrivalAt}
+                                        onChange={change} fullWidth
+                                        InputLabelProps={{ shrink: true }}
+                                    />
+                                </Stack>
+                            </Stack>
+                        </Box>
+
+                        <Divider />
+
                         {/* 노출 설정 */}
                         <Box>
                             <SectionTitle>노출 설정</SectionTitle>
@@ -420,6 +524,13 @@ export default function ProductFormPage() {
                                         label="활성 여부"
                                     />
                                 </Stack>
+                                <Alert severity="info" sx={{ fontSize: '0.82rem' }}>
+                                    노출 종료일 기준으로 고객 화면 카드의 상태가 자동 변경됩니다.&nbsp;
+                                    <strong>종료일 없음</strong> → 상시운영 &nbsp;|&nbsp;
+                                    <strong>8일 이상</strong> → 진행중 &nbsp;|&nbsp;
+                                    <strong>7일 이내</strong> → 마감임박 &nbsp;|&nbsp;
+                                    <strong>종료일 지남</strong> → 마감
+                                </Alert>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                                     <TextField
                                         name="exposureStartAt" label="노출 시작일"
@@ -457,6 +568,13 @@ export default function ProductFormPage() {
                                     fullWidth multiline rows={2}
                                     inputProps={{ maxLength: 500 }}
                                     placeholder="검색 결과에 표시되는 설명을 입력하세요. 150자 이내 권장 (선택)"
+                                />
+                                <TextField
+                                    name="hashtags" label="해시태그"
+                                    value={form.hashtags} onChange={change}
+                                    fullWidth inputProps={{ maxLength: 500 }}
+                                    placeholder="예) #단둥 #크루즈 #로이투어 #지중해 (공백으로 구분, 선택)"
+                                    helperText="공백으로 구분하여 입력 · 상세 페이지 및 SNS 홍보에 활용됩니다"
                                 />
                             </Stack>
                         </Box>

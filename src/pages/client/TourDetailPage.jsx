@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box, Container, Typography, Chip, Button, Skeleton,
-    Stack, Divider, Tab, Tabs, IconButton,
+    Stack, Divider, Tab, Tabs, IconButton, Alert,
 } from '@mui/material';
 import ArrowBackIcon       from '@mui/icons-material/ArrowBack';
 import PeopleIcon          from '@mui/icons-material/People';
@@ -15,6 +15,10 @@ import ImageIcon           from '@mui/icons-material/Image';
 import PlayCircleIcon      from '@mui/icons-material/PlayCircle';
 import DownloadIcon        from '@mui/icons-material/Download';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import SchoolIcon          from '@mui/icons-material/School';
+import LandscapeIcon       from '@mui/icons-material/Landscape';
+import FlightIcon          from '@mui/icons-material/Flight';
+import DirectionsBoatIcon  from '@mui/icons-material/DirectionsBoat';
 import { getProductById, getProductImages, getProductFiles } from '../../api/clientApi';
 
 const IMG_BASE = 'http://localhost:8080';
@@ -26,6 +30,24 @@ const CATEGORY_MAP = {
     cruise:   '크루즈 해외여행',
 };
 
+const CATEGORY_META = {
+    domestic: { icon: <LandscapeIcon sx={{ fontSize: 18 }} />,      color: '#2e7d32' },
+    air:      { icon: <FlightIcon sx={{ fontSize: 18 }} />,         color: '#e65100' },
+    cruise:   { icon: <DirectionsBoatIcon sx={{ fontSize: 18 }} />, color: '#0277bd' },
+    school:   { icon: <SchoolIcon sx={{ fontSize: 18 }} />,         color: '#3f51b5' },
+};
+
+const formatDt = (dt) => {
+    if (!dt) return null;
+    const d = new Date(dt);
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    const wd = ['일','월','화','수','목','금','토'][d.getDay()];
+    const h = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${m}.${day}(${wd}) ${h}:${min}`;
+};
+
 const CONTACT_ITEMS = [
     { icon: <PhoneIcon fontSize="small" />,  label: '전화 문의하기',  value: '031-466-9600' },
     { icon: <EmailIcon fontSize="small" />,  label: '이메일 문의하기', value: 'with@rohitour.com' },
@@ -33,7 +55,7 @@ const CONTACT_ITEMS = [
 
 const INQUIRY_ACTION_BUTTONS = {
     school:  { icon: <AssignmentIcon fontSize="small" />, label: '입찰 견적 요청하기' },
-    default: { icon: <AssignmentIcon fontSize="small" />, label: '상담 신청하기' },
+    default: { icon: <AssignmentIcon fontSize="small" />, label: '예약신청' },
 };
 
 const TRAVEL_TYPE_LABEL = {
@@ -112,6 +134,10 @@ export default function TourDetailPage() {
     const hasVideo = !!(product.videoUrl || product.videoPath);
     const embedUrl = getYoutubeEmbedUrl(product.videoUrl, mediaTab === 1);
     const inquiryActionButton = INQUIRY_ACTION_BUTTONS[category] ?? INQUIRY_ACTION_BUTTONS.default;
+    const categoryMeta = CATEGORY_META[category] ?? {};
+    const depDt = formatDt(product.departureAt);
+    const arrDt = formatDt(product.arrivalAt);
+    const hasRoute = product.departureLocation || depDt;
 
     return (
         <Box sx={{ bgcolor: '#f7f8fc', minHeight: '100vh' }}>
@@ -390,12 +416,40 @@ export default function TourDetailPage() {
                             overflowY: 'auto',
                             maxHeight: { md: 860 },
                         }}>
-                            {/* 카테고리 뱃지 */}
-                            <Chip
-                                label={CATEGORY_MAP[category] ?? ''}
-                                size="small"
-                                sx={{ mb: 1.5, alignSelf: 'flex-start', bgcolor: '#e3f2fd', color: '#1565c0', fontWeight: 600 }}
-                            />
+                            {/* 카테고리 뱃지 + 후기/별점 */}
+                            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+                                <Chip
+                                    label={CATEGORY_MAP[category] ?? ''}
+                                    size="small"
+                                    sx={{ bgcolor: '#e3f2fd', color: '#1565c0', fontWeight: 600 }}
+                                />
+                                <Stack direction="row" alignItems="center" spacing={1.5}>
+                                    <Stack direction="row" alignItems="center" spacing={0.5}
+                                        component="a" href="#"
+                                        sx={{ textDecoration: 'none', cursor: 'pointer', '&:hover': { opacity: 0.75 } }}
+                                    >
+                                        <Box component="svg" viewBox="0 0 24 24" sx={{ width: 18, height: 18, fill: 'url(#igGrad)', flexShrink: 0 }}>
+                                            <defs>
+                                                <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stopColor="#f09433" />
+                                                    <stop offset="50%" stopColor="#dc2743" />
+                                                    <stop offset="100%" stopColor="#bc1888" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                        </Box>
+                                        <Typography variant="caption" fontWeight={700} sx={{ color: '#111', fontSize: '0.75rem' }}>SNS</Typography>
+                                    </Stack>
+                                    <Stack direction="row" alignItems="center" spacing={0.4}>
+                                        <Typography sx={{ fontSize: '1rem' }}>💬</Typography>
+                                        <Typography variant="caption" fontWeight={600} color="text.secondary">0</Typography>
+                                    </Stack>
+                                    <Stack direction="row" alignItems="center" spacing={0.4}>
+                                        <Typography sx={{ fontSize: '1rem' }}>⭐</Typography>
+                                        <Typography variant="caption" fontWeight={600} color="text.secondary">0.0</Typography>
+                                    </Stack>
+                                </Stack>
+                            </Stack>
 
                             {/* 상품명 */}
                             <Typography variant="h5" fontWeight={800}
@@ -448,6 +502,55 @@ export default function TourDetailPage() {
                                 )}
                             </Stack>
 
+                            {/* 출발 / 도착 */}
+                            {hasRoute && (
+                                <>
+                                    <Divider sx={{ my: 2 }} />
+                                    <Stack spacing={1} mb={1}>
+                                        <Stack direction="row" alignItems="center" spacing={1.5}>
+                                            <Box sx={{ color: categoryMeta.color, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                                {categoryMeta.icon}
+                                            </Box>
+                                            <Box sx={{ flex: 1 }}>
+                                                <Typography variant="caption" color="text.secondary" display="block">출발</Typography>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    {product.departureLocation}
+                                                    {depDt && <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>{depDt}</Typography>}
+                                                </Typography>
+                                            </Box>
+                                        </Stack>
+                                        <Stack direction="row" alignItems="center" spacing={1.5}>
+                                            <Box sx={{ width: 18, display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+                                                <Typography variant="caption" color="text.disabled">↓</Typography>
+                                            </Box>
+                                            <Box sx={{ flex: 1 }}>
+                                                <Typography variant="caption" color="text.secondary" display="block">도착</Typography>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    {product.arrivalLocation}
+                                                    {arrDt && <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>{arrDt}</Typography>}
+                                                </Typography>
+                                            </Box>
+                                        </Stack>
+                                    </Stack>
+                                </>
+                            )}
+
+                            {/* 해시태그 */}
+                            {product.hashtags && (
+                                <>
+                                    <Divider sx={{ my: 2 }} />
+                                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                                        {product.hashtags.split(' #').map((t, i) => i === 0 ? t : '#' + t).slice(0, 5).map(tag => (
+                                            <Typography key={tag} variant="caption"
+                                                sx={{ color: categoryMeta.color ?? '#1976d2', fontWeight: 500, fontSize: '0.8rem' }}
+                                            >
+                                                {tag}
+                                            </Typography>
+                                        ))}
+                                    </Stack>
+                                </>
+                            )}
+
                             <Divider sx={{ my: 2 }} />
 
                             {/* 요약 */}
@@ -472,10 +575,58 @@ export default function TourDetailPage() {
                                 </>
                             )}
 
+                            {/* 여행 특성 이모지 */}
+                            {(product.transportType || product.hasShopping || product.hasGuideFee || product.hasEscort || product.hasOptionalTour) && (
+                                <>
+                                    <Divider sx={{ my: 2 }} />
+                                    <Box sx={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(2, 1fr)',
+                                        gap: 1.5,
+                                    }}>
+                                        {product.transportType && (
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                <Typography sx={{ fontSize: '1.2rem' }}>
+                                                    {product.transportType === 'CRUISE' ? '🚢' : product.transportType === 'DOMESTIC_AIR' ? '✈️' : '🌐'}
+                                                </Typography>
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary" display="block">교통수단</Typography>
+                                                    <Typography variant="body2" fontWeight={600}>
+                                                        {product.transportType === 'CRUISE' ? '크루즈' : product.transportType === 'DOMESTIC_AIR' ? '국내항공' : '외국항공'}
+                                                    </Typography>
+                                                </Box>
+                                            </Stack>
+                                        )}
+                                        {[
+                                            { key: 'hasShopping',     emoji: '🛍️', label: '쇼핑' },
+                                            { key: 'hasGuideFee',     emoji: '💲', label: '가이드비용', gold: true },
+                                            { key: 'hasEscort',       emoji: '🧑‍✈️', label: '인솔자' },
+                                            { key: 'hasOptionalTour', emoji: '🎯', label: '선택관광' },
+                                        ].map(({ key, emoji, label, gold }) => (
+                                            <Stack key={key} direction="row" alignItems="center" spacing={1}>
+                                                <Typography sx={{ fontSize: '1.2rem', ...(gold && { filter: 'sepia(1) saturate(5) hue-rotate(5deg) brightness(0.85)' }) }}>{emoji}</Typography>
+                                                <Box>
+                                                    <Typography variant="caption" color="text.secondary" display="block">{label}</Typography>
+                                                    <Typography variant="body2" fontWeight={600}
+                                                        sx={{ color: product[key] === 'Y' ? '#2e7d32' : '#e53935' }}
+                                                    >
+                                                        {product[key] === 'Y' ? '포함' : '미포함'}
+                                                    </Typography>
+                                                </Box>
+                                            </Stack>
+                                        ))}
+                                    </Box>
+                                </>
+                            )}
+
                             {/* 첨부파일 */}
                             {files.length > 0 && (
                                 <>
                                     <Divider sx={{ my: 2 }} />
+                                    <Alert severity="info" sx={{ mb: 1.5, fontSize: '0.8rem', lineHeight: 1.6 }}>
+                                        홈페이지에 담지 못한 자세한 내용은 첨부파일에 포함되어 있습니다.
+                                        파일을 다운받아 확인하시고, 궁금한 사항은 전화 또는 이메일로 문의해 주세요.
+                                    </Alert>
                                     <Typography variant="body2" fontWeight={700} sx={{ mb: 1.5 }}>
                                         첨부파일 ({files.length})
                                     </Typography>
@@ -517,6 +668,27 @@ export default function TourDetailPage() {
 
                         </Box>
                     </Box>
+                {/* ── 크루즈 전용 섹션 ── */}
+                {category === 'cruise' && (
+                    <>
+                        {['여행일정', '포함 / 불포함 정보', '가이드 / 인솔자 미팅정보', '상품가격'].map((title) => (
+                            <Box key={title}>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800}
+                                        sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}
+                                    >
+                                        {title}
+                                    </Typography>
+                                    <Box sx={{ py: 4, textAlign: 'center', color: 'text.disabled' }}>
+                                        <Typography variant="body2">준비 중입니다.</Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        ))}
+                    </>
+                )}
+
                 </Box>
 
             </Container>
