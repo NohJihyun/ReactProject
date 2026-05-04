@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box, Container, Typography, Chip, Button, Skeleton,
     Stack, Divider, Tab, Tabs, IconButton, Alert,
+    Table, TableHead, TableBody, TableRow, TableCell,
 } from '@mui/material';
 import ArrowBackIcon       from '@mui/icons-material/ArrowBack';
 import PeopleIcon          from '@mui/icons-material/People';
@@ -19,7 +20,9 @@ import SchoolIcon          from '@mui/icons-material/School';
 import LandscapeIcon       from '@mui/icons-material/Landscape';
 import FlightIcon          from '@mui/icons-material/Flight';
 import DirectionsBoatIcon  from '@mui/icons-material/DirectionsBoat';
-import { getProductById, getProductImages, getProductFiles } from '../../api/clientApi';
+import AccessTimeIcon  from '@mui/icons-material/AccessTime';
+import HotelIcon       from '@mui/icons-material/Hotel';
+import { getProductById, getProductImages, getProductFiles, getCruiseItineraries, getCruiseDetail, getCruisePrices } from '../../api/clientApi';
 
 const IMG_BASE = 'http://localhost:8080';
 
@@ -55,7 +58,7 @@ const CONTACT_ITEMS = [
 
 const INQUIRY_ACTION_BUTTONS = {
     school:  { icon: <AssignmentIcon fontSize="small" />, label: '입찰 견적 요청하기' },
-    default: { icon: <AssignmentIcon fontSize="small" />, label: '예약신청' },
+    default: { icon: <AssignmentIcon fontSize="small" />, label: '예약 및 결제 신청' },
 };
 
 const TRAVEL_TYPE_LABEL = {
@@ -89,12 +92,15 @@ export default function TourDetailPage() {
     const { category, id } = useParams();
     const navigate = useNavigate();
 
-    const [product,     setProduct]     = useState(null);
-    const [images,      setImages]      = useState([]);
-    const [files,       setFiles]       = useState([]);
-    const [selectedImg, setSelectedImg] = useState(null);
-    const [loading,     setLoading]     = useState(true);
-    const [mediaTab,    setMediaTab]    = useState(0);
+    const [product,            setProduct]            = useState(null);
+    const [images,             setImages]             = useState([]);
+    const [files,              setFiles]              = useState([]);
+    const [selectedImg,        setSelectedImg]        = useState(null);
+    const [loading,            setLoading]            = useState(true);
+    const [mediaTab,           setMediaTab]           = useState(0);
+    const [cruiseItineraries,  setCruiseItineraries]  = useState([]);
+    const [cruiseDetail,       setCruiseDetail]       = useState(null);
+    const [cruisePrices,       setCruisePrices]       = useState([]);
 
     useEffect(() => {
         Promise.all([getProductById(id), getProductImages(id), getProductFiles(id)])
@@ -108,6 +114,17 @@ export default function TourDetailPage() {
             .catch(() => {})
             .finally(() => setLoading(false));
     }, [id]);
+
+    useEffect(() => {
+        if (category !== 'cruise') return;
+        Promise.all([getCruiseItineraries(id), getCruiseDetail(id), getCruisePrices(id)])
+            .then(([its, det, prs]) => {
+                setCruiseItineraries(its || []);
+                setCruiseDetail(det || null);
+                setCruisePrices(prs || []);
+            })
+            .catch(() => {});
+    }, [id, category]);
 
     if (loading) {
         return (
@@ -599,12 +616,12 @@ export default function TourDetailPage() {
                                         )}
                                         {[
                                             { key: 'hasShopping',     emoji: '🛍️', label: '쇼핑' },
-                                            { key: 'hasGuideFee',     emoji: '💲', label: '가이드비용', gold: true },
+                                            { key: 'hasGuideFee',     emoji: '🪙', label: '가이드비용' },
                                             { key: 'hasEscort',       emoji: '🧑‍✈️', label: '인솔자' },
                                             { key: 'hasOptionalTour', emoji: '🎯', label: '선택관광' },
                                         ].map(({ key, emoji, label, gold }) => (
                                             <Stack key={key} direction="row" alignItems="center" spacing={1}>
-                                                <Typography sx={{ fontSize: '1.2rem', ...(gold && { filter: 'sepia(1) saturate(5) hue-rotate(5deg) brightness(0.85)' }) }}>{emoji}</Typography>
+                                                <Typography sx={{ fontSize: '1.2rem', ...(gold && { color: '#FFD700', textShadow: '0 0 2px #b8860b' }) }}>{emoji}</Typography>
                                                 <Box>
                                                     <Typography variant="caption" color="text.secondary" display="block">{label}</Typography>
                                                     <Typography variant="body2" fontWeight={600}
@@ -671,21 +688,264 @@ export default function TourDetailPage() {
                 {/* ── 크루즈 전용 섹션 ── */}
                 {category === 'cruise' && (
                     <>
-                        {['여행일정', '포함 / 불포함 정보', '가이드 / 인솔자 미팅정보', '상품가격'].map((title) => (
-                            <Box key={title}>
+                        {/* 여행 일정 */}
+                        <Box>
+                            <Divider />
+                            <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                    여행 일정
+                                </Typography>
+                                {cruiseItineraries.length === 0 ? (
+                                    <Typography variant="body2" color="text.disabled" textAlign="center" py={3}>등록된 일정이 없습니다.</Typography>
+                                ) : (
+                                    <Stack spacing={3}>
+                                        {cruiseItineraries.map(item => {
+                                            const locImgs  = (item.images || []).filter(i => i.imageType === 'LOCATION');
+                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
+                                            return (
+                                                <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+                                                    <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                        <Chip label={`${item.dayNumber}일차`} size="small" color="primary" />
+                                                        <Typography fontWeight={700} sx={{ fontSize: '1rem' }}>{item.title}</Typography>
+                                                    </Box>
+                                                    <Box sx={{ px: 2.5, py: 2 }}>
+                                                        {item.description && (
+                                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
+                                                                {item.description}
+                                                            </Typography>
+                                                        )}
+                                                        {(item.schedules || []).length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <AccessTimeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
+                                                                </Stack>
+                                                                <Stack spacing={0.75}>
+                                                                    {item.schedules.map(s => (
+                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
+                                                                            <Typography variant="body2" fontWeight={700} color="primary.main" sx={{ minWidth: 48 }}>
+                                                                                {s.time || ''}
+                                                                            </Typography>
+                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
+                                                                        </Stack>
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {locImgs.length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <LandscapeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
+                                                                </Stack>
+                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                    {locImgs.map(img => (
+                                                                        <Box key={img.id} component="img"
+                                                                            src={`${IMG_BASE}${img.imagePath}`}
+                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {item.hotelName && (
+                                                            <Box sx={{ mt: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <HotelIcon fontSize="small" color="action" />
+                                                                    <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
+                                                                </Stack>
+                                                                {hotelImgs.length > 0 && (
+                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                        {hotelImgs.map(img => (
+                                                                            <Box key={img.id} component="img"
+                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                        ))}
+                                                                    </Stack>
+                                                                )}
+                                                            </Box>
+                                                        )}
+                                                        {item.shoppingCenterName && (
+                                                            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'warning.50', borderRadius: 1 }}>
+                                                                <Typography variant="caption" fontWeight={700} color="warning.dark">🛍 쇼핑</Typography>
+                                                                <Typography variant="body2" fontWeight={600}>{item.shoppingCenterName}</Typography>
+                                                                {item.shoppingInfo && <Typography variant="caption" color="text.secondary" display="block">{item.shoppingInfo}</Typography>}
+                                                                {item.shoppingExchangeInfo && <Typography variant="caption" color="text.secondary" display="block">교환/환불: {item.shoppingExchangeInfo}</Typography>}
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Stack>
+                                )}
+                            </Box>
+                        </Box>
+
+                        {/* 포함 / 불포함 */}
+                        {cruiseDetail && (cruiseDetail.includedItems || cruiseDetail.excludedItems) && (
+                            <Box>
                                 <Divider />
                                 <Box sx={{ p: { xs: 2.5, md: 4 } }}>
-                                    <Typography variant="h6" fontWeight={800}
-                                        sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}
-                                    >
-                                        {title}
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        포함 / 불포함 정보
                                     </Typography>
-                                    <Box sx={{ py: 4, textAlign: 'center', color: 'text.disabled' }}>
-                                        <Typography variant="body2">준비 중입니다.</Typography>
-                                    </Box>
+                                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+                                        {cruiseDetail.includedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#f1f8e9', borderRadius: 2, borderLeft: '4px solid #66bb6a' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#2e7d32" mb={1}>✅ 포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{cruiseDetail.includedItems}</Typography>
+                                            </Box>
+                                        )}
+                                        {cruiseDetail.excludedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#fce4ec', borderRadius: 2, borderLeft: '4px solid #ef5350' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#c62828" mb={1}>❌ 불포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{cruiseDetail.excludedItems}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
                                 </Box>
                             </Box>
-                        ))}
+                        )}
+
+                        {/* 가이드 / 인솔자 미팅정보 */}
+                        {cruiseDetail && (cruiseDetail.guideName || cruiseDetail.meetingLocation) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        가이드 / 인솔자 미팅정보
+                                    </Typography>
+                                    <Stack spacing={1.5}>
+                                        {cruiseDetail.guideName && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>인솔자명</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{cruiseDetail.guideName}</Typography>
+                                            </Stack>
+                                        )}
+                                        {cruiseDetail.guidePhone && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>연락처</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{cruiseDetail.guidePhone}</Typography>
+                                            </Stack>
+                                        )}
+                                        {cruiseDetail.meetingLocation && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 장소</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{cruiseDetail.meetingLocation}</Typography>
+                                            </Stack>
+                                        )}
+                                        {cruiseDetail.meetingTime && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 시간</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{cruiseDetail.meetingTime}</Typography>
+                                            </Stack>
+                                        )}
+                                        {cruiseDetail.notes && (
+                                            <Box sx={{ mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111', fontWeight: 500 }}>{cruiseDetail.notes}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품 가격 */}
+                        {cruisePrices.length > 0 && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        상품 가격
+                                    </Typography>
+                                    {(cruiseDetail?.ageAdult || cruiseDetail?.ageChild || cruiseDetail?.ageInfant) && (
+                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                            {cruiseDetail.ageAdult  && <Typography variant="caption" sx={{ color: '#111' }}>성인: <strong>{cruiseDetail.ageAdult}</strong></Typography>}
+                                            {cruiseDetail.ageChild  && <Typography variant="caption" sx={{ color: '#111' }}>아동: <strong>{cruiseDetail.ageChild}</strong></Typography>}
+                                            {cruiseDetail.ageInfant && <Typography variant="caption" sx={{ color: '#111' }}>유아: <strong>{cruiseDetail.ageInfant}</strong></Typography>}
+                                        </Stack>
+                                    )}
+                                    <Table size="small">
+                                        <TableHead>
+                                            <TableRow sx={{ bgcolor: 'grey.50' }}>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>객실 타입</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>성인</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>아동</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>유아</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {cruisePrices.map(p => (
+                                                <TableRow key={p.id}>
+                                                    <TableCell align="center" sx={{ fontWeight: 600, color: '#111' }}>{p.cabinType}</TableCell>
+                                                    <TableCell align="center" sx={{ color: '#111' }}>{p.priceAdult ? Number(p.priceAdult).toLocaleString() + '원' : '-'}</TableCell>
+                                                    <TableCell align="center" sx={{ color: '#111' }}>{p.priceChild  ? Number(p.priceChild).toLocaleString()  + '원' : '-'}</TableCell>
+                                                    <TableCell align="center" sx={{ color: '#111' }}>{p.priceInfant ? Number(p.priceInfant).toLocaleString() + '원' : '-'}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    {cruiseDetail?.surchargeInfo && (
+                                        <Box sx={{ mt: 3 }}>
+                                            <Typography variant="body2" fontWeight={700} sx={{ mb: 1 }}>유료할증료</Typography>
+                                            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{cruiseDetail.surchargeInfo}</Typography>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 유의사항 */}
+                        {cruiseDetail && (cruiseDetail.insuranceInfo || cruiseDetail.emergencyContact || cruiseDetail.passportVisaInfo || cruiseDetail.otherNotices) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        유의사항
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        {[
+                                            { label: '여행자 보험',    value: cruiseDetail.insuranceInfo },
+                                            { label: '비상 연락처',    value: cruiseDetail.emergencyContact },
+                                            { label: '여권 / 비자 안내', value: cruiseDetail.passportVisaInfo },
+                                            { label: '기타 유의사항',  value: cruiseDetail.otherNotices },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="body2" fontWeight={700} sx={{ mb: 0.75 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품약관 / 예약시유의사항 / 나라별입국규정 */}
+                        {cruiseDetail && (cruiseDetail.terms || cruiseDetail.reservationNotes || cruiseDetail.entryRegulations) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Stack spacing={3}>
+                                        {[
+                                            { label: '상품 약관',       value: cruiseDetail.terms },
+                                            { label: '예약시 유의사항', value: cruiseDetail.reservationNotes },
+                                            { label: '나라별 입국규정', value: cruiseDetail.entryRegulations },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 1.5 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
                     </>
                 )}
 

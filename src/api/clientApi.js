@@ -11,3 +11,12 @@ export const getProductImages = (id) =>
 
 export const getProductFiles = (id) =>
     http.get(`/api/products/${id}/files`).then(res => res.data);
+
+export const getCruiseItineraries = (id) =>
+    http.get(`/api/products/${id}/cruise-itineraries`).then(res => res.data);
+
+export const getCruiseDetail = (id) =>
+    http.get(`/api/products/${id}/cruise-details`).then(res => res.data);
+
+export const getCruisePrices = (id) =>
+    http.get(`/api/products/${id}/cruise-prices`).then(res => res.data);

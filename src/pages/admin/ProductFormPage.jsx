@@ -8,9 +8,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as api from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
-import ProductImageTab from './tabs/ProductImageTab';
-import ProductVideoTab from './tabs/ProductVideoTab';
-import ProductFileTab  from './tabs/ProductFileTab';
+import ProductImageTab      from './tabs/ProductImageTab';
+import ProductVideoTab      from './tabs/ProductVideoTab';
+import ProductFileTab       from './tabs/ProductFileTab';
+import CruiseItineraryTab   from './tabs/CruiseItineraryTab';
 
 const EMPTY_FORM = {
     categoryId:        '',
@@ -76,6 +77,23 @@ export default function ProductFormPage() {
 
     const tabsUnlocked = isEdit || savedProductId !== null;
     const activeProductId = isEdit ? Number(id) : savedProductId;
+
+    const getCategoryType = () => {
+        if (!form.categoryId) return null;
+        const cat = categoryOptions.find(c => c.categoryId === Number(form.categoryId));
+        if (!cat) return null;
+        const root = cat.depth === 1 ? cat : categoryOptions.find(c => c.categoryId === cat.parentId);
+        if (!root) return null;
+        if (root.categoryName.includes('크루즈')) return 'cruise';
+        if (root.categoryName.includes('항공')) return 'air';
+        if (root.categoryName.includes('국내')) return 'domestic';
+        if (root.categoryName.includes('수학여행')) return 'school';
+        return null;
+    };
+    const categoryType = getCategoryType();
+    const TAB_IMAGE = 2;
+    const TAB_VIDEO = 3;
+    const TAB_FILE  = 4;
 
     /* 미디어 현황 요약 로드 */
     const loadMediaSummary = async (pid) => {
@@ -208,7 +226,7 @@ export default function ProductFormPage() {
                 // 최초 등록
                 const result = await api.createProduct(payload);
                 setSavedProductId(result.productId);
-                setToast({ open: true, msg: '저장되었습니다. 이미지·첨부파일을 이어서 등록하세요.', sev: 'success' });
+                setToast({ open: true, msg: `저장되었습니다. [일정 정보] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화되었습니다.`, sev: 'success' });
                 setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 800);
             }
         } catch (error) {
@@ -279,9 +297,19 @@ export default function ProductFormPage() {
                     <Tab
                         disabled={!tabsUnlocked}
                         label={
+                            categoryType === 'cruise'   ? '크루즈 일정 정보' :
+                            categoryType === 'air'      ? '항공 일정 정보' :
+                            categoryType === 'domestic' ? '국내여행 일정 정보' :
+                            categoryType === 'school'   ? '수학여행 일정 정보' :
+                                                          '일정 정보'
+                        }
+                    />
+                    <Tab
+                        disabled={!tabsUnlocked}
+                        label={
                             tabsUnlocked
-                                ? `이미지 ${mediaSummary.imageCount > 0 ? `(${mediaSummary.imageCount})` : '-'}`
-                                : '이미지'
+                                ? `메인화면 썸네일 이미지 ${mediaSummary.imageCount > 0 ? `(${mediaSummary.imageCount})` : '-'}`
+                                : '메인화면 썸네일 이미지'
                         }
                     />
                     <Tab
@@ -305,7 +333,15 @@ export default function ProductFormPage() {
                 {/* 신규 등록 시 탭 안내 문구 */}
                 {!isEdit && !tabsUnlocked && (
                     <Alert severity="info" sx={{ mb: 2 }}>
-                        기본정보를 저장하면 이미지·유튜브 동영상·첨부파일 탭이 활성화됩니다. 동영상은 유튜브 URL로 등록합니다.
+                        {categoryType
+                            ? `기본정보를 저장하면 [${
+                                categoryType === 'cruise'   ? '크루즈 일정 정보' :
+                                categoryType === 'air'      ? '항공 일정 정보' :
+                                categoryType === 'domestic' ? '국내여행 일정 정보' :
+                                                              '수학여행 일정 정보'
+                              }] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다.`
+                            : '기본정보를 저장하면 [일정 정보] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다. 카테고리를 선택하면 해당 일정 정보 탭도 함께 활성화됩니다.'
+                        } 동영상은 유튜브 URL로 등록합니다.
                     </Alert>
                 )}
 
@@ -433,7 +469,7 @@ export default function ProductFormPage() {
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
                                     {[
                                         { name: 'hasShopping',     label: '🛍️ 쇼핑' },
-                                        { name: 'hasGuideFee',     label: '💲 가이드비용' },
+                                        { name: 'hasGuideFee',     label: '🪙 가이드비용' },
                                         { name: 'hasEscort',       label: '🧑‍✈️ 인솔자' },
                                         { name: 'hasOptionalTour', label: '🎯 선택관광' },
                                     ].map(({ name, label }) => (
@@ -589,8 +625,21 @@ export default function ProductFormPage() {
                     </Stack>
                 )}
 
+                {/* ── 카테고리별 일정 탭 ── */}
+                {tab === 1 && tabsUnlocked && (
+                    categoryType === 'cruise' ? (
+                        <CruiseItineraryTab productId={activeProductId} />
+                    ) : (
+                        <Box sx={{ py: 6, textAlign: 'center', color: 'text.disabled' }}>
+                            <Typography variant="body2">
+                                {categoryType ? '해당 카테고리의 일정 정보는 준비 중입니다.' : '카테고리를 선택해주세요.'}
+                            </Typography>
+                        </Box>
+                    )
+                )}
+
                 {/* ── 이미지 탭 ── */}
-                {tab === 1 && (
+                {tab === TAB_IMAGE && (
                     <ProductImageTab
                         productId={activeProductId}
                         onUpdate={() => loadMediaSummary(activeProductId)}
@@ -598,7 +647,7 @@ export default function ProductFormPage() {
                 )}
 
                 {/* ── 유튜브 동영상 탭 ── */}
-                {tab === 2 && (
+                {tab === TAB_VIDEO && (
                     <ProductVideoTab
                         productId={activeProductId}
                         onUpdate={() => loadMediaSummary(activeProductId)}
@@ -606,7 +655,7 @@ export default function ProductFormPage() {
                 )}
 
                 {/* ── 첨부파일 탭 ── */}
-                {tab === 3 && (
+                {tab === TAB_FILE && (
                     <ProductFileTab
                         productId={activeProductId}
                         onUpdate={() => loadMediaSummary(activeProductId)}

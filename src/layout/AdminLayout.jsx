@@ -21,10 +21,11 @@ export default function AdminLayout() {
     // 역할 : 메뉴에서 사용할 이동 경로(to)를 미리 정의한다.
     // const : 재할당 불가
     const items = [
-        { label: '대시보드', to: '/admin' },
+        { label: '홈페이지 이용 현황', to: '/admin' },
         { label: '카테고리 관리', to: '/admin/categories' },
         { label: '여행상품 관리', to: '/admin/products' },
-        { label: '예약 관리', to: '/admin/bookings' },
+        { label: '예약 및 결제 관리 현황', to: '/admin/bookings' },
+        { label: '고객 리뷰 관리', to: '/admin/review' },
     ];
 
     return (
