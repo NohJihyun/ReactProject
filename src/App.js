@@ -19,6 +19,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryPage from './pages/admin/CategoryPage';
 import ProductPage from './pages/admin/ProductPage';
 import ProductFormPage from './pages/admin/ProductFormPage';
+import AdminReviewPage from './pages/admin/AdminReviewPage';
+import MyReviewPage from './pages/client/MyReviewPage';
 
 // auth
 import AuthProvider from "./auth/AuthProvider";
@@ -46,6 +48,7 @@ export default function App() {
                     >
                         <Route path="/client" element={<ClientHome />} />
                         <Route path="/client/other" element={<OtherClientPage />} />
+                        <Route path="/client/reviews" element={<MyReviewPage />} />
                     </Route>
 
                     {/*  관리자 영역 (ADMIN) */}
@@ -58,6 +61,7 @@ export default function App() {
                             <Route path="/admin/products" element={<ProductPage />} />
                             <Route path="/admin/products/new" element={<ProductFormPage />} />
                             <Route path="/admin/products/:id" element={<ProductFormPage />} />
+                            <Route path="/admin/review" element={<AdminReviewPage />} />
                         </Route>
                     </Route>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Box, Container, Typography, Chip, Button, Skeleton,
@@ -23,6 +23,8 @@ import DirectionsBoatIcon  from '@mui/icons-material/DirectionsBoat';
 import AccessTimeIcon  from '@mui/icons-material/AccessTime';
 import HotelIcon       from '@mui/icons-material/Hotel';
 import { getProductById, getProductImages, getProductFiles, getCruiseItineraries, getCruiseDetail, getCruisePrices } from '../../api/clientApi';
+import { getReviewStats } from '../../api/reviewApi';
+import ReviewSection from '../../components/review/ReviewSection';
 
 const IMG_BASE = 'http://localhost:8080';
 
@@ -101,6 +103,8 @@ export default function TourDetailPage() {
     const [cruiseItineraries,  setCruiseItineraries]  = useState([]);
     const [cruiseDetail,       setCruiseDetail]       = useState(null);
     const [cruisePrices,       setCruisePrices]       = useState([]);
+    const [reviewStats,        setReviewStats]        = useState({ totalCount: 0, averageRating: 0 });
+    const reviewSectionRef = useRef(null);
 
     useEffect(() => {
         Promise.all([getProductById(id), getProductImages(id), getProductFiles(id)])
@@ -113,6 +117,7 @@ export default function TourDetailPage() {
             })
             .catch(() => {})
             .finally(() => setLoading(false));
+        getReviewStats(id).then(setReviewStats).catch(() => {});
     }, [id]);
 
     useEffect(() => {
@@ -457,13 +462,21 @@ export default function TourDetailPage() {
                                         </Box>
                                         <Typography variant="caption" fontWeight={700} sx={{ color: '#111', fontSize: '0.75rem' }}>SNS</Typography>
                                     </Stack>
-                                    <Stack direction="row" alignItems="center" spacing={0.4}>
+                                    <Stack direction="row" alignItems="center" spacing={0.4}
+                                        onClick={() => reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                        sx={{ cursor: 'pointer', '&:hover': { opacity: 0.7 } }}>
                                         <Typography sx={{ fontSize: '1rem' }}>💬</Typography>
-                                        <Typography variant="caption" fontWeight={600} color="text.secondary">0</Typography>
+                                        <Typography variant="caption" fontWeight={600} color="text.secondary">
+                                            {reviewStats.totalCount}
+                                        </Typography>
                                     </Stack>
-                                    <Stack direction="row" alignItems="center" spacing={0.4}>
+                                    <Stack direction="row" alignItems="center" spacing={0.4}
+                                        onClick={() => reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                        sx={{ cursor: 'pointer', '&:hover': { opacity: 0.7 } }}>
                                         <Typography sx={{ fontSize: '1rem' }}>⭐</Typography>
-                                        <Typography variant="caption" fontWeight={600} color="text.secondary">0.0</Typography>
+                                        <Typography variant="caption" fontWeight={600} color="text.secondary">
+                                            {Number(reviewStats.averageRating).toFixed(1)}
+                                        </Typography>
                                     </Stack>
                                 </Stack>
                             </Stack>
@@ -948,6 +961,9 @@ export default function TourDetailPage() {
                         )}
                     </>
                 )}
+
+                {/* ── 고객 후기 섹션 (모든 카테고리 공통) ── */}
+                <ReviewSection ref={reviewSectionRef} productId={Number(id)} />
 
                 </Box>
 
