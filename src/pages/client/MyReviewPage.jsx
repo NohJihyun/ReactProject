@@ -11,6 +11,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon    from '@mui/icons-material/Add';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import CloseIcon  from '@mui/icons-material/Close';
+import HomeIcon   from '@mui/icons-material/Home';
+import { useNavigate } from 'react-router-dom';
 import * as reviewApi from '../../api/reviewApi';
 import { getProductsByCategory } from '../../api/clientApi';
 
@@ -26,6 +28,7 @@ const CATEGORIES = [
 const EMPTY_FORM = { writerType: 'GENERAL', rating: 5, content: '' };
 
 export default function MyReviewPage() {
+    const navigate = useNavigate();
     const [reviews,   setReviews]   = useState([]);
     const [page,      setPage]      = useState(1);
     const [totalPage, setTotalPage] = useState(1);
@@ -148,6 +151,14 @@ export default function MyReviewPage() {
         <Container maxWidth="md" sx={{ py: 4 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
                 <Box>
+                    <Button
+                        size="small"
+                        startIcon={<HomeIcon />}
+                        onClick={() => { navigate('/'); window.scrollTo(0, 0); }}
+                        sx={{ mb: 0.5, color: 'text.secondary', fontWeight: 500 }}
+                    >
+                        홈으로
+                    </Button>
                     <Typography variant="h5" fontWeight={800}>내 후기 관리</Typography>
                     <Typography variant="body2" color="text.secondary">총 {total}개의 후기</Typography>
                 </Box>

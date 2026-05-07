@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    Box, Container, Typography, Grid, Chip, Skeleton, Stack,
+    Box, Container, Typography, Chip, Skeleton, Stack,
 } from '@mui/material';
 import PeopleIcon         from '@mui/icons-material/People';
 import AttachMoneyIcon    from '@mui/icons-material/AttachMoney';
@@ -9,13 +9,18 @@ import SchoolIcon         from '@mui/icons-material/School';
 import LandscapeIcon      from '@mui/icons-material/Landscape';
 import FlightIcon         from '@mui/icons-material/Flight';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 import { getProductsByCategory } from '../../api/clientApi';
 
 const CATEGORY_META = {
-    domestic: { icon: <LandscapeIcon sx={{ fontSize: 16 }} />,      color: '#2e7d32' },
-    air:      { icon: <FlightIcon sx={{ fontSize: 16 }} />,         color: '#e65100' },
-    cruise:   { icon: <DirectionsBoatIcon sx={{ fontSize: 16 }} />, color: '#0277bd' },
-    school:   { icon: <SchoolIcon sx={{ fontSize: 16 }} />,         color: '#3f51b5' },
+    domestic: { icon: <LandscapeIcon sx={{ fontSize: 16 }} />,      color: '#2e7d32', gradient: 'linear-gradient(135deg, #2e7d32 0%, #43a047 100%)' },
+    air:      { icon: <FlightIcon sx={{ fontSize: 16 }} />,         color: '#e65100', gradient: 'linear-gradient(135deg, #e65100 0%, #ef6c00 100%)' },
+    cruise:   { icon: <DirectionsBoatIcon sx={{ fontSize: 16 }} />, color: '#0277bd', gradient: 'linear-gradient(135deg, #0277bd 0%, #0288d1 100%)' },
+    school:   { icon: <SchoolIcon sx={{ fontSize: 16 }} />,         color: '#3f51b5', gradient: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)' },
 };
 
 const formatDt = (dt) => {
@@ -55,16 +60,17 @@ const getStatusChip = (exposureEndAt) => {
 };
 
 function ProductCard({ product, categorySlug, onClick }) {
-    const price      = formatPrice(product.pricePerPerson);
-    const meta       = CATEGORY_META[categorySlug] ?? {};
-    const depDt      = formatDt(product.departureAt);
-    const arrDt      = formatDt(product.arrivalAt);
-    const hasRoute   = product.departureLocation || depDt;
-    const statusChip = getStatusChip(product.exposureEndAt);
+    const price       = formatPrice(product.pricePerPerson);
+    const meta        = CATEGORY_META[categorySlug] ?? {};
+    const depDt       = formatDt(product.departureAt);
+    const arrDt       = formatDt(product.arrivalAt);
+    const hasRoute    = product.departureLocation || depDt;
+    const statusChip  = getStatusChip(product.exposureEndAt);
     const peopleLabel = product.minPeople && product.maxPeople
         ? `${product.minPeople}~${product.maxPeople}인`
         : product.minPeople ? `${product.minPeople}인 이상`
         : product.maxPeople ? `최대 ${product.maxPeople}인` : null;
+
     return (
         <Box
             onClick={onClick}
@@ -75,13 +81,17 @@ function ProductCard({ product, categorySlug, onClick }) {
                 boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
                 transition: 'transform 0.25s, box-shadow 0.25s',
                 cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                height: 420,
                 '&:hover': {
                     transform: 'translateY(-6px)',
                     boxShadow: '0 8px 28px rgba(0,0,0,0.16)',
                 },
             }}
         >
-            <Box sx={{ position: 'relative', width: '100%', paddingTop: '72%', bgcolor: '#f0f0f0' }}>
+            {/* 썸네일 */}
+            <Box sx={{ position: 'relative', width: '100%', height: 200, flexShrink: 0, bgcolor: '#f0f0f0' }}>
                 {product.thumbnailPath ? (
                     <img
                         src={`${IMG_BASE}${product.thumbnailPath}`}
@@ -99,7 +109,8 @@ function ProductCard({ product, categorySlug, onClick }) {
                 )}
             </Box>
 
-            <Box sx={{ p: 2.5 }}>
+            {/* 내용 */}
+            <Box sx={{ p: 2.5, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 {/* 상태 + 추천 chip */}
                 <Stack direction="row" spacing={0.75} sx={{ mb: 1 }}>
                     <Chip
@@ -126,19 +137,17 @@ function ProductCard({ product, categorySlug, onClick }) {
                     {product.productName}
                 </Typography>
 
-                {product.summary && (
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                            overflow: 'hidden', display: '-webkit-box',
-                            WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                            mb: 1.5, lineHeight: 1.6, minHeight: '3.2em', fontSize: '0.875rem',
-                        }}
-                    >
-                        {product.summary}
-                    </Typography>
-                )}
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                        overflow: 'hidden', display: '-webkit-box',
+                        WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                        mb: 1.5, lineHeight: 1.6, minHeight: '3.2em', fontSize: '0.875rem',
+                    }}
+                >
+                    {product.summary || ''}
+                </Typography>
 
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 0.5 }}>
                     {peopleLabel && (
@@ -189,7 +198,7 @@ function ProductCard({ product, categorySlug, onClick }) {
                 )}
 
                 {product.hashtags && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 'auto', pt: 1 }}>
                         {parseTags(product.hashtags).map((tag) => (
                             <Typography key={tag} variant="caption" sx={{ color: meta.color ?? '#1976d2', fontSize: '0.68rem', fontWeight: 500, textAlign: 'center', flex: 1, whiteSpace: 'nowrap' }}>
                                 {tag}
@@ -204,23 +213,46 @@ function ProductCard({ product, categorySlug, onClick }) {
 
 function CardSkeleton() {
     return (
-        <Box sx={{ borderRadius: 3, overflow: 'hidden', bgcolor: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-            <Skeleton variant="rectangular" width="100%" height={220} />
-            <Box sx={{ p: 2 }}>
-                <Skeleton variant="text" width="70%" height={28} />
+        <Box sx={{ borderRadius: 3, overflow: 'hidden', bgcolor: 'white', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', height: 420, display: 'flex', flexDirection: 'column' }}>
+            <Skeleton variant="rectangular" width="100%" height={200} sx={{ flexShrink: 0 }} />
+            <Box sx={{ p: 2.5, flex: 1 }}>
+                <Skeleton variant="text" width="40%" height={24} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="80%" height={28} sx={{ mb: 0.5 }} />
                 <Skeleton variant="text" width="100%" />
-                <Skeleton variant="text" width="80%" />
+                <Skeleton variant="text" width="70%" sx={{ mb: 1.5 }} />
+                <Skeleton variant="text" width="50%" height={24} />
             </Box>
         </Box>
     );
+}
+
+/* Swiper 네비게이션 공통 스타일 */
+function swiperNavStyle(color) {
+    return {
+        '& .swiper-button-prev, & .swiper-button-next': {
+            top: 'auto',
+            bottom: '0px',
+            width: '28px',
+            height: '28px',
+            zIndex: 20,
+            color,
+            '&::after': { fontSize: '14px', fontWeight: '900' },
+            '&.swiper-button-disabled': { opacity: 0.3 },
+        },
+        '& .swiper-button-prev': { left: 'calc(50% - 72px)' },
+        '& .swiper-button-next': { right: 'calc(50% - 72px)' },
+        '& .swiper-pagination': { bottom: '4px', zIndex: 10 },
+        '& .swiper-pagination-bullet-active': { background: color },
+    };
 }
 
 export default function TourListPage() {
     const { category } = useParams();
     const navigate = useNavigate();
     const categoryName = CATEGORY_MAP[category];
+    const meta = CATEGORY_META[category] ?? {};
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading]   = useState(true);
 
     useEffect(() => {
         if (!categoryName) { setLoading(false); return; }
@@ -240,22 +272,36 @@ export default function TourListPage() {
 
     return (
         <Box sx={{ bgcolor: '#f7f8fc', minHeight: '100vh', py: 5 }}>
-            <Container maxWidth="lg">
-                <Typography variant="h4" fontWeight={800} sx={{ mb: 1, fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
-                    {categoryName}
-                </Typography>
-                <Box sx={{ height: 3, width: 48, borderRadius: 2, bgcolor: '#2e7d32', mb: 4 }} />
+            <Container maxWidth="xl">
+                {/* 페이지 헤더 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Box sx={{
+                        width: 48, height: 48, borderRadius: 2,
+                        background: meta.gradient ?? '#ccc',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontSize: 24,
+                    }}>
+                        {CATEGORY_META[category]?.icon}
+                    </Box>
+                    <Box>
+                        <Typography variant="h4" fontWeight={800} lineHeight={1.2} sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}>
+                            {categoryName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            총 {loading ? '-' : products.length}개 상품
+                        </Typography>
+                    </Box>
+                </Box>
+                <Box sx={{ height: 3, width: 48, borderRadius: 2, background: meta.gradient ?? '#ccc', mb: 4 }} />
 
+                {/* 스켈레톤 */}
                 {loading && (
-                    <Grid container spacing={3}>
-                        {[1, 2, 3, 4, 5, 6].map(i => (
-                            <Grid item xs={12} sm={6} md={4} key={i}>
-                                <CardSkeleton />
-                            </Grid>
-                        ))}
-                    </Grid>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2,1fr)', md: 'repeat(3,1fr)', lg: 'repeat(4,1fr)' }, gap: 3 }}>
+                        {[1, 2, 3, 4].map(i => <CardSkeleton key={i} />)}
+                    </Box>
                 )}
 
+                {/* 상품 없음 */}
                 {!loading && products.length === 0 && (
                     <Box sx={{
                         py: 10, textAlign: 'center', borderRadius: 3,
@@ -265,18 +311,33 @@ export default function TourListPage() {
                     </Box>
                 )}
 
+                {/* Swiper */}
                 {!loading && products.length > 0 && (
-                    <Grid container spacing={3}>
-                        {products.map(p => (
-                            <Grid item xs={12} sm={6} md={4} key={p.productId}>
-                                <ProductCard
-                                    product={p}
-                                    categorySlug={category}
-                                    onClick={() => { navigate(`/tour/${category}/${p.productId}`); window.scrollTo(0, 0); }}
-                                />
-                            </Grid>
-                        ))}
-                    </Grid>
+                    <Box sx={swiperNavStyle(meta.color ?? '#1976d2')}>
+                        <Swiper
+                            modules={[Navigation, Pagination]}
+                            spaceBetween={24}
+                            slidesPerView={1}
+                            navigation
+                            pagination={{ clickable: true }}
+                            breakpoints={{
+                                600:  { slidesPerView: 2 },
+                                960:  { slidesPerView: 3 },
+                                1280: { slidesPerView: 4 },
+                            }}
+                            style={{ paddingBottom: '44px' }}
+                        >
+                            {products.map(p => (
+                                <SwiperSlide key={p.productId}>
+                                    <ProductCard
+                                        product={p}
+                                        categorySlug={category}
+                                        onClick={() => { navigate(`/tour/${category}/${p.productId}`); window.scrollTo(0, 0); }}
+                                    />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </Box>
                 )}
             </Container>
         </Box>

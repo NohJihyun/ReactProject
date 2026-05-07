@@ -11,11 +11,19 @@ import {
     ListItem,
     ListItemButton,
     ListItemText,
+    ListItemIcon,
     Divider,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import HomeIcon from "@mui/icons-material/Home";
+import LandscapeIcon from "@mui/icons-material/Landscape";
+import FlightIcon from "@mui/icons-material/Flight";
+import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
+import SchoolIcon from "@mui/icons-material/School";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
@@ -29,13 +37,14 @@ import SocialTermsDialog from "./auth/SocialTermsDialog";
 import loginImg from "../assets/login.png";
 import signupImg from "../assets/signup.png";
 import adminImg from "../assets/adminpage.png";
+import reviewImg from "../assets/travelreview.png";
 
 
 const NAV_ITEMS = [
-    { label: '국내여행',      path: '/tour/domestic' },
-    { label: '항공 해외여행', path: '/tour/air' },
-    { label: '크루즈 해외여행', path: '/tour/cruise' },
-    { label: '수학여행',      path: '/tour/school' },
+    { label: '국내여행',       path: '/tour/domestic', icon: <LandscapeIcon fontSize="small" />,      color: '#2e7d32' },
+    { label: '항공 해외여행',  path: '/tour/air',      icon: <FlightIcon fontSize="small" />,         color: '#e65100' },
+    { label: '크루즈 해외여행', path: '/tour/cruise',  icon: <DirectionsBoatIcon fontSize="small" />, color: '#0277bd' },
+    { label: '수학여행',       path: '/tour/school',   icon: <SchoolIcon fontSize="small" />,         color: '#3f51b5' },
 ];
 
 const BRAND_GREEN = '#2e7d32';
@@ -51,6 +60,7 @@ export default function Header() {
     const [termsOpen, setTermsOpen] = useState(false);
     const [pendingOAuthToken, setPendingOAuthToken] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [guestSnack, setGuestSnack] = useState(false);
 
     useEffect(() => {
         if (location.state?.oauthError) {
@@ -74,6 +84,15 @@ export default function Header() {
     };
 
     const isAdmin = user?.role === "ADMIN";
+
+    const handleReviewClick = () => {
+        if (!user) {
+            setGuestSnack(true);
+        } else {
+            navigate("/client/reviews");
+            window.scrollTo(0, 0);
+        }
+    };
 
     return (
         <>
@@ -155,24 +174,24 @@ export default function Header() {
                         {!user ? (
                         <>
                             <Tooltip title="로그인">
-                                <IconButton onClick={() => setLoginOpen(true)} sx={{ p: 0.5 }}>
-                                    <Box
-                                        component="img"
-                                        src={loginImg}
-                                        alt="login"
-                                        sx={{ width: { xs: 40, md: 80 }, height: { xs: 40, md: 80 }, borderRadius: 20 }}
-                                    />
+                                <IconButton onClick={() => setLoginOpen(true)} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                    <Box component="img" src={loginImg} alt="login"
+                                        sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                    <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>로그인</Typography>
                                 </IconButton>
                             </Tooltip>
-                            {/* 회원가입 */}
                             <Tooltip title="회원가입">
-                                <IconButton onClick={() => setSignupOpen(true)} sx={{ p: 0.5 }}>
-                                    <Box
-                                        component="img"
-                                        src={signupImg}
-                                        alt="signup"
-                                        sx={{ width: { xs: 40, md: 80 }, height: { xs: 40, md: 80 }, borderRadius: 20 }}
-                                    />
+                                <IconButton onClick={() => setSignupOpen(true)} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                    <Box component="img" src={signupImg} alt="signup"
+                                        sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                    <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>회원가입</Typography>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="여행후기">
+                                <IconButton onClick={handleReviewClick} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                    <Box component="img" src={reviewImg} alt="여행후기"
+                                        sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                    <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
                                 </IconButton>
                             </Tooltip>
                         </>
@@ -180,24 +199,24 @@ export default function Header() {
                             <>
                                 {isAdmin && (
                                     <Tooltip title="관리자 페이지">
-                                        <IconButton onClick={() => navigate("/admin")} sx={{ p: 0.5 }}>
-                                            <Box
-                                                component="img"
-                                                src={adminImg}
-                                                alt="admin"
-                                                sx={{ width: { xs: 40, md: 80 }, height: { xs: 40, md: 80 }, borderRadius: 20 }}
-                                            />
+                                        <IconButton onClick={() => navigate("/admin")} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                            <Box component="img" src={adminImg} alt="admin"
+                                                sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                            <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자페이지</Typography>
                                         </IconButton>
                                     </Tooltip>
                                 )}
-
+                                {!isAdmin && (
+                                    <Tooltip title="여행후기">
+                                        <IconButton onClick={handleReviewClick} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                            <Box component="img" src={reviewImg} alt="여행후기"
+                                                sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                            <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
                                 <Tooltip title="로그아웃">
-                                    <IconButton
-                                        onClick={() => {
-                                            logout();
-                                            navigate("/");
-                                        }}
-                                    >
+                                    <IconButton onClick={() => { logout(); navigate("/"); }}>
                                         <LogoutIcon />
                                     </IconButton>
                                 </Tooltip>
@@ -217,6 +236,23 @@ export default function Header() {
                             pendingToken={pendingOAuthToken}
                             onSuccess={() => { setTermsOpen(false); setPendingOAuthToken(null); }}
                             onClose={() => { setTermsOpen(false); setPendingOAuthToken(null); }}
+                        />
+                        <Snackbar
+                            open={guestSnack}
+                            autoHideDuration={6000}
+                            onClose={() => setGuestSnack(false)}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            message="회원가입 후 사용할 수 있는 메뉴입니다."
+                            action={
+                                <Button
+                                    color="primary"
+                                    size="small"
+                                    variant="contained"
+                                    onClick={() => { setGuestSnack(false); setSignupOpen(true); }}
+                                >
+                                    회원가입
+                                </Button>
+                            }
                         />
                     </Box>
                 </Box>
@@ -275,19 +311,37 @@ export default function Header() {
         <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
             <Box sx={{ width: 280 }}>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 2 }}>
-                    <Typography variant="h6" fontWeight={700}>메뉴</Typography>
+                    <Typography variant="h6" fontWeight={700}>전체메뉴</Typography>
                     <IconButton onClick={() => setDrawerOpen(false)}><CloseIcon /></IconButton>
                 </Box>
                 <Divider />
-                <List>
+                <List disablePadding>
+                    {/* 홈 */}
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            selected={location.pathname === '/'}
+                            onClick={() => { navigate('/'); setDrawerOpen(false); window.scrollTo(0, 0); }}
+                            sx={{ py: 1.5, '&.Mui-selected': { bgcolor: '#f1f8e9' }, '&.Mui-selected .MuiListItemIcon-root': { color: BRAND_GREEN }, '&.Mui-selected .MuiListItemText-primary': { color: BRAND_GREEN, fontWeight: 700 } }}
+                        >
+                            <ListItemIcon sx={{ minWidth: 36, color: '#9e9e9e' }}>
+                                <HomeIcon fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText primary="홈" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <Divider sx={{ mx: 2 }} />
+                    {/* 카테고리 */}
                     {NAV_ITEMS.map(item => (
                         <ListItem key={item.path} disablePadding>
                             <ListItemButton
                                 selected={location.pathname.startsWith(item.path)}
                                 onClick={() => { navigate(item.path); setDrawerOpen(false); window.scrollTo(0, 0); }}
-                                sx={{ '&.Mui-selected': { color: BRAND_GREEN, fontWeight: 700 } }}
+                                sx={{ py: 1.5, '&.Mui-selected': { bgcolor: '#f1f8e9' }, '&.Mui-selected .MuiListItemIcon-root': { color: item.color }, '&.Mui-selected .MuiListItemText-primary': { color: item.color, fontWeight: 700 } }}
                             >
-                                <ListItemText primary={item.label} />
+                                <ListItemIcon sx={{ minWidth: 36, color: '#9e9e9e' }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 600 }} />
                             </ListItemButton>
                         </ListItem>
                     ))}

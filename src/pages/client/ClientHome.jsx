@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Chip, Container, Skeleton, Stack } from '@mui/material';
+import { Box, Typography, Chip, Container, Skeleton, Stack, Rating, Fade } from '@mui/material';
 import SchoolIcon           from '@mui/icons-material/School';
 import LandscapeIcon        from '@mui/icons-material/Landscape';
 import FlightIcon           from '@mui/icons-material/Flight';
 import DirectionsBoatIcon   from '@mui/icons-material/DirectionsBoat';
 import PeopleIcon           from '@mui/icons-material/People';
 import AttachMoneyIcon      from '@mui/icons-material/AttachMoney';
+import RateReviewIcon       from '@mui/icons-material/RateReview';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { getProductsByCategory } from '../../api/clientApi';
+import { getRecentReviews } from '../../api/reviewApi';
 
 const CATEGORY_META = {
     domestic: { icon: <LandscapeIcon sx={{ fontSize: 16 }} />,      color: '#2e7d32' },
@@ -112,6 +114,9 @@ function ProductCard({ product, categorySlug, onClick }) {
                 boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
                 transition: 'transform 0.25s, box-shadow 0.25s',
                 cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                height: 420,
                 '&:hover': {
                     transform: 'translateY(-6px)',
                     boxShadow: '0 8px 28px rgba(0,0,0,0.16)',
@@ -119,7 +124,7 @@ function ProductCard({ product, categorySlug, onClick }) {
             }}
         >
             {/* 썸네일 */}
-            <Box sx={{ position: 'relative', width: '100%', paddingTop: '72%', bgcolor: '#f0f0f0' }}>
+            <Box sx={{ position: 'relative', width: '100%', height: 200, flexShrink: 0, bgcolor: '#f0f0f0' }}>
                 {product.thumbnailPath ? (
                     <img
                         src={`${IMG_BASE}${product.thumbnailPath}`}
@@ -142,7 +147,7 @@ function ProductCard({ product, categorySlug, onClick }) {
             </Box>
 
             {/* 내용 */}
-            <Box sx={{ p: 2.5 }}>
+            <Box sx={{ p: 2.5, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 {/* 상태 + 추천 chip */}
                 <Stack direction="row" spacing={0.75} sx={{ mb: 1 }}>
                     <Chip
@@ -253,6 +258,122 @@ function ProductCard({ product, categorySlug, onClick }) {
                         ))}
                     </Box>
                 )}
+            </Box>
+        </Box>
+    );
+}
+
+const CATEGORY_SLUG_MAP = {
+    '국내여행': 'domestic',
+    '항공 해외여행': 'air',
+    '크루즈 해외여행': 'cruise',
+    '수학여행': 'school',
+};
+
+const WRITER_TYPE_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER: '선생님' };
+const WRITER_TYPE_COLOR = { GENERAL: 'default', STUDENT: 'primary', TEACHER: 'success' };
+const WRITER_TYPE_ICON  = { GENERAL: '👤', STUDENT: '👨‍🎓', TEACHER: '👨‍🏫' };
+
+/* ── 후기 카드 (가로형) ── */
+function ReviewCard({ review, onClick }) {
+    const firstImage = review.images?.[0];
+    const date       = review.createdAt
+        ? new Date(review.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })
+        : '';
+
+    return (
+        <Box
+            onClick={onClick}
+            sx={{
+                borderRadius: 3,
+                bgcolor: 'white',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
+                borderLeft: '5px solid #ff6f00',
+                p: 2.5,
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 2,
+                height: 260,
+                position: 'relative',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                transition: 'transform 0.25s, box-shadow 0.25s',
+                '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 28px rgba(0,0,0,0.13)' },
+            }}
+        >
+            {/* 이미지 — 카드 높이 전체 */}
+            <Box sx={{
+                width: 220, flexShrink: 0,
+                borderRadius: 2,
+                overflow: 'hidden', bgcolor: '#f0f0f0',
+                alignSelf: 'stretch',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+                {firstImage ? (
+                    <img
+                        src={`${IMG_BASE}${firstImage.imagePath}`}
+                        alt="후기 이미지"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                ) : (
+                    <Typography sx={{ fontSize: '3rem', lineHeight: 1 }}>
+                        {WRITER_TYPE_ICON[review.writerType] ?? '👤'}
+                    </Typography>
+                )}
+            </Box>
+
+            {/* 오른쪽 내용 */}
+            <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                {/* 따옴표 — 오른쪽 */}
+                <Typography sx={{
+                    fontSize: '7rem', lineHeight: 1,
+                    color: '#ff6f00', opacity: 0.22,
+                    fontFamily: 'Georgia, serif', userSelect: 'none',
+                    textAlign: 'right', mb: -3,
+                }}>❝</Typography>
+
+                {/* 별점 + 유형 chip */}
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.75 }}>
+                    <Rating value={review.rating} readOnly size="small" sx={{ color: '#ff6f00' }} />
+                    <Chip
+                        label={WRITER_TYPE_LABEL[review.writerType] ?? review.writerType}
+                        size="small"
+                        color={WRITER_TYPE_COLOR[review.writerType] ?? 'default'}
+                        sx={{ fontSize: '0.6rem', height: 18 }}
+                    />
+                </Stack>
+
+                {/* 본문 */}
+                <Typography variant="body2" sx={{
+                    flex: 1,
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 4,
+                    WebkitBoxOrient: 'vertical',
+                    lineHeight: 1.7,
+                    color: 'text.primary',
+                    fontSize: '0.875rem',
+                    mb: 1,
+                }}>
+                    {review.content}
+                </Typography>
+
+                {/* 하단 */}
+                <Box sx={{ borderTop: '1px solid #f0f0f0', pt: 1, mt: 'auto' }}>
+                    <Typography variant="caption" fontWeight={700} color="text.primary" sx={{ display: 'block', mb: 0.2 }}>
+                        {review.userName}
+                    </Typography>
+                    <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.68rem', display: 'block', mb: 0.3 }}>
+                        {date}
+                    </Typography>
+                    <Typography variant="caption" sx={{
+                        color: '#1565c0', fontWeight: 600,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        display: 'block',
+                    }}>
+                        {review.productName}
+                    </Typography>
+                </Box>
             </Box>
         </Box>
     );
@@ -378,6 +499,115 @@ function CategorySection({ section }) {
     );
 }
 
+/* ── 최근 후기 섹션 ── */
+function RecentReviewSection() {
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [infoSnack, setInfoSnack] = useState(false);
+
+    useEffect(() => {
+        if (!infoSnack) return;
+        const t = setTimeout(() => setInfoSnack(false), 4000);
+        return () => clearTimeout(t);
+    }, [infoSnack]);
+
+    useEffect(() => {
+        getRecentReviews(12)
+            .then(setReviews)
+            .catch(() => setReviews([]))
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (!loading && reviews.length === 0) return null;
+
+    return (
+        <Box component="section" sx={{ bgcolor: '#fff8f1', pt: 6, pb: 6 }}>
+            <Container maxWidth="lg">
+                {/* 섹션 헤더 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
+                    <Box sx={{
+                        width: 44, height: 44, borderRadius: 2,
+                        background: 'linear-gradient(135deg, #ff6f00 0%, #ffb300 100%)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white',
+                    }}>
+                        <RateReviewIcon />
+                    </Box>
+                    <Box>
+                        <Typography variant="h5" fontWeight={800} lineHeight={1.2}>
+                            고객 여행후기
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            로이투어와 함께한 생생한 여행 이야기
+                        </Typography>
+                    </Box>
+                    <Fade in={infoSnack}>
+                        <Box sx={{
+                            px: 2, py: 0.8,
+                            bgcolor: '#f5f5f5',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: 2,
+                            color: '#757575',
+                            fontSize: '0.8rem',
+                            fontWeight: 500,
+                            whiteSpace: 'nowrap',
+                        }}>
+                            ✏️ 등록한 글 관리는 오른쪽 상단 여행후기에서 하실 수 있어요
+                        </Box>
+                    </Fade>
+                </Box>
+                <Box sx={{
+                    height: 3, width: 48, borderRadius: 2,
+                    background: 'linear-gradient(135deg, #ff6f00 0%, #ffb300 100%)',
+                    mb: 2.5,
+                }} />
+
+                {/* 스켈레톤 */}
+                {loading && (
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2,1fr)', md: 'repeat(3,1fr)' }, gap: 3 }}>
+                        {[1, 2, 3].map(i => <CardSkeleton key={i} />)}
+                    </Box>
+                )}
+
+                {/* Swiper */}
+                {!loading && reviews.length > 0 && (
+                    <Box sx={{
+                        '& .swiper-button-prev, & .swiper-button-next': {
+                            top: 'auto', bottom: '0px',
+                            width: '28px', height: '28px', zIndex: 20,
+                            color: '#ff6f00',
+                            '&::after': { fontSize: '14px', fontWeight: '900' },
+                            '&.swiper-button-disabled': { opacity: 0.3 },
+                        },
+                        '& .swiper-button-prev': { left: 'calc(50% - 72px)' },
+                        '& .swiper-button-next': { right: 'calc(50% - 72px)' },
+                        '& .swiper-pagination': { bottom: '4px', zIndex: 10 },
+                        '& .swiper-pagination-bullet-active': { background: '#ff6f00' },
+                    }}>
+                        <Swiper
+                            modules={[Navigation, Pagination, Autoplay]}
+                            spaceBetween={28}
+                            slidesPerView={1}
+                            navigation
+                            pagination={{ clickable: true }}
+                            autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+                            breakpoints={{ 600: { slidesPerView: 1 }, 960: { slidesPerView: 2 } }}
+                            style={{ paddingBottom: '40px' }}
+                        >
+                            {reviews.map(r => (
+                                <SwiperSlide key={r.id}>
+                                    <ReviewCard review={r} onClick={() => setInfoSnack(true)} />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </Box>
+                )}
+            </Container>
+
+        </Box>
+    );
+}
+
 /* ── 히어로 배너 ── */
 function HeroBanner() {
     return (
@@ -444,6 +674,7 @@ export default function ClientHome() {
             {SECTIONS.map(section => (
                 <CategorySection key={section.key} section={section} />
             ))}
+            <RecentReviewSection />
         </Box>
     );
 }
