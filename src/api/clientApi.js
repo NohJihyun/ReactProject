@@ -20,3 +20,21 @@ export const getCruiseDetail = (id) =>
 
 export const getCruisePrices = (id) =>
     http.get(`/api/products/${id}/cruise-prices`).then(res => res.data);
+
+export const getAirItineraries = (id) =>
+    http.get(`/api/products/${id}/air-itineraries`).then(res => res.data);
+
+export const getAirDetail = (id) =>
+    http.get(`/api/products/${id}/air-details`).then(res => res.data);
+
+export const getDomesticItineraries = (id) =>
+    http.get(`/api/products/${id}/domestic-itineraries`).then(res => res.data);
+
+export const getDomesticDetail = (id) =>
+    http.get(`/api/products/${id}/domestic-details`).then(res => res.data);
+
+export const getSchoolTripItineraries = (id) =>
+    http.get(`/api/products/${id}/school-trip-itineraries`).then(res => res.data);
+
+export const getSchoolTripDetail = (id) =>
+    http.get(`/api/products/${id}/school-trip-details`).then(res => res.data);

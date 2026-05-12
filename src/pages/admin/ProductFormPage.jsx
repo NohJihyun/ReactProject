@@ -13,6 +13,8 @@ import ProductVideoTab      from './tabs/ProductVideoTab';
 import ProductFileTab       from './tabs/ProductFileTab';
 import CruiseItineraryTab   from './tabs/CruiseItineraryTab';
 import AirItineraryTab      from './tabs/AirItineraryTab';
+import DomesticItineraryTab   from './tabs/DomesticItineraryTab';
+import SchoolTripItineraryTab from './tabs/SchoolTripItineraryTab';
 
 const EMPTY_FORM = {
     categoryId:        '',
@@ -226,6 +228,7 @@ export default function ProductFormPage() {
                 if (isEdit) {
                     setBasicInfoSaved(true);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => setTab(1), 2500);
                 }
             } else {
                 // 최초 등록
@@ -235,7 +238,7 @@ export default function ProductFormPage() {
                 setTimeout(() => {
                     setTab(1);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                }, 800);
+                }, 2500);
             }
         } catch (error) {
             const status    = error?.response?.status;
@@ -249,6 +252,20 @@ export default function ProductFormPage() {
     };
 
     const categoryLabel = (c) => c.depth === 1 ? c.categoryName : `└ ${c.categoryName}`;
+
+    const renderCategoryOptions = () =>
+        categoryOptions.map(c =>
+            c.depth === 1 ? (
+                <MenuItem key={c.categoryId} value="" disabled
+                    sx={{ fontWeight: 700, color: 'text.primary', opacity: '1 !important', fontSize: '0.85rem' }}>
+                    {c.categoryName}
+                </MenuItem>
+            ) : (
+                <MenuItem key={c.categoryId} value={c.categoryId} sx={{ pl: 3 }}>
+                    {c.categoryName}
+                </MenuItem>
+            )
+        );
 
     if (loading) {
         return (
@@ -376,11 +393,7 @@ export default function ProductFormPage() {
                                     select name="categoryId" label="카테고리 *"
                                     value={form.categoryId} onChange={change} fullWidth
                                 >
-                                    {categoryOptions.map(c => (
-                                        <MenuItem key={c.categoryId} value={c.categoryId}>
-                                            {categoryLabel(c)}
-                                        </MenuItem>
-                                    ))}
+                                    {renderCategoryOptions()}
                                 </TextField>
                                 <TextField
                                     name="productCode" label="상품 코드 *"
@@ -654,6 +667,16 @@ export default function ProductFormPage() {
                             productId={activeProductId}
                             onComplete={!isEdit ? () => setTab(TAB_IMAGE) : undefined}
                         />
+                    ) : categoryType === 'domestic' ? (
+                        <DomesticItineraryTab
+                            productId={activeProductId}
+                            onComplete={!isEdit ? () => setTab(TAB_IMAGE) : undefined}
+                        />
+                    ) : categoryType === 'school' ? (
+                        <SchoolTripItineraryTab
+                            productId={activeProductId}
+                            onComplete={!isEdit ? () => setTab(TAB_IMAGE) : undefined}
+                        />
                     ) : (
                         <Box sx={{ py: 6, textAlign: 'center', color: 'text.disabled' }}>
                             <Typography variant="body2">
@@ -694,7 +717,7 @@ export default function ProductFormPage() {
 
             <Snackbar
                 open={toast.open}
-                autoHideDuration={2500}
+                autoHideDuration={4000}
                 onClose={() => setToast(s => ({ ...s, open: false }))}
             >
                 <Alert severity={toast.sev} variant="filled">{toast.msg}</Alert>

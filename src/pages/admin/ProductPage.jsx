@@ -3,9 +3,12 @@ import {
     DialogContent, DialogActions, TextField, MenuItem,
     Snackbar, Alert, Chip, Tooltip
 } from '@mui/material';
-import ImageIcon      from '@mui/icons-material/Image';
-import VideocamIcon   from '@mui/icons-material/Videocam';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ImageIcon        from '@mui/icons-material/Image';
+import VideocamIcon     from '@mui/icons-material/Videocam';
+import AttachFileIcon   from '@mui/icons-material/AttachFile';
+import EventNoteIcon    from '@mui/icons-material/EventNote';
+import CheckCircleIcon  from '@mui/icons-material/CheckCircle';
+import CancelIcon       from '@mui/icons-material/Cancel';
 import Pagination from '@mui/material/Pagination';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -127,6 +130,7 @@ export default function ProductPage() {
                                 <th style={{ textAlign: 'left' }}>상품명</th>
                                 <th style={{ textAlign: 'center' }}>카테고리</th>
                                 <th style={{ textAlign: 'center' }}>미디어</th>
+                                <th style={{ textAlign: 'center' }}>일정 현황</th>
                                 <th style={{ textAlign: 'center' }}>상태</th>
                                 <th style={{ textAlign: 'center' }}>추천</th>
                                 <th style={{ textAlign: 'center' }}>활성</th>
@@ -137,7 +141,7 @@ export default function ProductPage() {
                         <tbody>
                             {rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={12} style={{ textAlign: 'center', padding: '32px', color: '#888' }}>
+                                    <td colSpan={13} style={{ textAlign: 'center', padding: '32px', color: '#888' }}>
                                         데이터가 없습니다.
                                     </td>
                                 </tr>
@@ -220,6 +224,31 @@ export default function ProductPage() {
                                                 </Tooltip>
                                             </Stack>
                                         </td>
+
+                                        {/* 일정 현황 */}
+                                        <td style={{ textAlign: 'center' }}>
+                                            <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+                                                <Tooltip title={`여행 일정 ${row.itineraryCount}건`}>
+                                                    <Chip
+                                                        icon={<EventNoteIcon />}
+                                                        label={`${row.itineraryCount}건`}
+                                                        size="small"
+                                                        color={row.itineraryCount > 0 ? 'info' : 'default'}
+                                                        variant={row.itineraryCount > 0 ? 'filled' : 'outlined'}
+                                                    />
+                                                </Tooltip>
+                                                <Tooltip title={row.hasDetail ? '상세정보 입력 완료' : '상세정보 미입력'}>
+                                                    <Chip
+                                                        icon={row.hasDetail ? <CheckCircleIcon /> : <CancelIcon />}
+                                                        label="상세"
+                                                        size="small"
+                                                        color={row.hasDetail ? 'success' : 'default'}
+                                                        variant={row.hasDetail ? 'filled' : 'outlined'}
+                                                    />
+                                                </Tooltip>
+                                            </Stack>
+                                        </td>
+
                                         <td style={{ textAlign: 'center' }}>
                                             <Chip label={statusInfo.label} color={statusInfo.color} size="small" />
                                         </td>

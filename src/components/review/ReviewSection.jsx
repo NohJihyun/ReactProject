@@ -216,7 +216,7 @@ const ReviewSection = forwardRef(function ReviewSection({ productId }, ref) {
                             </Typography>
                         </Stack>
                     </Box>
-                    {isAuthenticated && (
+                    {isAuthenticated && !isAdmin && (
                         <Button variant="contained" startIcon={<AddIcon />} onClick={openWrite}
                             sx={{ borderRadius: 2, flexShrink: 0 }}>
                             후기 작성
@@ -231,7 +231,7 @@ const ReviewSection = forwardRef(function ReviewSection({ productId }, ref) {
                     <Box sx={{ py: 6, textAlign: 'center', color: 'text.disabled',
                         border: '1px dashed', borderColor: 'divider', borderRadius: 2 }}>
                         <Typography variant="body2">아직 등록된 후기가 없습니다.</Typography>
-                        {isAuthenticated && (
+                        {isAuthenticated && !isAdmin && (
                             <Button size="small" onClick={openWrite} sx={{ mt: 1 }}>첫 번째 후기 작성하기</Button>
                         )}
                     </Box>

@@ -25,6 +25,7 @@ import FlightIcon from "@mui/icons-material/Flight";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import SchoolIcon from "@mui/icons-material/School";
 import SearchIcon from "@mui/icons-material/Search";
+import BusinessIcon from "@mui/icons-material/Business";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import logo from "../assets/rohitourlogo.png";
@@ -345,6 +346,20 @@ export default function Header() {
                             </ListItemButton>
                         </ListItem>
                     ))}
+                    <Divider sx={{ mx: 2 }} />
+                    {/* 회사소개 */}
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            selected={location.pathname === '/about'}
+                            onClick={() => { navigate('/about'); setDrawerOpen(false); window.scrollTo(0, 0); }}
+                            sx={{ py: 1.5, '&.Mui-selected': { bgcolor: '#f1f8e9' }, '&.Mui-selected .MuiListItemIcon-root': { color: '#1976d2' }, '&.Mui-selected .MuiListItemText-primary': { color: '#1976d2', fontWeight: 700 } }}
+                        >
+                            <ListItemIcon sx={{ minWidth: 36, color: '#9e9e9e' }}>
+                                <BusinessIcon fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText primary="회사소개" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
                 </List>
             </Box>
         </Drawer>

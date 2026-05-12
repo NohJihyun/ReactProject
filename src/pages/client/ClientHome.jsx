@@ -656,9 +656,11 @@ export default function ClientHome() {
     return (
         <Box sx={{ bgcolor: '#f7f8fc', minHeight: '100vh' }}>
             <HeroBanner />
-            {SECTIONS.map(section => (
-                <CategorySection key={section.key} section={section} />
-            ))}
+            <Box sx={{ pt: 5 }}>
+                {SECTIONS.map(section => (
+                    <CategorySection key={section.key} section={section} />
+                ))}
+            </Box>
             <RecentReviewSection />
         </Box>
     );

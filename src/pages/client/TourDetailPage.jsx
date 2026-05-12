@@ -22,7 +22,7 @@ import FlightIcon          from '@mui/icons-material/Flight';
 import DirectionsBoatIcon  from '@mui/icons-material/DirectionsBoat';
 import AccessTimeIcon  from '@mui/icons-material/AccessTime';
 import HotelIcon       from '@mui/icons-material/Hotel';
-import { getProductById, getProductImages, getProductFiles, getCruiseItineraries, getCruiseDetail, getCruisePrices } from '../../api/clientApi';
+import { getProductById, getProductImages, getProductFiles, getCruiseItineraries, getCruiseDetail, getCruisePrices, getAirItineraries, getAirDetail, getDomesticItineraries, getDomesticDetail, getSchoolTripItineraries, getSchoolTripDetail } from '../../api/clientApi';
 import { getReviewStats } from '../../api/reviewApi';
 import ReviewSection from '../../components/review/ReviewSection';
 
@@ -103,7 +103,13 @@ export default function TourDetailPage() {
     const [cruiseItineraries,  setCruiseItineraries]  = useState([]);
     const [cruiseDetail,       setCruiseDetail]       = useState(null);
     const [cruisePrices,       setCruisePrices]       = useState([]);
-    const [reviewStats,        setReviewStats]        = useState({ totalCount: 0, averageRating: 0 });
+    const [airItineraries,      setAirItineraries]      = useState([]);
+    const [airDetail,           setAirDetail]           = useState(null);
+    const [domesticItineraries,   setDomesticItineraries]   = useState([]);
+    const [domesticDetail,        setDomesticDetail]        = useState(null);
+    const [schoolTripItineraries, setSchoolTripItineraries] = useState([]);
+    const [schoolTripDetail,      setSchoolTripDetail]      = useState(null);
+    const [reviewStats,           setReviewStats]           = useState({ totalCount: 0, averageRating: 0 });
     const reviewSectionRef = useRef(null);
 
     useEffect(() => {
@@ -127,6 +133,36 @@ export default function TourDetailPage() {
                 setCruiseItineraries(its || []);
                 setCruiseDetail(det || null);
                 setCruisePrices(prs || []);
+            })
+            .catch(() => {});
+    }, [id, category]);
+
+    useEffect(() => {
+        if (category !== 'air') return;
+        Promise.all([getAirItineraries(id), getAirDetail(id)])
+            .then(([its, det]) => {
+                setAirItineraries(its || []);
+                setAirDetail(det || null);
+            })
+            .catch(() => {});
+    }, [id, category]);
+
+    useEffect(() => {
+        if (category !== 'domestic') return;
+        Promise.all([getDomesticItineraries(id), getDomesticDetail(id)])
+            .then(([its, det]) => {
+                setDomesticItineraries(its || []);
+                setDomesticDetail(det || null);
+            })
+            .catch(() => {});
+    }, [id, category]);
+
+    useEffect(() => {
+        if (category !== 'school') return;
+        Promise.all([getSchoolTripItineraries(id), getSchoolTripDetail(id)])
+            .then(([its, det]) => {
+                setSchoolTripItineraries(its || []);
+                setSchoolTripDetail(det || null);
             })
             .catch(() => {});
     }, [id, category]);
@@ -947,6 +983,808 @@ export default function TourDetailPage() {
                                             { label: '상품 약관',       value: cruiseDetail.terms },
                                             { label: '예약시 유의사항', value: cruiseDetail.reservationNotes },
                                             { label: '나라별 입국규정', value: cruiseDetail.entryRegulations },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 1.5 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+                    </>
+                )}
+
+                {/* ── 항공 해외여행 전용 섹션 ── */}
+                {category === 'air' && (
+                    <>
+                        {/* 여행 일정 */}
+                        <Box>
+                            <Divider />
+                            <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                    여행 일정
+                                </Typography>
+                                {airItineraries.length === 0 ? (
+                                    <Typography variant="body2" color="text.disabled" textAlign="center" py={3}>등록된 일정이 없습니다.</Typography>
+                                ) : (
+                                    <Stack spacing={3}>
+                                        {airItineraries.map(item => {
+                                            const locImgs   = (item.images || []).filter(i => i.imageType === 'LOCATION');
+                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
+                                            return (
+                                                <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+                                                    <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#fff3e0', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                        <Chip label={`${item.dayNumber}일차`} size="small" sx={{ bgcolor: '#e65100', color: '#fff', fontWeight: 700 }} />
+                                                        <Typography fontWeight={700} sx={{ fontSize: '1rem' }}>{item.title}</Typography>
+                                                    </Box>
+                                                    <Box sx={{ px: 2.5, py: 2 }}>
+                                                        {item.description && (
+                                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
+                                                                {item.description}
+                                                            </Typography>
+                                                        )}
+                                                        {(item.schedules || []).length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <AccessTimeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
+                                                                </Stack>
+                                                                <Stack spacing={0.75}>
+                                                                    {item.schedules.map(s => (
+                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
+                                                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#e65100', minWidth: 48 }}>
+                                                                                {s.time || ''}
+                                                                            </Typography>
+                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
+                                                                        </Stack>
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {locImgs.length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <LandscapeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
+                                                                </Stack>
+                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                    {locImgs.map(img => (
+                                                                        <Box key={img.id} component="img"
+                                                                            src={`${IMG_BASE}${img.imagePath}`}
+                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {item.hotelName && (
+                                                            <Box sx={{ mt: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <HotelIcon fontSize="small" color="action" />
+                                                                    <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
+                                                                </Stack>
+                                                                {hotelImgs.length > 0 && (
+                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                        {hotelImgs.map(img => (
+                                                                            <Box key={img.id} component="img"
+                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                        ))}
+                                                                    </Stack>
+                                                                )}
+                                                            </Box>
+                                                        )}
+                                                        {item.shoppingCenterName && (
+                                                            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'warning.50', borderRadius: 1 }}>
+                                                                <Typography variant="caption" fontWeight={700} color="warning.dark">🛍 쇼핑</Typography>
+                                                                <Typography variant="body2" fontWeight={600}>{item.shoppingCenterName}</Typography>
+                                                                {item.shoppingInfo && <Typography variant="caption" color="text.secondary" display="block">{item.shoppingInfo}</Typography>}
+                                                                {item.shoppingExchangeInfo && <Typography variant="caption" color="text.secondary" display="block">교환/환불: {item.shoppingExchangeInfo}</Typography>}
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Stack>
+                                )}
+                            </Box>
+                        </Box>
+
+                        {/* 포함 / 불포함 */}
+                        {airDetail && (airDetail.includedItems || airDetail.excludedItems) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        포함 / 불포함 정보
+                                    </Typography>
+                                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+                                        {airDetail.includedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#f1f8e9', borderRadius: 2, borderLeft: '4px solid #66bb6a' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#2e7d32" mb={1}>✅ 포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{airDetail.includedItems}</Typography>
+                                            </Box>
+                                        )}
+                                        {airDetail.excludedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#fce4ec', borderRadius: 2, borderLeft: '4px solid #ef5350' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#c62828" mb={1}>❌ 불포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{airDetail.excludedItems}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 가이드 / 인솔자 미팅정보 */}
+                        {airDetail && (airDetail.guideName || airDetail.meetingLocation) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        가이드 / 인솔자 미팅정보
+                                    </Typography>
+                                    <Stack spacing={1.5}>
+                                        {airDetail.guideName && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>인솔자명</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{airDetail.guideName}</Typography>
+                                            </Stack>
+                                        )}
+                                        {airDetail.guidePhone && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>연락처</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{airDetail.guidePhone}</Typography>
+                                            </Stack>
+                                        )}
+                                        {airDetail.meetingLocation && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 장소</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{airDetail.meetingLocation}</Typography>
+                                            </Stack>
+                                        )}
+                                        {airDetail.meetingTime && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 시간</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{airDetail.meetingTime}</Typography>
+                                            </Stack>
+                                        )}
+                                        {airDetail.notes && (
+                                            <Box sx={{ mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111', fontWeight: 500 }}>{airDetail.notes}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품 가격 */}
+                        {airDetail && (airDetail.priceAdult || airDetail.priceChild || airDetail.priceInfant || airDetail.flightInfo) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        상품 가격
+                                    </Typography>
+                                    {(airDetail.ageAdult || airDetail.ageChild || airDetail.ageInfant) && (
+                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                            {airDetail.ageAdult  && <Typography variant="caption" sx={{ color: '#111' }}>성인: <strong>{airDetail.ageAdult}</strong></Typography>}
+                                            {airDetail.ageChild  && <Typography variant="caption" sx={{ color: '#111' }}>아동: <strong>{airDetail.ageChild}</strong></Typography>}
+                                            {airDetail.ageInfant && <Typography variant="caption" sx={{ color: '#111' }}>유아: <strong>{airDetail.ageInfant}</strong></Typography>}
+                                        </Stack>
+                                    )}
+                                    <Table size="small">
+                                        <TableHead>
+                                            <TableRow sx={{ bgcolor: 'grey.50' }}>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>성인</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>아동</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>유아</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            <TableRow>
+                                                <TableCell align="center" sx={{ color: '#111', fontWeight: 600 }}>{airDetail.priceAdult ? Number(airDetail.priceAdult).toLocaleString() + '원' : '-'}</TableCell>
+                                                <TableCell align="center" sx={{ color: '#111' }}>{airDetail.priceChild  ? Number(airDetail.priceChild).toLocaleString()  + '원' : '-'}</TableCell>
+                                                <TableCell align="center" sx={{ color: '#111' }}>{airDetail.priceInfant ? Number(airDetail.priceInfant).toLocaleString() + '원' : '-'}</TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                    {airDetail.flightInfo && (
+                                        <Box sx={{ mt: 3 }}>
+                                            <Typography variant="body2" fontWeight={700} sx={{ mb: 1 }}>
+                                                <FlightIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle', color: '#e65100' }} />
+                                                항공편 정보
+                                            </Typography>
+                                            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{airDetail.flightInfo}</Typography>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                    {airDetail.surchargeInfo && (
+                                        <Box sx={{ mt: 3 }}>
+                                            <Typography variant="body2" fontWeight={700} sx={{ mb: 1 }}>유료할증료</Typography>
+                                            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{airDetail.surchargeInfo}</Typography>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 유의사항 */}
+                        {airDetail && (airDetail.insuranceInfo || airDetail.emergencyContact || airDetail.passportVisaInfo || airDetail.otherNotices) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        유의사항
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        {[
+                                            { label: '여행자 보험',      value: airDetail.insuranceInfo },
+                                            { label: '비상 연락처',      value: airDetail.emergencyContact },
+                                            { label: '여권 / 비자 안내', value: airDetail.passportVisaInfo },
+                                            { label: '기타 유의사항',    value: airDetail.otherNotices },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="body2" fontWeight={700} sx={{ mb: 0.75 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품약관 / 예약시유의사항 / 나라별입국규정 */}
+                        {airDetail && (airDetail.terms || airDetail.reservationNotes || airDetail.entryRegulations) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Stack spacing={3}>
+                                        {[
+                                            { label: '상품 약관',       value: airDetail.terms },
+                                            { label: '예약시 유의사항', value: airDetail.reservationNotes },
+                                            { label: '나라별 입국규정', value: airDetail.entryRegulations },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 1.5 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+                    </>
+                )}
+
+                {/* ── 국내여행 전용 섹션 ── */}
+                {category === 'domestic' && (
+                    <>
+                        {/* 여행 일정 */}
+                        <Box>
+                            <Divider />
+                            <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                    여행 일정
+                                </Typography>
+                                {domesticItineraries.length === 0 ? (
+                                    <Typography variant="body2" color="text.disabled" textAlign="center" py={3}>등록된 일정이 없습니다.</Typography>
+                                ) : (
+                                    <Stack spacing={3}>
+                                        {domesticItineraries.map(item => {
+                                            const locImgs   = (item.images || []).filter(i => i.imageType === 'LOCATION');
+                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
+                                            return (
+                                                <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+                                                    <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#e8f5e9', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                        <Chip label={`${item.dayNumber}일차`} size="small" sx={{ bgcolor: '#2e7d32', color: '#fff', fontWeight: 700 }} />
+                                                        <Typography fontWeight={700} sx={{ fontSize: '1rem' }}>{item.title}</Typography>
+                                                    </Box>
+                                                    <Box sx={{ px: 2.5, py: 2 }}>
+                                                        {item.description && (
+                                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
+                                                                {item.description}
+                                                            </Typography>
+                                                        )}
+                                                        {(item.schedules || []).length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <AccessTimeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
+                                                                </Stack>
+                                                                <Stack spacing={0.75}>
+                                                                    {item.schedules.map(s => (
+                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
+                                                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#2e7d32', minWidth: 48 }}>
+                                                                                {s.time || ''}
+                                                                            </Typography>
+                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
+                                                                        </Stack>
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {locImgs.length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <LandscapeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
+                                                                </Stack>
+                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                    {locImgs.map(img => (
+                                                                        <Box key={img.id} component="img"
+                                                                            src={`${IMG_BASE}${img.imagePath}`}
+                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {item.hotelName && (
+                                                            <Box sx={{ mt: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <HotelIcon fontSize="small" color="action" />
+                                                                    <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
+                                                                </Stack>
+                                                                {hotelImgs.length > 0 && (
+                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                        {hotelImgs.map(img => (
+                                                                            <Box key={img.id} component="img"
+                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                        ))}
+                                                                    </Stack>
+                                                                )}
+                                                            </Box>
+                                                        )}
+                                                        {item.shoppingCenterName && (
+                                                            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'warning.50', borderRadius: 1 }}>
+                                                                <Typography variant="caption" fontWeight={700} color="warning.dark">🛍 쇼핑</Typography>
+                                                                <Typography variant="body2" fontWeight={600}>{item.shoppingCenterName}</Typography>
+                                                                {item.shoppingInfo && <Typography variant="caption" color="text.secondary" display="block">{item.shoppingInfo}</Typography>}
+                                                                {item.shoppingExchangeInfo && <Typography variant="caption" color="text.secondary" display="block">교환/환불: {item.shoppingExchangeInfo}</Typography>}
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Stack>
+                                )}
+                            </Box>
+                        </Box>
+
+                        {/* 포함 / 불포함 */}
+                        {domesticDetail && (domesticDetail.includedItems || domesticDetail.excludedItems) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        포함 / 불포함 정보
+                                    </Typography>
+                                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+                                        {domesticDetail.includedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#f1f8e9', borderRadius: 2, borderLeft: '4px solid #66bb6a' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#2e7d32" mb={1}>✅ 포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{domesticDetail.includedItems}</Typography>
+                                            </Box>
+                                        )}
+                                        {domesticDetail.excludedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#fce4ec', borderRadius: 2, borderLeft: '4px solid #ef5350' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#c62828" mb={1}>❌ 불포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{domesticDetail.excludedItems}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 가이드 / 인솔자 미팅정보 */}
+                        {domesticDetail && (domesticDetail.guideName || domesticDetail.meetingLocation) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        가이드 / 인솔자 미팅정보
+                                    </Typography>
+                                    <Stack spacing={1.5}>
+                                        {domesticDetail.guideName && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>인솔자명</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{domesticDetail.guideName}</Typography>
+                                            </Stack>
+                                        )}
+                                        {domesticDetail.guidePhone && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>연락처</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{domesticDetail.guidePhone}</Typography>
+                                            </Stack>
+                                        )}
+                                        {domesticDetail.meetingLocation && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 장소</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{domesticDetail.meetingLocation}</Typography>
+                                            </Stack>
+                                        )}
+                                        {domesticDetail.meetingTime && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 시간</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{domesticDetail.meetingTime}</Typography>
+                                            </Stack>
+                                        )}
+                                        {domesticDetail.notes && (
+                                            <Box sx={{ mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111', fontWeight: 500 }}>{domesticDetail.notes}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품 가격 */}
+                        {domesticDetail && (domesticDetail.priceAdult || domesticDetail.priceChild || domesticDetail.priceInfant) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        상품 가격
+                                    </Typography>
+                                    {(domesticDetail.ageAdult || domesticDetail.ageChild || domesticDetail.ageInfant) && (
+                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                            {domesticDetail.ageAdult  && <Typography variant="caption" sx={{ color: '#111' }}>성인: <strong>{domesticDetail.ageAdult}</strong></Typography>}
+                                            {domesticDetail.ageChild  && <Typography variant="caption" sx={{ color: '#111' }}>아동: <strong>{domesticDetail.ageChild}</strong></Typography>}
+                                            {domesticDetail.ageInfant && <Typography variant="caption" sx={{ color: '#111' }}>유아: <strong>{domesticDetail.ageInfant}</strong></Typography>}
+                                        </Stack>
+                                    )}
+                                    <Table size="small">
+                                        <TableHead>
+                                            <TableRow sx={{ bgcolor: 'grey.50' }}>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>성인</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>아동</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>유아</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            <TableRow>
+                                                <TableCell align="center" sx={{ color: '#111', fontWeight: 600 }}>{domesticDetail.priceAdult ? Number(domesticDetail.priceAdult).toLocaleString() + '원' : '-'}</TableCell>
+                                                <TableCell align="center" sx={{ color: '#111' }}>{domesticDetail.priceChild  ? Number(domesticDetail.priceChild).toLocaleString()  + '원' : '-'}</TableCell>
+                                                <TableCell align="center" sx={{ color: '#111' }}>{domesticDetail.priceInfant ? Number(domesticDetail.priceInfant).toLocaleString() + '원' : '-'}</TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                    {domesticDetail.surchargeInfo && (
+                                        <Box sx={{ mt: 3 }}>
+                                            <Typography variant="body2" fontWeight={700} sx={{ mb: 1 }}>추가비용 안내</Typography>
+                                            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{domesticDetail.surchargeInfo}</Typography>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 유의사항 */}
+                        {domesticDetail && (domesticDetail.insuranceInfo || domesticDetail.emergencyContact || domesticDetail.otherNotices) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        유의사항
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        {[
+                                            { label: '여행자 보험',   value: domesticDetail.insuranceInfo },
+                                            { label: '비상 연락처',   value: domesticDetail.emergencyContact },
+                                            { label: '기타 유의사항', value: domesticDetail.otherNotices },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="body2" fontWeight={700} sx={{ mb: 0.75 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품약관 / 예약시유의사항 */}
+                        {domesticDetail && (domesticDetail.terms || domesticDetail.reservationNotes) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Stack spacing={3}>
+                                        {[
+                                            { label: '상품 약관',       value: domesticDetail.terms },
+                                            { label: '예약시 유의사항', value: domesticDetail.reservationNotes },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 1.5 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+                    </>
+                )}
+
+                {/* ── 수학여행 전용 섹션 ── */}
+                {category === 'school' && (
+                    <>
+                        {/* 여행 일정 */}
+                        <Box>
+                            <Divider />
+                            <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                    여행 일정
+                                </Typography>
+                                {schoolTripItineraries.length === 0 ? (
+                                    <Typography variant="body2" color="text.disabled" textAlign="center" py={3}>등록된 일정이 없습니다.</Typography>
+                                ) : (
+                                    <Stack spacing={3}>
+                                        {schoolTripItineraries.map(item => {
+                                            const locImgs   = (item.images || []).filter(i => i.imageType === 'LOCATION');
+                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
+                                            return (
+                                                <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+                                                    <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#e8eaf6', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                                        <Chip label={`${item.dayNumber}일차`} size="small" sx={{ bgcolor: '#3f51b5', color: '#fff', fontWeight: 700 }} />
+                                                        <Typography fontWeight={700} sx={{ fontSize: '1rem' }}>{item.title}</Typography>
+                                                    </Box>
+                                                    <Box sx={{ px: 2.5, py: 2 }}>
+                                                        {item.description && (
+                                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
+                                                                {item.description}
+                                                            </Typography>
+                                                        )}
+                                                        {(item.schedules || []).length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <AccessTimeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
+                                                                </Stack>
+                                                                <Stack spacing={0.75}>
+                                                                    {item.schedules.map(s => (
+                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
+                                                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#3f51b5', minWidth: 48 }}>
+                                                                                {s.time || ''}
+                                                                            </Typography>
+                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
+                                                                        </Stack>
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {locImgs.length > 0 && (
+                                                            <Box sx={{ mb: 2 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <LandscapeIcon fontSize="small" color="action" />
+                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
+                                                                </Stack>
+                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                    {locImgs.map(img => (
+                                                                        <Box key={img.id} component="img"
+                                                                            src={`${IMG_BASE}${img.imagePath}`}
+                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                    ))}
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                        {item.hotelName && (
+                                                            <Box sx={{ mt: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                                    <HotelIcon fontSize="small" color="action" />
+                                                                    <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
+                                                                </Stack>
+                                                                {hotelImgs.length > 0 && (
+                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                                                                        {hotelImgs.map(img => (
+                                                                            <Box key={img.id} component="img"
+                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                        ))}
+                                                                    </Stack>
+                                                                )}
+                                                            </Box>
+                                                        )}
+                                                        {item.shoppingCenterName && (
+                                                            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'warning.50', borderRadius: 1 }}>
+                                                                <Typography variant="caption" fontWeight={700} color="warning.dark">🛍 쇼핑</Typography>
+                                                                <Typography variant="body2" fontWeight={600}>{item.shoppingCenterName}</Typography>
+                                                                {item.shoppingInfo && <Typography variant="caption" color="text.secondary" display="block">{item.shoppingInfo}</Typography>}
+                                                                {item.shoppingExchangeInfo && <Typography variant="caption" color="text.secondary" display="block">교환/환불: {item.shoppingExchangeInfo}</Typography>}
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Stack>
+                                )}
+                            </Box>
+                        </Box>
+
+                        {/* 교통편 안내 */}
+                        {schoolTripDetail?.transportInfo && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        교통편 안내
+                                    </Typography>
+                                    <Box sx={{ p: 2, bgcolor: '#e8eaf6', borderRadius: 2, borderLeft: '4px solid #3f51b5' }}>
+                                        <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{schoolTripDetail.transportInfo}</Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 포함 / 불포함 */}
+                        {schoolTripDetail && (schoolTripDetail.includedItems || schoolTripDetail.excludedItems) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        포함 / 불포함 정보
+                                    </Typography>
+                                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+                                        {schoolTripDetail.includedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#f1f8e9', borderRadius: 2, borderLeft: '4px solid #66bb6a' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#2e7d32" mb={1}>✅ 포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{schoolTripDetail.includedItems}</Typography>
+                                            </Box>
+                                        )}
+                                        {schoolTripDetail.excludedItems && (
+                                            <Box sx={{ flex: 1, p: 2, bgcolor: '#fce4ec', borderRadius: 2, borderLeft: '4px solid #ef5350' }}>
+                                                <Typography variant="body2" fontWeight={700} color="#c62828" mb={1}>❌ 불포함 사항</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{schoolTripDetail.excludedItems}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 가이드 / 인솔자 미팅정보 */}
+                        {schoolTripDetail && (schoolTripDetail.guideName || schoolTripDetail.meetingLocation) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        가이드 / 인솔자 미팅정보
+                                    </Typography>
+                                    <Stack spacing={1.5}>
+                                        {schoolTripDetail.guideName && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>인솔자명</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{schoolTripDetail.guideName}</Typography>
+                                            </Stack>
+                                        )}
+                                        {schoolTripDetail.guidePhone && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>연락처</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{schoolTripDetail.guidePhone}</Typography>
+                                            </Stack>
+                                        )}
+                                        {schoolTripDetail.meetingLocation && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 장소</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{schoolTripDetail.meetingLocation}</Typography>
+                                            </Stack>
+                                        )}
+                                        {schoolTripDetail.meetingTime && (
+                                            <Stack direction="row" spacing={2}>
+                                                <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 시간</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{schoolTripDetail.meetingTime}</Typography>
+                                            </Stack>
+                                        )}
+                                        {schoolTripDetail.notes && (
+                                            <Box sx={{ mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111', fontWeight: 500 }}>{schoolTripDetail.notes}</Typography>
+                                            </Box>
+                                        )}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품 가격 */}
+                        {schoolTripDetail && (schoolTripDetail.priceAdult || schoolTripDetail.priceChild || schoolTripDetail.priceInfant) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        상품 가격
+                                    </Typography>
+                                    {(schoolTripDetail.ageAdult || schoolTripDetail.ageChild || schoolTripDetail.ageInfant) && (
+                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                            {schoolTripDetail.ageAdult  && <Typography variant="caption" sx={{ color: '#111' }}>교사: <strong>{schoolTripDetail.ageAdult}</strong></Typography>}
+                                            {schoolTripDetail.ageChild  && <Typography variant="caption" sx={{ color: '#111' }}>학생: <strong>{schoolTripDetail.ageChild}</strong></Typography>}
+                                            {schoolTripDetail.ageInfant && <Typography variant="caption" sx={{ color: '#111' }}>유아: <strong>{schoolTripDetail.ageInfant}</strong></Typography>}
+                                        </Stack>
+                                    )}
+                                    <Table size="small">
+                                        <TableHead>
+                                            <TableRow sx={{ bgcolor: 'grey.50' }}>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>교사 (성인)</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>학생 (아동)</TableCell>
+                                                <TableCell align="center" sx={{ fontWeight: 700 }}>유아</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            <TableRow>
+                                                <TableCell align="center" sx={{ color: '#111', fontWeight: 600 }}>{schoolTripDetail.priceAdult ? Number(schoolTripDetail.priceAdult).toLocaleString() + '원' : '-'}</TableCell>
+                                                <TableCell align="center" sx={{ color: '#111' }}>{schoolTripDetail.priceChild  ? Number(schoolTripDetail.priceChild).toLocaleString()  + '원' : '-'}</TableCell>
+                                                <TableCell align="center" sx={{ color: '#111' }}>{schoolTripDetail.priceInfant ? Number(schoolTripDetail.priceInfant).toLocaleString() + '원' : '-'}</TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                    {schoolTripDetail.surchargeInfo && (
+                                        <Box sx={{ mt: 3 }}>
+                                            <Typography variant="body2" fontWeight={700} sx={{ mb: 1 }}>추가비용 안내</Typography>
+                                            <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{schoolTripDetail.surchargeInfo}</Typography>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 유의사항 */}
+                        {schoolTripDetail && (schoolTripDetail.insuranceInfo || schoolTripDetail.emergencyContact || schoolTripDetail.otherNotices) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 2.5 }}>
+                                        유의사항
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        {[
+                                            { label: '여행자 보험',   value: schoolTripDetail.insuranceInfo },
+                                            { label: '비상 연락처',   value: schoolTripDetail.emergencyContact },
+                                            { label: '기타 유의사항', value: schoolTripDetail.otherNotices },
+                                        ].filter(r => r.value).map(r => (
+                                            <Box key={r.label}>
+                                                <Typography variant="body2" fontWeight={700} sx={{ mb: 0.75 }}>{r.label}</Typography>
+                                                <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            </Box>
+                        )}
+
+                        {/* 상품약관 / 예약시유의사항 */}
+                        {schoolTripDetail && (schoolTripDetail.terms || schoolTripDetail.reservationNotes) && (
+                            <Box>
+                                <Divider />
+                                <Box sx={{ p: { xs: 2.5, md: 4 } }}>
+                                    <Stack spacing={3}>
+                                        {[
+                                            { label: '상품 약관',       value: schoolTripDetail.terms },
+                                            { label: '예약시 유의사항', value: schoolTripDetail.reservationNotes },
                                         ].filter(r => r.value).map(r => (
                                             <Box key={r.label}>
                                                 <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, mb: 1.5 }}>{r.label}</Typography>
