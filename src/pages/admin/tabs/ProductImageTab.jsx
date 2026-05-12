@@ -57,11 +57,14 @@ function SortableImage({ image, onDelete }) {
 }
 
 /* ── 이미지 탭 메인 ── */
-export default function ProductImageTab({ productId, onUpdate }) {
-    const [thumbnail, setThumbnail] = useState(null);
-    const [details,   setDetails]   = useState([]);
-    const [loading,   setLoading]   = useState(false);
-    const [error,     setError]     = useState('');
+export default function ProductImageTab({ productId, onUpdate, onComplete }) {
+    const [thumbnail,         setThumbnail]         = useState(null);
+    const [details,           setDetails]           = useState([]);
+    const [loading,           setLoading]           = useState(false);
+    const [error,             setError]             = useState('');
+    const [thumbSaved,        setThumbSaved]        = useState(false);  // 수정 모드
+    const [detailSaved,       setDetailSaved]       = useState(false);  // 수정 모드
+    const [registerThumbDone, setRegisterThumbDone] = useState(false);  // 등록 모드
 
     const loadImages = async () => {
         try {
@@ -87,6 +90,8 @@ export default function ProductImageTab({ productId, onUpdate }) {
             await api.uploadProductImage(productId, fd);
             await loadImages();
             onUpdate?.();
+            if (onComplete) setRegisterThumbDone(true);
+            else            setThumbSaved(true);
         } catch {
             setError('썸네일 업로드에 실패했습니다.');
         } finally {
@@ -109,6 +114,8 @@ export default function ProductImageTab({ productId, onUpdate }) {
             }
             await loadImages();
             onUpdate?.();
+            if (onComplete) setTimeout(() => onComplete(), 1500);
+            else            setDetailSaved(true);
         } catch {
             setError('이미지 업로드에 실패했습니다.');
         } finally {
@@ -149,6 +156,31 @@ export default function ProductImageTab({ productId, onUpdate }) {
     return (
         <Box>
             {error && <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2 }}>{error}</Alert>}
+
+            {/* 등록 모드: 썸네일 완료 안내 */}
+            {registerThumbDone && (
+                <Alert severity="success" onClose={() => setRegisterThumbDone(false)} sx={{ mb: 2 }}>
+                    썸네일 이미지가 업로드 되었습니다.&nbsp;
+                    상세이미지를 추가 등록하려면 <strong>[이미지 추가 저장]</strong>을 클릭하세요.
+                    추가 등록이 완료되면 자동으로 다음 탭으로 이동합니다.
+                </Alert>
+            )}
+
+            {/* 수정 모드 알럿 */}
+            {thumbSaved && (
+                <Alert severity="success" onClose={() => setThumbSaved(false)} sx={{ mb: 2 }}>
+                    썸네일 이미지를 저장하였습니다.&nbsp;
+                    <strong>[기본정보]&nbsp;[일정 정보]&nbsp;[유튜브 동영상]&nbsp;[첨부파일]</strong>
+                    &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
+                </Alert>
+            )}
+            {detailSaved && (
+                <Alert severity="success" onClose={() => setDetailSaved(false)} sx={{ mb: 2 }}>
+                    이미지 추가 완료되었습니다.&nbsp;
+                    <strong>[기본정보]&nbsp;[일정 정보]&nbsp;[유튜브 동영상]&nbsp;[첨부파일]</strong>
+                    &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
+                </Alert>
+            )}
             {loading && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                     <CircularProgress size={18} />
@@ -188,7 +220,7 @@ export default function ProductImageTab({ productId, onUpdate }) {
                     )}
                     <Box>
                         <Button variant="contained" component="label" disabled={loading}>
-                            {thumbnail ? '썸네일 교체' : '썸네일 업로드'}
+                            {thumbnail ? '썸네일 교체 저장' : '썸네일 업로드'}
                             <input type="file" hidden accept="image/*" onChange={handleThumbnailUpload} />
                         </Button>
                         <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>
@@ -212,7 +244,7 @@ export default function ProductImageTab({ productId, onUpdate }) {
                         )}
                     </Typography>
                     <Button variant="contained" component="label" disabled={loading}>
-                        이미지 추가
+                        이미지 추가 저장
                         <input type="file" hidden accept="image/*" multiple onChange={handleDetailUpload} />
                     </Button>
                 </Stack>
@@ -236,6 +268,15 @@ export default function ProductImageTab({ productId, onUpdate }) {
                     </DndContext>
                 )}
             </Box>
+
+            {/* 등록 모드: 다음 탭 이동 버튼 (항상 표시) */}
+            {onComplete && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9, mt: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                    <Button variant="contained" onClick={onComplete}>
+                        다음 (유튜브 동영상) →
+                    </Button>
+                </Box>
+            )}
         </Box>
     );
 }

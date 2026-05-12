@@ -121,6 +121,7 @@ export default function ProductPage() {
                         <thead>
                             <tr>
                                 <th style={{ textAlign: 'center' }}>#</th>
+                                <th style={{ textAlign: 'center', width: 36 }}>교통</th>
                                 <th style={{ textAlign: 'center', width: 70 }}>썸네일</th>
                                 <th style={{ textAlign: 'left' }}>상품코드</th>
                                 <th style={{ textAlign: 'left' }}>상품명</th>
@@ -136,16 +137,27 @@ export default function ProductPage() {
                         <tbody>
                             {rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={11} style={{ textAlign: 'center', padding: '32px', color: '#888' }}>
+                                    <td colSpan={12} style={{ textAlign: 'center', padding: '32px', color: '#888' }}>
                                         데이터가 없습니다.
                                     </td>
                                 </tr>
                             ) : rows.map((row, idx) => {
                                 const statusInfo = STATUS_MAP[row.status] ?? { label: row.status, color: 'default' };
                                 const hasVideo = !!(row.videoPath || row.videoUrl);
+                                const TRANSPORT_EMOJI = {
+                                    CRUISE:           '🚢',
+                                    INTERNATIONAL_AIR: '✈️',
+                                    DOMESTIC_AIR:     '🛫',
+                                    BUS:              '🚌',
+                                };
                                 return (
                                     <tr key={row.productId}>
                                         <td style={{ textAlign: 'center' }}>{(pageInfo.page - 1) * pageInfo.size + idx + 1}</td>
+
+                                        {/* 교통수단 이모지 */}
+                                        <td style={{ textAlign: 'center', fontSize: '1.3rem', lineHeight: 1 }}>
+                                            {TRANSPORT_EMOJI[row.transportType] ?? ''}
+                                        </td>
 
                                         {/* 썸네일 */}
                                         <td style={{ textAlign: 'center', padding: '4px' }}>

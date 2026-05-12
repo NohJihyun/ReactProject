@@ -617,12 +617,12 @@ export default function TourDetailPage() {
                                         {product.transportType && (
                                             <Stack direction="row" alignItems="center" spacing={1}>
                                                 <Typography sx={{ fontSize: '1.2rem' }}>
-                                                    {product.transportType === 'CRUISE' ? '🚢' : product.transportType === 'DOMESTIC_AIR' ? '✈️' : '🌐'}
+                                                    {{ CRUISE: '🚢', INTERNATIONAL_AIR: '✈️', DOMESTIC_AIR: '🛫', BUS: '🚌' }[product.transportType] ?? '🌐'}
                                                 </Typography>
                                                 <Box>
                                                     <Typography variant="caption" color="text.secondary" display="block">교통수단</Typography>
                                                     <Typography variant="body2" fontWeight={600}>
-                                                        {product.transportType === 'CRUISE' ? '크루즈' : product.transportType === 'DOMESTIC_AIR' ? '국내항공' : '외국항공'}
+                                                        {{ CRUISE: '크루즈', INTERNATIONAL_AIR: '항공 (국제)', DOMESTIC_AIR: '항공 (국내선)', BUS: '버스' }[product.transportType] ?? product.transportType}
                                                     </Typography>
                                                 </Box>
                                             </Stack>

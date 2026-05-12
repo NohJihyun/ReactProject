@@ -22,10 +22,11 @@ const formatSize = (bytes) => {
     return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
 };
 
-export default function ProductFileTab({ productId, onUpdate }) {
-    const [files,   setFiles]   = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error,   setError]   = useState('');
+export default function ProductFileTab({ productId, onUpdate, isEdit }) {
+    const [files,      setFiles]      = useState([]);
+    const [loading,    setLoading]    = useState(false);
+    const [error,      setError]      = useState('');
+    const [fileSaved,  setFileSaved]  = useState(false);
 
     const loadFiles = async () => {
         try {
@@ -51,6 +52,7 @@ export default function ProductFileTab({ productId, onUpdate }) {
             }
             await loadFiles();
             onUpdate?.();
+            setFileSaved(true);
         } catch {
             setError('파일 업로드에 실패했습니다.');
         } finally {
@@ -74,6 +76,22 @@ export default function ProductFileTab({ productId, onUpdate }) {
     return (
         <Box>
             {error && <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2 }}>{error}</Alert>}
+            {fileSaved && (
+                <Alert severity="success" onClose={() => setFileSaved(false)} sx={{ mb: 2 }}>
+                    {isEdit ? (
+                        <>
+                            첨부파일 추가 완료되었습니다.&nbsp;
+                            <strong>[기본정보]&nbsp;[일정 정보]&nbsp;[메인화면 썸네일 이미지]&nbsp;[유튜브 동영상]</strong>
+                            &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
+                        </>
+                    ) : (
+                        <>
+                            파일이 저장되었습니다.&nbsp;
+                            모든 탭에 더 이상 저장할 항목이 없으면 <strong>등록완료</strong> 버튼을 클릭해주세요.
+                        </>
+                    )}
+                </Alert>
+            )}
 
             {/* 헤더 */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
@@ -82,7 +100,7 @@ export default function ProductFileTab({ productId, onUpdate }) {
                 </Typography>
                 <Button variant="contained" component="label" disabled={loading}>
                     {loading ? <CircularProgress size={18} sx={{ mr: 1 }} /> : null}
-                    파일 추가
+                    파일 및 추가 저장
                     <input type="file" hidden multiple onChange={handleUpload} />
                 </Button>
             </Stack>

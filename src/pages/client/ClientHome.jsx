@@ -571,28 +571,13 @@ function RecentReviewSection() {
 
                 {/* Swiper */}
                 {!loading && reviews.length > 0 && (
-                    <Box sx={{
-                        '& .swiper-button-prev, & .swiper-button-next': {
-                            top: 'auto', bottom: '0px',
-                            width: '28px', height: '28px', zIndex: 20,
-                            color: '#ff6f00',
-                            '&::after': { fontSize: '14px', fontWeight: '900' },
-                            '&.swiper-button-disabled': { opacity: 0.3 },
-                        },
-                        '& .swiper-button-prev': { left: 'calc(50% - 72px)' },
-                        '& .swiper-button-next': { right: 'calc(50% - 72px)' },
-                        '& .swiper-pagination': { bottom: '4px', zIndex: 10 },
-                        '& .swiper-pagination-bullet-active': { background: '#ff6f00' },
-                    }}>
+                    <Box>
                         <Swiper
-                            modules={[Navigation, Pagination, Autoplay]}
+                            modules={[Autoplay]}
                             spaceBetween={28}
                             slidesPerView={1}
-                            navigation
-                            pagination={{ clickable: true }}
                             autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
                             breakpoints={{ 600: { slidesPerView: 1 }, 960: { slidesPerView: 2 } }}
-                            style={{ paddingBottom: '40px' }}
                         >
                             {reviews.map(r => (
                                 <SwiperSlide key={r.id}>

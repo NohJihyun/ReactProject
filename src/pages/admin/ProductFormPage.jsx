@@ -12,6 +12,7 @@ import ProductImageTab      from './tabs/ProductImageTab';
 import ProductVideoTab      from './tabs/ProductVideoTab';
 import ProductFileTab       from './tabs/ProductFileTab';
 import CruiseItineraryTab   from './tabs/CruiseItineraryTab';
+import AirItineraryTab      from './tabs/AirItineraryTab';
 
 const EMPTY_FORM = {
     categoryId:        '',
@@ -74,6 +75,7 @@ export default function ProductFormPage() {
     const [savedProductId,  setSavedProductId]  = useState(isEdit ? Number(id) : null);
     const [toast,           setToast]           = useState({ open: false, msg: '', sev: 'success' });
     const [mediaSummary,    setMediaSummary]    = useState({ imageCount: 0, hasVideo: false, fileCount: 0 });
+    const [basicInfoSaved,  setBasicInfoSaved]  = useState(false);
 
     const tabsUnlocked = isEdit || savedProductId !== null;
     const activeProductId = isEdit ? Number(id) : savedProductId;
@@ -221,13 +223,19 @@ export default function ProductFormPage() {
                 const updateId = isEdit ? id : savedProductId;
                 await api.updateProduct(updateId, payload);
                 setToast({ open: true, msg: '저장되었습니다.', sev: 'success' });
-                if (isEdit) setTimeout(() => navigate('/admin/products'), 1500);
+                if (isEdit) {
+                    setBasicInfoSaved(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
             } else {
                 // 최초 등록
                 const result = await api.createProduct(payload);
                 setSavedProductId(result.productId);
                 setToast({ open: true, msg: `저장되었습니다. [일정 정보] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화되었습니다.`, sev: 'success' });
-                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 800);
+                setTimeout(() => {
+                    setTab(1);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 800);
             }
         } catch (error) {
             const status    = error?.response?.status;
@@ -256,20 +264,14 @@ export default function ProductFormPage() {
                 {/* 헤더 */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                        <Button
-                            startIcon={<ArrowBackIcon />}
-                            onClick={() => navigate('/admin/products')}
-                        >
+                        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/admin/products')}>
                             목록으로
                         </Button>
                         <Typography variant="h6">
                             {isEdit ? '여행상품 수정' : '여행상품 등록'}
                         </Typography>
                     </Stack>
-                    <Stack direction="row" spacing={1}>
-                        {tab === 0 && (
-                            <Button variant="contained" onClick={handleSave}>저장</Button>
-                        )}
+                    <Stack direction="row" spacing={1} alignItems="center">
                         {tabsUnlocked && (
                             <Button
                                 variant="contained"
@@ -329,6 +331,23 @@ export default function ProductFormPage() {
                         }
                     />
                 </Tabs>
+
+                {/* 수정 시 기본정보 저장 후 안내 */}
+                {isEdit && basicInfoSaved && tab === 0 && (
+                    <Alert severity="success" onClose={() => setBasicInfoSaved(false)} sx={{ mb: 2 }}>
+                        기본정보를 저장하였습니다.&nbsp;
+                        <strong>
+                            [{categoryType === 'cruise'   ? '크루즈 일정 정보' :
+                              categoryType === 'air'      ? '항공 일정 정보' :
+                              categoryType === 'domestic' ? '국내여행 일정 정보' :
+                              categoryType === 'school'   ? '수학여행 일정 정보' : '일정 정보'}]&nbsp;
+                            [메인화면 썸네일 이미지]&nbsp;
+                            [유튜브 동영상]&nbsp;
+                            [첨부파일]
+                        </strong>
+                        &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
+                    </Alert>
+                )}
 
                 {/* 신규 등록 시 탭 안내 문구 */}
                 {!isEdit && !tabsUnlocked && (
@@ -463,8 +482,9 @@ export default function ProductFormPage() {
                                 >
                                     <MenuItem value="">선택 안함</MenuItem>
                                     <MenuItem value="CRUISE">🚢 크루즈</MenuItem>
-                                    <MenuItem value="DOMESTIC_AIR">✈️ 국내항공</MenuItem>
-                                    <MenuItem value="INTERNATIONAL_AIR">🌐 외국항공</MenuItem>
+                                    <MenuItem value="INTERNATIONAL_AIR">✈️ 항공 (국제)</MenuItem>
+                                    <MenuItem value="DOMESTIC_AIR">🛫 항공 (국내선)</MenuItem>
+                                    <MenuItem value="BUS">🚌 버스</MenuItem>
                                 </TextField>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
                                     {[
@@ -617,10 +637,7 @@ export default function ProductFormPage() {
 
                         {/* 하단 저장 버튼 */}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1 }}>
-                            <Stack direction="row" spacing={1}>
-                                <Button variant="outlined" onClick={() => navigate('/admin/products')}>목록으로</Button>
-                                <Button variant="contained" size="large" onClick={handleSave}>저장</Button>
-                            </Stack>
+                            <Button variant="contained" size="large" onClick={handleSave}>저장</Button>
                         </Box>
                     </Stack>
                 )}
@@ -628,7 +645,15 @@ export default function ProductFormPage() {
                 {/* ── 카테고리별 일정 탭 ── */}
                 {tab === 1 && tabsUnlocked && (
                     categoryType === 'cruise' ? (
-                        <CruiseItineraryTab productId={activeProductId} />
+                        <CruiseItineraryTab
+                            productId={activeProductId}
+                            onComplete={!isEdit ? () => setTab(TAB_IMAGE) : undefined}
+                        />
+                    ) : categoryType === 'air' ? (
+                        <AirItineraryTab
+                            productId={activeProductId}
+                            onComplete={!isEdit ? () => setTab(TAB_IMAGE) : undefined}
+                        />
                     ) : (
                         <Box sx={{ py: 6, textAlign: 'center', color: 'text.disabled' }}>
                             <Typography variant="body2">
@@ -643,6 +668,7 @@ export default function ProductFormPage() {
                     <ProductImageTab
                         productId={activeProductId}
                         onUpdate={() => loadMediaSummary(activeProductId)}
+                        onComplete={!isEdit ? () => setTab(TAB_VIDEO) : undefined}
                     />
                 )}
 
@@ -651,6 +677,8 @@ export default function ProductFormPage() {
                     <ProductVideoTab
                         productId={activeProductId}
                         onUpdate={() => loadMediaSummary(activeProductId)}
+                        isEdit={isEdit}
+                        onComplete={!isEdit ? () => setTab(TAB_FILE) : undefined}
                     />
                 )}
 
@@ -659,6 +687,7 @@ export default function ProductFormPage() {
                     <ProductFileTab
                         productId={activeProductId}
                         onUpdate={() => loadMediaSummary(activeProductId)}
+                        isEdit={isEdit}
                     />
                 )}
             </Paper>
