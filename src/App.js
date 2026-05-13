@@ -21,6 +21,8 @@ import CategoryPage from './pages/admin/CategoryPage';
 import ProductPage from './pages/admin/ProductPage';
 import ProductFormPage from './pages/admin/ProductFormPage';
 import AdminReviewPage from './pages/admin/AdminReviewPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminBookingPage from './pages/admin/AdminBookingPage';
 import MyReviewPage from './pages/client/MyReviewPage';
 
 // auth
@@ -63,6 +65,8 @@ export default function App() {
                             <Route path="/admin/products" element={<ProductPage />} />
                             <Route path="/admin/products/new" element={<ProductFormPage />} />
                             <Route path="/admin/products/:id" element={<ProductFormPage />} />
+                            <Route path="/admin/users" element={<AdminUsersPage />} />
+                            <Route path="/admin/bookings" element={<AdminBookingPage />} />
                             <Route path="/admin/review" element={<AdminReviewPage />} />
                         </Route>
                     </Route>

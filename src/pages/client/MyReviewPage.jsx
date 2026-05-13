@@ -15,20 +15,28 @@ import HomeIcon   from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 import * as reviewApi from '../../api/reviewApi';
 import { getProductsByCategory } from '../../api/clientApi';
+import { useAuth } from '../../auth/AuthProvider';
 
 const IMG_BASE = 'http://localhost:8080';
 const WRITER_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER: '선생님' };
 const WRITER_ICON  = { GENERAL: '👤', STUDENT: '👨‍🎓', TEACHER: '👨‍🏫' };
 const CATEGORIES = [
-    { value: '국내여행',      label: '국내여행' },
-    { value: '항공해외여행',  label: '항공 해외여행' },
-    { value: '크루즈해외여행', label: '크루즈 해외여행' },
-    { value: '수학여행',      label: '수학여행' },
+    { value: '국내여행',        label: '국내여행' },
+    { value: '항공 해외여행',   label: '항공 해외여행' },
+    { value: '크루즈 해외여행', label: '크루즈 해외여행' },
+    { value: '수학여행',        label: '수학여행' },
 ];
 const EMPTY_FORM = { writerType: 'GENERAL', rating: 5, content: '' };
+const maskName = (name) => {
+    if (!name) return '?';
+    if (name.length === 1) return name;
+    if (name.length === 2) return name[0] + '*';
+    return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+};
 
 export default function MyReviewPage() {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [reviews,   setReviews]   = useState([]);
     const [page,      setPage]      = useState(1);
     const [totalPage, setTotalPage] = useState(1);
@@ -188,6 +196,11 @@ export default function MyReviewPage() {
                                             <Chip
                                                 label={`${WRITER_ICON[review.writerType]} ${WRITER_LABEL[review.writerType]}`}
                                                 size="small" variant="outlined" />
+                                            <Chip
+                                                label={maskName(review.userName)}
+                                                size="small"
+                                                sx={{ bgcolor: '#f3e5f5', color: '#6a1b9a', fontWeight: 600 }}
+                                            />
                                         </Stack>
                                         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
                                             <Rating value={review.rating} readOnly size="small" />
@@ -266,6 +279,20 @@ export default function MyReviewPage() {
                                 <Divider />
                             </>
                         )}
+
+                        {/* 작성자 */}
+                        <Alert severity="info" sx={{ py: 0.5 }}>
+                            작성자 이름은 등록 후 화면에 <strong>{maskName(user?.name)}</strong> 형식으로 표시됩니다.
+                        </Alert>
+                        <TextField
+                            label="작성자"
+                            size="small"
+                            fullWidth
+                            value={user?.name ?? ''}
+                            InputProps={{ readOnly: true }}
+                            helperText="로그인 정보에서 자동으로 불러옵니다."
+                            sx={{ bgcolor: '#f8f9fa' }}
+                        />
 
                         {/* 작성자 유형 */}
                         <FormControl size="small" fullWidth>

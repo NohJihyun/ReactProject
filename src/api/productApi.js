@@ -3,6 +3,9 @@ import { http } from './http';
 export const getProducts = (search) =>
     http.get('/admin/products', { params: search }).then(res => res.data);
 
+export const getUsedCategoryIds = () =>
+    http.get('/admin/products/used-categories').then(res => res.data);
+
 export const getProduct = (id) =>
     http.get(`/admin/products/${id}`).then(res => res.data);
 

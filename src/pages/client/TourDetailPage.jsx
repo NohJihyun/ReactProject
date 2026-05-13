@@ -13,7 +13,6 @@ import PhoneIcon           from '@mui/icons-material/Phone';
 import EmailIcon           from '@mui/icons-material/Email';
 import AssignmentIcon      from '@mui/icons-material/Assignment';
 import ImageIcon           from '@mui/icons-material/Image';
-import PlayCircleIcon      from '@mui/icons-material/PlayCircle';
 import DownloadIcon        from '@mui/icons-material/Download';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import SchoolIcon          from '@mui/icons-material/School';
@@ -232,7 +231,12 @@ export default function TourDetailPage() {
                     >
                         <Tab icon={<ImageIcon fontSize="small" />} iconPosition="start" label="이미지" />
                         <Tab
-                            icon={<PlayCircleIcon fontSize="small" />}
+                            icon={
+                                <Box component="svg" viewBox="0 0 24 24" sx={{ width: 20, height: 20, flexShrink: 0 }}>
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" fill="#FF0000"/>
+                                    <path d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#ffffff"/>
+                                </Box>
+                            }
                             iconPosition="start"
                             label={hasVideo ? '유튜브 동영상 ✓' : '유튜브 동영상'}
                             disabled={!hasVideo}
@@ -482,8 +486,18 @@ export default function TourDetailPage() {
                                     sx={{ bgcolor: '#e3f2fd', color: '#1565c0', fontWeight: 600 }}
                                 />
                                 <Stack direction="row" alignItems="center" spacing={1.5}>
+                                    <Stack component="a" href="https://www.youtube.com/@rohitour_travel" target="_blank" rel="noopener noreferrer"
+                                        direction="row" alignItems="center" spacing={0.5}
+                                        sx={{ textDecoration: 'none', cursor: 'pointer', '&:hover': { opacity: 0.75 } }}
+                                    >
+                                        <Box component="svg" viewBox="0 0 24 24" sx={{ width: 18, height: 18, flexShrink: 0 }}>
+                                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" fill="#FF0000"/>
+                                            <path d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#ffffff"/>
+                                        </Box>
+                                        <Typography variant="caption" fontWeight={700} sx={{ color: '#111', fontSize: '0.75rem' }}>YouTube</Typography>
+                                    </Stack>
                                     <Stack direction="row" alignItems="center" spacing={0.5}
-                                        component="a" href="#"
+                                        component="a" href="https://www.instagram.com/rohitour_travel/" target="_blank" rel="noopener noreferrer"
                                         sx={{ textDecoration: 'none', cursor: 'pointer', '&:hover': { opacity: 0.75 } }}
                                     >
                                         <Box component="svg" viewBox="0 0 24 24" sx={{ width: 18, height: 18, fill: 'url(#igGrad)', flexShrink: 0 }}>

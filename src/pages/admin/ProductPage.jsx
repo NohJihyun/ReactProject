@@ -9,10 +9,11 @@ import AttachFileIcon   from '@mui/icons-material/AttachFile';
 import EventNoteIcon    from '@mui/icons-material/EventNote';
 import CheckCircleIcon  from '@mui/icons-material/CheckCircle';
 import CancelIcon       from '@mui/icons-material/Cancel';
-import Pagination from '@mui/material/Pagination';
+import CommonPagination from '../../components/CommonPagination';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as api from '../../api/productApi';
+import { getUsedCategoryIds } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
 
 const STATUS_MAP = {
@@ -38,6 +39,7 @@ export default function ProductPage() {
     const [search,     setSearch]     = useState(EMPTY_SEARCH);
     const [pageInfo,   setPageInfo]   = useState({ page: 1, size: 10, totalPages: 0, totalElements: 0 });
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const [usedCategoryIds, setUsedCategoryIds] = useState(new Set());
     const [toast, setToast] = useState({ open: false, msg: '', sev: 'success' });
 
     const load = async (searchParam = search, page = 1) => {
@@ -57,8 +59,12 @@ export default function ProductPage() {
     useEffect(() => {
         (async () => {
             try {
-                const data = await getCategories({ isActive: 'Y', page: 1, size: 1000 });
-                setCategoryOptions(data.list ?? []);
+                const [catData, usedIds] = await Promise.all([
+                    getCategories({ isActive: 'Y', page: 1, size: 1000 }),
+                    getUsedCategoryIds(),
+                ]);
+                setCategoryOptions(catData.list ?? []);
+                setUsedCategoryIds(new Set(usedIds));
             } catch (e) {
                 console.error(e);
             }
@@ -125,6 +131,7 @@ export default function ProductPage() {
                             <tr>
                                 <th style={{ textAlign: 'center' }}>#</th>
                                 <th style={{ textAlign: 'center', width: 36 }}>교통</th>
+                                <th style={{ textAlign: 'center', width: 80 }}>대분류</th>
                                 <th style={{ textAlign: 'center', width: 70 }}>썸네일</th>
                                 <th style={{ textAlign: 'left' }}>상품코드</th>
                                 <th style={{ textAlign: 'left' }}>상품명</th>
@@ -141,7 +148,7 @@ export default function ProductPage() {
                         <tbody>
                             {rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={13} style={{ textAlign: 'center', padding: '32px', color: '#888' }}>
+                                    <td colSpan={14} style={{ textAlign: 'center', padding: '32px', color: '#888' }}>
                                         데이터가 없습니다.
                                     </td>
                                 </tr>
@@ -161,6 +168,18 @@ export default function ProductPage() {
                                         {/* 교통수단 이모지 */}
                                         <td style={{ textAlign: 'center', fontSize: '1.3rem', lineHeight: 1 }}>
                                             {TRANSPORT_EMOJI[row.transportType] ?? ''}
+                                        </td>
+
+                                        {/* 대분류 */}
+                                        <td style={{ textAlign: 'center', padding: '4px' }}>
+                                            {row.rootCategoryName && (
+                                                <Chip
+                                                    label={row.rootCategoryName}
+                                                    size="small"
+                                                    color="primary"
+                                                    sx={{ fontWeight: 700 }}
+                                                />
+                                            )}
                                         </td>
 
                                         {/* 썸네일 */}
@@ -279,16 +298,11 @@ export default function ProductPage() {
                         </tbody>
                     </table>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                        <Pagination
-                            count={pageInfo.totalPages}
-                            page={pageInfo.page}
-                            onChange={(e, value) => load(search, value)}
-                            color="primary"
-                            showFirstButton
-                            showLastButton
-                        />
-                    </Box>
+                    <CommonPagination
+                        count={pageInfo.totalPages}
+                        page={pageInfo.page}
+                        onChange={(e, value) => load(search, value)}
+                    />
                 </Box>
             </Paper>
 
@@ -302,9 +316,19 @@ export default function ProductPage() {
                             value={search.categoryId} onChange={searchChange} fullWidth
                         >
                             <MenuItem value="">전체</MenuItem>
-                            {categoryOptions.map(c => (
-                                <MenuItem key={c.categoryId} value={c.categoryId}>{categoryLabel(c)}</MenuItem>
-                            ))}
+                            {categoryOptions
+                                .filter(c => c.depth === 1 || usedCategoryIds.has(c.categoryId))
+                                .map(c => (
+                                    <MenuItem
+                                        key={c.categoryId}
+                                        value={c.depth === 1 ? '' : c.categoryId}
+                                        disabled={c.depth === 1}
+                                        sx={c.depth === 1 ? { fontWeight: 700, color: 'text.primary', opacity: '1 !important' } : {}}
+                                    >
+                                        {categoryLabel(c)}
+                                    </MenuItem>
+                                ))
+                            }
                         </TextField>
                         <TextField
                             select name="status" label="상태"

@@ -22,6 +22,7 @@ export default function AdminLayout() {
     // const : 재할당 불가
     const items = [
         { label: '홈페이지 이용 현황', to: '/admin' },
+        { label: '권한 관리', to: '/admin/users' },
         { label: '카테고리 관리', to: '/admin/categories' },
         { label: '여행상품 관리', to: '/admin/products' },
         { label: '예약 및 결제 관리 현황', to: '/admin/bookings' },

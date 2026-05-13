@@ -22,6 +22,13 @@ const WRITER_TYPE_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER:
 const WRITER_TYPE_COLOR = { GENERAL: 'default', STUDENT: 'primary', TEACHER: 'success' };
 const WRITER_TYPE_ICON  = { GENERAL: '👤', STUDENT: '👨‍🎓', TEACHER: '👨‍🏫' };
 
+const maskName = (name) => {
+    if (!name) return '?';
+    if (name.length === 1) return name;
+    if (name.length === 2) return name[0] + '*';
+    return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+};
+
 const EMPTY_FORM = { writerType: 'GENERAL', rating: 5, content: '' };
 
 /* ═══════════════════════════════════════════════
@@ -296,6 +303,7 @@ const ReviewSection = forwardRef(function ReviewSection({ productId }, ref) {
                 }}
                 onSave={handleSave}
                 saving={saving}
+                userName={user?.name}
             />
 
             <Snackbar open={snack.open} autoHideDuration={2500}
@@ -336,7 +344,7 @@ function ReviewCard({
                     </Avatar>
                     <Box>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            <Typography variant="body2" fontWeight={700}>{review.userName}</Typography>
+                            <Typography variant="body2" fontWeight={700}>{maskName(review.userName)}</Typography>
                             <Chip
                                 label={`${WRITER_TYPE_ICON[review.writerType] ?? ''} ${WRITER_TYPE_LABEL[review.writerType] ?? review.writerType}`}
                                 size="small"
@@ -521,7 +529,7 @@ function CommentItem({
 /* ═══════════════════════════════════════════════
    후기 작성/수정 다이얼로그
 ═══════════════════════════════════════════════ */
-function ReviewWriteDialog({ open, onClose, editTarget, form, setForm, pendingImages, imageInputRef, onAddImages, onRemoveImage, onSave, saving }) {
+function ReviewWriteDialog({ open, onClose, editTarget, form, setForm, pendingImages, imageInputRef, onAddImages, onRemoveImage, onSave, saving, userName }) {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
             PaperProps={{ sx: { borderRadius: 3 } }}>
@@ -530,6 +538,19 @@ function ReviewWriteDialog({ open, onClose, editTarget, form, setForm, pendingIm
             </DialogTitle>
             <DialogContent dividers>
                 <Stack spacing={2.5}>
+                    {/* 작성자 */}
+                    <Alert severity="info" sx={{ py: 0.5 }}>
+                        작성자 이름은 등록 후 화면에 <strong>{maskName(userName)}</strong> 형식으로 표시됩니다.
+                    </Alert>
+                    <TextField
+                        label="작성자"
+                        size="small"
+                        fullWidth
+                        value={userName ?? ''}
+                        InputProps={{ readOnly: true }}
+                        helperText="로그인 정보에서 자동으로 불러옵니다."
+                        sx={{ bgcolor: '#f8f9fa' }}
+                    />
                     {/* 작성자 유형 */}
                     <FormControl size="small" fullWidth>
                         <InputLabel>작성자 유형</InputLabel>

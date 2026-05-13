@@ -7,7 +7,7 @@ import {
 import { useEffect, useState } from 'react';
 import CategoryList from '../../components/CategoryList';
 import * as api from '../../api/categoryApi';
-import Pagination from '@mui/material/Pagination';
+import CommonPagination from '../../components/CommonPagination';
 
 export default function CategoryPage() {
     /* STATE 영역 */
@@ -424,19 +424,11 @@ export default function CategoryPage() {
                                 onDeactivate={handleDeactivate}
                                 onDelete={handleDelete}
                             />
-                            {/*  페이지네이션은 여기 */}
-                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                                <Pagination
-                                    count={pageInfo.totalPages}   // 전체 페이지 수
-                                    page={pageInfo.page}           // 현재 페이지
-                                    onChange={(e, value) => {
-                                        load(search, value);       // value = 클릭한 페이지 번호
-                                    }}
-                                    color="primary"
-                                    showFirstButton
-                                    showLastButton
-                                />
-                            </Box>
+                            <CommonPagination
+                                count={pageInfo.totalPages}
+                                page={pageInfo.page}
+                                onChange={(e, value) => load(search, value)}
+                            />
                         </Box>
                     </Paper>
                 </Grid>

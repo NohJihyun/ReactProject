@@ -273,6 +273,12 @@ const CATEGORY_SLUG_MAP = {
 const WRITER_TYPE_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER: '선생님' };
 const WRITER_TYPE_COLOR = { GENERAL: 'default', STUDENT: 'primary', TEACHER: 'success' };
 const WRITER_TYPE_ICON  = { GENERAL: '👤', STUDENT: '👨‍🎓', TEACHER: '👨‍🏫' };
+const maskName = (name) => {
+    if (!name) return '?';
+    if (name.length === 1) return name;
+    if (name.length === 2) return name[0] + '*';
+    return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+};
 
 /* ── 후기 카드 (가로형) ── */
 function ReviewCard({ review, onClick }) {
@@ -361,7 +367,7 @@ function ReviewCard({ review, onClick }) {
                 {/* 하단 */}
                 <Box sx={{ borderTop: '1px solid #f0f0f0', pt: 1, mt: 'auto' }}>
                     <Typography variant="caption" fontWeight={700} color="text.primary" sx={{ display: 'block', mb: 0.2 }}>
-                        {review.userName}
+                        {maskName(review.userName)}
                     </Typography>
                     <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.68rem', display: 'block', mb: 0.3 }}>
                         {date}
