@@ -623,59 +623,122 @@ function RecentReviewSection() {
 }
 
 /* ── 히어로 배너 ── */
+const HERO_SLIDES = [
+    {
+        bg: 'linear-gradient(135deg, #1a237e 0%, #283593 40%, #1565c0 100%)',
+        overline: 'ROHITOUR',
+        title: '특별한 여행,\n특별한 추억',
+        sub: '수학여행부터 국내·해외 개인·단체여행까지\n로이투어가 함께합니다.',
+        circles: [
+            { size: 400, top: -120, right: -80,  opacity: 0.06 },
+            { size: 250, bottom: -60, left: -60, opacity: 0.08 },
+            { size: 150, top: 40,   right: 200,  opacity: 0.05 },
+        ],
+    },
+    {
+        bg: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 45%, #388e3c 100%)',
+        overline: 'ROHITOUR',
+        title: '여성기업이 만드는\n특별한 여정',
+        sub: '직접 기획한 여행상품으로\n새로운 여행 경험을 제안합니다.',
+        circles: [
+            { size: 360, top: -100, right: -60,  opacity: 0.06 },
+            { size: 220, bottom: -50, left: -40, opacity: 0.07 },
+            { size: 130, top: 60,   right: 180,  opacity: 0.05 },
+        ],
+    },
+];
+
 function HeroBanner() {
+    const [current, setCurrent] = useState(0);
+    const [fading,  setFading]  = useState(false);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setFading(true);
+            setTimeout(() => {
+                setCurrent(prev => (prev + 1) % HERO_SLIDES.length);
+                setFading(false);
+            }, 400);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const slide = HERO_SLIDES[current];
+
     return (
         <Box
             sx={{
-                background: 'linear-gradient(135deg, #1a237e 0%, #283593 40%, #1565c0 100%)',
+                background: slide.bg,
                 color: 'white',
                 py: { xs: 8, md: 14 },
                 position: 'relative',
                 overflow: 'hidden',
+                transition: 'background 0.6s ease',
             }}
         >
             {/* 배경 장식 원 */}
-            {[
-                { size: 400, top: -120, right: -80, opacity: 0.06 },
-                { size: 250, bottom: -60, left: -60, opacity: 0.08 },
-                { size: 150, top: 40,   right: 200,  opacity: 0.05 },
-            ].map((c, i) => (
+            {slide.circles.map((c, i) => (
                 <Box key={i} sx={{
                     position: 'absolute',
-                    width:  c.size, height: c.size,
+                    width: c.size, height: c.size,
                     borderRadius: '50%',
                     bgcolor: 'white',
                     opacity: c.opacity,
-                    top:    c.top,
-                    bottom: c.bottom,
-                    left:   c.left,
-                    right:  c.right,
+                    top: c.top, bottom: c.bottom,
+                    left: c.left, right: c.right,
+                    transition: 'opacity 0.4s',
                 }} />
             ))}
 
-            <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+            {/* 슬라이드 콘텐츠 */}
+            <Container
+                maxWidth="lg"
+                sx={{
+                    position: 'relative', zIndex: 1,
+                    opacity: fading ? 0 : 1,
+                    transform: fading ? 'translateY(8px)' : 'translateY(0)',
+                    transition: 'opacity 0.4s ease, transform 0.4s ease',
+                }}
+            >
                 <Typography
                     variant="overline"
                     sx={{ color: 'rgba(255,255,255,0.7)', letterSpacing: 4, display: 'block', mb: 1 }}
                 >
-                    ROHITOUR
+                    {slide.overline}
                 </Typography>
                 <Typography
                     variant="h2"
                     fontWeight={900}
-                    sx={{ fontSize: { xs: '2rem', md: '3.2rem' }, lineHeight: 1.2, mb: 2 }}
+                    sx={{ fontSize: { xs: '2rem', md: '3.2rem' }, lineHeight: 1.2, mb: 2, whiteSpace: 'pre-line' }}
                 >
-                    특별한 여행,<br />
-                    특별한 추억
+                    {slide.title}
                 </Typography>
                 <Typography
                     variant="h6"
-                    sx={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400, maxWidth: 480 }}
+                    sx={{ color: 'rgba(255,255,255,0.75)', fontWeight: 400, maxWidth: 480, whiteSpace: 'pre-line' }}
                 >
-                    수학여행부터 국내·해외 개인·단체여행까지<br />
-                    로이투어가 함께합니다.
+                    {slide.sub}
                 </Typography>
             </Container>
+
+            {/* 하단 인디케이터 */}
+            <Box sx={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 1, zIndex: 2 }}>
+                {HERO_SLIDES.map((_, i) => (
+                    <Box
+                        key={i}
+                        onClick={() => { setFading(true); setTimeout(() => { setCurrent(i); setFading(false); }, 400); }}
+                        sx={{
+                            width: i === current ? 24 : 8,
+                            height: 8,
+                            borderRadius: 4,
+                            bgcolor: 'white',
+                            opacity: i === current ? 1 : 0.4,
+                            cursor: 'pointer',
+                            transition: 'width 0.3s ease, opacity 0.3s ease',
+                        }}
+                    />
+                ))}
+            </Box>
         </Box>
     );
 }
