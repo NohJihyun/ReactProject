@@ -48,8 +48,9 @@ const CategoryForm = ({ onSave, selected, cancelEdit }) => {
                             onChange={handleChange}
                             required
                             fullWidth
+                            placeholder="예) 국내여행  /  수학여행 서울·경기  /  일본 항공 패키지"
                         />
-`
+
                         <TextField
                             label="설명"
                             name="description"
@@ -58,6 +59,7 @@ const CategoryForm = ({ onSave, selected, cancelEdit }) => {
                             fullWidth
                             multiline
                             minRows={2}
+                            placeholder="예) 국내 주요 명소를 돌아보는 1박 2일~3박 4일 여행 상품 (선택)"
                         />
 
                         <Stack direction="row" spacing={1} justifyContent="flex-end">

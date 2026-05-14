@@ -131,9 +131,9 @@ export default function SchoolTripItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'insuranceInfo',    label: '여행자 보험',   rows: 4 },
-                        { key: 'emergencyContact', label: '비상 연락처',   rows: 3 },
-                        { key: 'otherNotices',     label: '기타 유의사항', rows: 4 },
+                        { key: 'insuranceInfo',    label: '여행자 보험',   rows: 4, placeholder: '예) 단체 여행자 보험 가입 안내, 보험사명, 학생·교사별 보장 범위 및 사고 시 청구 방법 등을 입력하세요.' },
+                        { key: 'emergencyContact', label: '비상 연락처',   rows: 3, placeholder: '예) 인솔자: 010-1234-5678 / 로이투어 본사: 02-0000-0000 / 학교 담당 선생님: 000-0000-0000' },
+                        { key: 'otherNotices',     label: '기타 유의사항', rows: 4, placeholder: '예) 학생 개인 행동 금지, 귀중품 분실 책임 안내, 알레르기 보유 학생 사전 신고 요청, 복장 규정 등' },
                     ]}
                     detail={detail} setDetail={setDetail}
                     saving={detailSaving} onSave={handleSaveDetail}
@@ -145,8 +145,8 @@ export default function SchoolTripItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'includedItems', label: '포함 사항',   rows: 7 },
-                        { key: 'excludedItems', label: '불포함 사항', rows: 7 },
+                        { key: 'includedItems', label: '포함 사항',   rows: 7, placeholder: '예) 전세버스 교통비, 숙박비(학생 다인실 기준), 전 일정 식사, 체험·입장료, 여행자 보험' },
+                        { key: 'excludedItems', label: '불포함 사항', rows: 7, placeholder: '예) 학생 개인 용돈, 선택 체험비, 인솔자·기사 팁, 개인 간식 및 음료' },
                     ]}
                     detail={detail} setDetail={setDetail}
                     saving={detailSaving} onSave={handleSaveDetail}
@@ -159,18 +159,22 @@ export default function SchoolTripItineraryTab({ productId, onComplete }) {
                 <Stack spacing={2} sx={{ pt: 1 }}>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <TextField label="가이드 / 인솔자명" value={detail.guideName || ''}
-                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth
+                            placeholder="예) 최수진 인솔자 / 담당 선생님 성함" />
                         <TextField label="연락처" value={detail.guidePhone || ''}
-                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth
+                            placeholder="예) 010-1234-5678" />
                     </Stack>
                     <TextField label="미팅 장소" value={detail.meetingLocation || ''}
-                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth />
+                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth
+                        placeholder="예) ○○중학교 정문 앞 로이투어 버스 앞" />
                     <TextField label="미팅 시간" value={detail.meetingTime || ''}
                         onChange={e => setDetail(d => ({ ...d, meetingTime: e.target.value }))}
-                        fullWidth placeholder="예: 08:00" />
+                        fullWidth placeholder="예) 출발 20분 전  /  오전 08:00" />
                     <TextField label="안내 사항" value={detail.notes || ''}
                         onChange={e => setDetail(d => ({ ...d, notes: e.target.value }))}
-                        fullWidth multiline rows={4} />
+                        fullWidth multiline rows={4}
+                        placeholder="예) 편안한 복장 및 운동화 착용, 학생증 및 비상 연락처 지참, 귀중품 최소화, 집합 시간 엄수" />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
                             onClick={handleSaveDetail} disabled={detailSaving}>
@@ -242,10 +246,12 @@ export default function SchoolTripItineraryTab({ productId, onComplete }) {
                         fullWidth multiline rows={4} placeholder="추가 비용 안내" />
                     <TextField label="상품 약관" value={detail.terms || ''}
                         onChange={e => setDetail(d => ({ ...d, terms: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="여행 약관, 취소·환불 규정 등을 입력하세요." />
                     <TextField label="예약시 유의사항" value={detail.reservationNotes || ''}
                         onChange={e => setDetail(d => ({ ...d, reservationNotes: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="예) 계약금 납부 기한, 학생 명단 제출 기한, 최소 출발 인원 조건, 인솔 교사 수 등 계약 전 반드시 확인해야 할 사항을 입력하세요." />
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
@@ -275,7 +281,7 @@ function DetailForm({ fields, detail, setDetail, saving, onSave }) {
             {fields.map(f => (
                 <TextField key={f.key} label={f.label} value={detail[f.key] || ''}
                     onChange={e => setDetail(d => ({ ...d, [f.key]: e.target.value }))}
-                    fullWidth multiline rows={f.rows} />
+                    fullWidth multiline rows={f.rows} placeholder={f.placeholder} />
             ))}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                 <Button variant="contained" startIcon={<SaveIcon />} onClick={onSave} disabled={saving}>
@@ -593,7 +599,8 @@ function ItinerarySection({ productId, onAfterSave }) {
                         </Stack>
 
                         <TextField label="일정 설명" value={form.description} fullWidth multiline rows={2}
-                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                            placeholder="해당 일차의 상세 일정을 입력하세요 (선택)" />
 
                         <Divider><Typography variant="caption" color="text.secondary">시간대별 일정</Typography></Divider>
 

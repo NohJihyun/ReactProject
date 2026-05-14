@@ -132,10 +132,10 @@ export default function AirItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'insuranceInfo',    label: '여행자 보험',      rows: 4 },
-                        { key: 'emergencyContact', label: '비상 연락처',      rows: 3 },
-                        { key: 'passportVisaInfo', label: '여권 / 비자 안내', rows: 3 },
-                        { key: 'otherNotices',     label: '기타 유의사항',    rows: 4 },
+                        { key: 'insuranceInfo',    label: '여행자 보험',      rows: 4, placeholder: '예) 여행자 보험 가입 안내, 보험사명, 보장 범위 및 사고 시 청구 방법 등을 입력하세요.' },
+                        { key: 'emergencyContact', label: '비상 연락처',      rows: 3, placeholder: '예) 현지 인솔자: 010-1234-5678 / 로이투어 본사: 02-0000-0000 (24시간)' },
+                        { key: 'passportVisaInfo', label: '여권 / 비자 안내', rows: 3, placeholder: '예) 여권 유효기간 6개월 이상 필요, 비자 취득 방법 및 비용 안내 (무비자 해당 국가 기재)' },
+                        { key: 'otherNotices',     label: '기타 유의사항',    rows: 4, placeholder: '예) 현지 음식 주의사항, 환전 안내, 날씨 및 복장 준비, 귀중품 관리 요령 등' },
                     ]}
                     detail={detail} setDetail={setDetail}
                     saving={detailSaving} onSave={handleSaveDetail}
@@ -147,8 +147,8 @@ export default function AirItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'includedItems', label: '포함 사항',   rows: 7 },
-                        { key: 'excludedItems', label: '불포함 사항', rows: 7 },
+                        { key: 'includedItems', label: '포함 사항',   rows: 7, placeholder: '예) 왕복 항공료(인천 출발/도착), 호텔 숙박비(2인 1실 기준), 전 일정 식사, 현지 투어 입장료, 여행자 보험' },
+                        { key: 'excludedItems', label: '불포함 사항', rows: 7, placeholder: '예) 개인 용돈, 선택 관광비, 기사·가이드 팁, 항공 수하물 초과 요금, 여권 발급 비용, 여행자 보험 미포함 시 별도 안내' },
                     ]}
                     detail={detail} setDetail={setDetail}
                     saving={detailSaving} onSave={handleSaveDetail}
@@ -161,18 +161,22 @@ export default function AirItineraryTab({ productId, onComplete }) {
                 <Stack spacing={2} sx={{ pt: 1 }}>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <TextField label="가이드 / 인솔자명" value={detail.guideName || ''}
-                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth
+                            placeholder="예) 이영희 인솔자" />
                         <TextField label="연락처" value={detail.guidePhone || ''}
-                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth
+                            placeholder="예) 010-1234-5678" />
                     </Stack>
                     <TextField label="미팅 장소" value={detail.meetingLocation || ''}
-                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth />
+                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth
+                        placeholder="예) 인천국제공항 제1터미널 3층 H 카운터 앞 로이투어 깃발 앞" />
                     <TextField label="미팅 시간" value={detail.meetingTime || ''}
                         onChange={e => setDetail(d => ({ ...d, meetingTime: e.target.value }))}
-                        fullWidth placeholder="예: 08:00" />
+                        fullWidth placeholder="예) 출발 3시간 전  /  오전 07:00" />
                     <TextField label="안내 사항" value={detail.notes || ''}
                         onChange={e => setDetail(d => ({ ...d, notes: e.target.value }))}
-                        fullWidth multiline rows={4} />
+                        fullWidth multiline rows={4}
+                        placeholder="예) 공항 집합 후 수속 안내, 기내 수하물 규정, 여권·비자 지참 필수, 현지 날씨에 맞는 복장 준비" />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
                             onClick={handleSaveDetail} disabled={detailSaving}>
@@ -245,13 +249,16 @@ export default function AirItineraryTab({ productId, onComplete }) {
                         fullWidth multiline rows={4} placeholder="유류할증료 등 추가 비용 안내" />
                     <TextField label="상품 약관" value={detail.terms || ''}
                         onChange={e => setDetail(d => ({ ...d, terms: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="여행 약관, 취소·환불 규정 등을 입력하세요." />
                     <TextField label="예약시 유의사항" value={detail.reservationNotes || ''}
                         onChange={e => setDetail(d => ({ ...d, reservationNotes: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="예) 예약금 납부 기한, 잔금 납부일, 항공권 발권 일정 등 예약 확정 전 반드시 확인해야 할 사항을 입력하세요." />
                     <TextField label="나라별 입국규정" value={detail.entryRegulations || ''}
                         onChange={e => setDetail(d => ({ ...d, entryRegulations: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="예) 일본: 여권 유효기간 3개월 이상, 무비자 90일&#10;베트남: 전자비자(E-visa) 필요, 여행 전 사전 신청 권장&#10;미국: ESTA 사전 신청 필수 (여행 72시간 전)" />
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
@@ -282,7 +289,7 @@ function DetailForm({ fields, detail, setDetail, saving, onSave }) {
             {fields.map(f => (
                 <TextField key={f.key} label={f.label} value={detail[f.key] || ''}
                     onChange={e => setDetail(d => ({ ...d, [f.key]: e.target.value }))}
-                    fullWidth multiline rows={f.rows} />
+                    fullWidth multiline rows={f.rows} placeholder={f.placeholder} />
             ))}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                 <Button variant="contained" startIcon={<SaveIcon />} onClick={onSave} disabled={saving}>
@@ -600,7 +607,8 @@ function ItinerarySection({ productId, onAfterSave }) {
                         </Stack>
 
                         <TextField label="일정 설명" value={form.description} fullWidth multiline rows={2}
-                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                            placeholder="해당 일차의 상세 일정을 입력하세요 (선택)" />
 
                         <Divider><Typography variant="caption" color="text.secondary">시간대별 일정</Typography></Divider>
 

@@ -129,9 +129,9 @@ export default function DomesticItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'insuranceInfo',    label: '여행자 보험',   rows: 4 },
-                        { key: 'emergencyContact', label: '비상 연락처',   rows: 3 },
-                        { key: 'otherNotices',     label: '기타 유의사항', rows: 4 },
+                        { key: 'insuranceInfo',    label: '여행자 보험',   rows: 4, placeholder: '예) 여행자 보험 가입 안내, 보험사명, 보장 범위 및 사고 시 청구 방법 등을 입력하세요.' },
+                        { key: 'emergencyContact', label: '비상 연락처',   rows: 3, placeholder: '예) 현지 인솔자: 010-1234-5678 / 로이투어 본사: 02-0000-0000 (24시간)' },
+                        { key: 'otherNotices',     label: '기타 유의사항', rows: 4, placeholder: '예) 현지 음식 주의사항, 멀미약 준비 권장, 귀중품 관리 요령, 복장 안내 등' },
                     ]}
                     detail={detail} setDetail={setDetail}
                     saving={detailSaving} onSave={handleSaveDetail}
@@ -143,8 +143,8 @@ export default function DomesticItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'includedItems', label: '포함 사항',   rows: 7 },
-                        { key: 'excludedItems', label: '불포함 사항', rows: 7 },
+                        { key: 'includedItems', label: '포함 사항',   rows: 7, placeholder: '예) 전세버스 교통비, 숙박비(2인 1실), 전 일정 식사, 입장료, 여행자 보험' },
+                        { key: 'excludedItems', label: '불포함 사항', rows: 7, placeholder: '예) 개인 용돈, 선택 체험비, 기사·가이드 팁, 개인 음료 및 간식' },
                     ]}
                     detail={detail} setDetail={setDetail}
                     saving={detailSaving} onSave={handleSaveDetail}
@@ -157,18 +157,22 @@ export default function DomesticItineraryTab({ productId, onComplete }) {
                 <Stack spacing={2} sx={{ pt: 1 }}>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <TextField label="가이드 / 인솔자명" value={detail.guideName || ''}
-                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth
+                            placeholder="예) 박지훈 인솔자" />
                         <TextField label="연락처" value={detail.guidePhone || ''}
-                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth
+                            placeholder="예) 010-1234-5678" />
                     </Stack>
                     <TextField label="미팅 장소" value={detail.meetingLocation || ''}
-                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth />
+                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth
+                        placeholder="예) 서울 강남역 10번 출구 앞 로이투어 버스" />
                     <TextField label="미팅 시간" value={detail.meetingTime || ''}
                         onChange={e => setDetail(d => ({ ...d, meetingTime: e.target.value }))}
-                        fullWidth placeholder="예: 08:00" />
+                        fullWidth placeholder="예) 출발 30분 전  /  오전 07:30" />
                     <TextField label="안내 사항" value={detail.notes || ''}
                         onChange={e => setDetail(d => ({ ...d, notes: e.target.value }))}
-                        fullWidth multiline rows={4} />
+                        fullWidth multiline rows={4}
+                        placeholder="예) 편안한 복장 및 운동화 착용 권장, 현금 및 신분증 지참, 멀미약 개인 준비, 우천 시 우비 지참" />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
                             onClick={handleSaveDetail} disabled={detailSaving}>
@@ -224,10 +228,12 @@ export default function DomesticItineraryTab({ productId, onComplete }) {
                         fullWidth multiline rows={4} placeholder="추가 비용 안내" />
                     <TextField label="상품 약관" value={detail.terms || ''}
                         onChange={e => setDetail(d => ({ ...d, terms: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="여행 약관, 취소·환불 규정 등을 입력하세요." />
                     <TextField label="예약시 유의사항" value={detail.reservationNotes || ''}
                         onChange={e => setDetail(d => ({ ...d, reservationNotes: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="예) 예약금 납부 기한, 잔금 납부일, 인원 확정 기한 등 예약 확정 전 반드시 확인해야 할 사항을 입력하세요." />
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
@@ -257,6 +263,7 @@ function DetailForm({ fields, detail, setDetail, saving, onSave }) {
             {fields.map(f => (
                 <TextField key={f.key} label={f.label} value={detail[f.key] || ''}
                     onChange={e => setDetail(d => ({ ...d, [f.key]: e.target.value }))}
+                    placeholder={f.placeholder}
                     fullWidth multiline rows={f.rows} />
             ))}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
@@ -575,7 +582,8 @@ function ItinerarySection({ productId, onAfterSave }) {
                         </Stack>
 
                         <TextField label="일정 설명" value={form.description} fullWidth multiline rows={2}
-                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                            placeholder="해당 일차의 상세 일정을 입력하세요 (선택)" />
 
                         <Divider><Typography variant="caption" color="text.secondary">시간대별 일정</Typography></Divider>
 

@@ -30,6 +30,7 @@ const EMPTY_FORM = {
     minPeople:         '',
     maxPeople:         '',
     pricePerPerson:    '',
+    confirmedCount:    0,
     exposureStartAt:   '',
     exposureEndAt:     '',
     transportType:    '',
@@ -152,6 +153,7 @@ export default function ProductFormPage() {
                     minPeople:       data.minPeople       ?? '',
                     maxPeople:       data.maxPeople       ?? '',
                     pricePerPerson:  data.pricePerPerson  ?? '',
+                    confirmedCount:  data.confirmedCount  ?? 0,
                     exposureStartAt:   toDatetimeLocal(data.exposureStartAt),
                     exposureEndAt:     toDatetimeLocal(data.exposureEndAt),
                     transportType:    data.transportType    ?? '',
@@ -203,6 +205,7 @@ export default function ProductFormPage() {
             minPeople:       form.minPeople      !== '' ? Number(form.minPeople)      : null,
             maxPeople:       form.maxPeople      !== '' ? Number(form.maxPeople)      : null,
             pricePerPerson:  form.pricePerPerson !== '' ? Number(form.pricePerPerson) : null,
+            confirmedCount:  Number(form.confirmedCount) || 0,
             exposureStartAt:   nullIfEmpty(form.exposureStartAt),
             exposureEndAt:     nullIfEmpty(form.exposureEndAt),
             transportType:    nullIfEmpty(form.transportType),
@@ -300,6 +303,12 @@ export default function ProductFormPage() {
                         )}
                     </Stack>
                 </Box>
+
+                {/* 안내 알럿 */}
+                <Alert severity="info" sx={{ mb: 2 }}>
+                    내용을 변경한 후 반드시 하단의 <strong>저장</strong> 버튼을 눌러야 변경 내용이 실제로 적용됩니다.&nbsp;
+                    오른쪽 상단의 <strong>{isEdit ? '수정 완료' : '등록 완료'}</strong> 버튼은 저장하지 않고 목록으로 돌아가는 버튼입니다.
+                </Alert>
 
                 {/* 탭 */}
                 <Tabs
@@ -400,20 +409,20 @@ export default function ProductFormPage() {
                                     value={form.productCode} onChange={change}
                                     fullWidth disabled={isEdit}
                                     inputProps={{ maxLength: 50 }}
-                                    placeholder="예) TOUR-2024-001"
-                                    helperText={isEdit ? '상품 코드는 수정할 수 없습니다.' : '영문/숫자/하이픈 조합 권장'}
+                                    placeholder="예) SCHOOL-2024-001  /  CRUISE-2024-005  /  AIR-2025-012"
+                                    helperText={isEdit ? '상품 코드는 수정할 수 없습니다.' : '카테고리 키워드 + 연도 + 번호 형식 권장 (영문/숫자/하이픈)'}
                                 />
                                 <TextField
                                     name="productName" label="상품명 *"
                                     value={form.productName} onChange={change}
                                     fullWidth inputProps={{ maxLength: 200 }}
-                                    placeholder="예) 경주 수학여행 3박 4일"
+                                    placeholder="예) 경주·전주 수학여행 3박 4일  /  지중해 크루즈 7박 8일  /  도쿄 항공 패키지 4박 5일"
                                 />
                                 <TextField
                                     name="productSubname" label="부제목"
                                     value={form.productSubname} onChange={change}
                                     fullWidth inputProps={{ maxLength: 200 }}
-                                    placeholder="예) 역사와 문화를 담은 특별한 여행 (선택)"
+                                    placeholder="예) 역사와 문화를 담은 특별한 여행  /  MSC 크루즈 최고급 객실 포함  (선택)"
                                 />
                             </Stack>
                         </Box>
@@ -429,13 +438,13 @@ export default function ProductFormPage() {
                                     value={form.summary} onChange={change}
                                     fullWidth multiline rows={2}
                                     inputProps={{ maxLength: 500 }}
-                                    placeholder="상품 목록에 표시되는 짧은 소개글 (선택, 500자 이내)"
+                                    placeholder="예) 경주·전주의 역사 유적지를 탐방하는 알찬 3박 4일 코스. 국보급 문화재 현장 체험과 전통 한옥마을 야간 투어 포함. (상품 카드에 표시되는 한 줄 소개, 선택)"
                                 />
                                 <TextField
                                     name="description" label="상세 설명"
                                     value={form.description} onChange={change}
                                     fullWidth multiline rows={8}
-                                    placeholder="상품의 상세 내용, 일정, 포함/불포함 사항 등을 입력하세요. (선택)"
+                                    placeholder="여행 개요, 특징, 주요 방문지, 숙박 정보 등 고객에게 전달하고 싶은 내용을 자유롭게 입력하세요.&#10;&#10;예)&#10;· 1일차: 서울 출발 → 경주 도착 → 불국사·석굴암 탐방&#10;· 2일차: 국립경주박물관 → 첨성대 → 동궁과 월지 야간 관람&#10;· 숙박: 경주 힐튼 호텔 2박 / 전주 한옥마을 1박&#10;· 포함: 교통비, 숙박비, 입장료 / 불포함: 개인 용돈, 선택 체험비 (선택)"
                                 />
                             </Stack>
                         </Box>
@@ -460,7 +469,7 @@ export default function ProductFormPage() {
                                         value={form.minPeople} onChange={change}
                                         type="number" fullWidth
                                         inputProps={{ min: 1 }}
-                                        placeholder="예) 10"
+                                        placeholder="예) 10 (출발 확정 최소 인원)"
                                         helperText="선택"
                                     />
                                     <TextField
@@ -468,7 +477,7 @@ export default function ProductFormPage() {
                                         value={form.maxPeople} onChange={change}
                                         type="number" fullWidth
                                         inputProps={{ min: 1 }}
-                                        placeholder="예) 50"
+                                        placeholder="예) 45 (수용 가능 최대 인원)"
                                         helperText="선택"
                                     />
                                     <TextField
@@ -476,10 +485,18 @@ export default function ProductFormPage() {
                                         value={form.pricePerPerson} onChange={change}
                                         type="number" fullWidth
                                         inputProps={{ min: 0 }}
-                                        placeholder="예) 150000"
-                                        helperText="선택 · 정확한 견적은 상담 제공"
+                                        placeholder="예) 150000 (숫자만 입력)"
+                                        helperText="선택 · 정확한 금액은 상담 후 안내"
                                     />
                                 </Stack>
+                                <TextField
+                                    name="confirmedCount" label="확정 인원"
+                                    value={form.confirmedCount} onChange={change}
+                                    type="number" fullWidth
+                                    inputProps={{ min: 0 }}
+                                    placeholder="유선·이메일·협력업체 등 홈페이지 외 경로 포함 현재 확정된 총 인원"
+                                    sx={{ '& input::placeholder': { color: '#444', opacity: 1 } }}
+                                />
                             </Stack>
                         </Box>
 
@@ -532,13 +549,13 @@ export default function ProductFormPage() {
                                         name="departureLocation" label="출발 장소"
                                         value={form.departureLocation} onChange={change}
                                         fullWidth inputProps={{ maxLength: 200 }}
-                                        placeholder="예) 인천항, 부산항, 서울 (선택)"
+                                        placeholder="예) 인천항  /  부산항  /  서울 강남  (선택)"
                                     />
                                     <TextField
                                         name="arrivalLocation" label="도착 장소"
                                         value={form.arrivalLocation} onChange={change}
                                         fullWidth inputProps={{ maxLength: 200 }}
-                                        placeholder="예) 인천항, 부산항, 서울 (선택)"
+                                        placeholder="예) 도쿄 나리타공항  /  베이징  /  제주도  (선택)"
                                     />
                                 </Stack>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -628,22 +645,22 @@ export default function ProductFormPage() {
                                     name="seoTitle" label="SEO 제목"
                                     value={form.seoTitle} onChange={change}
                                     fullWidth inputProps={{ maxLength: 200 }}
-                                    placeholder="예) 경주 수학여행 3박 4일 - 로이투어 (선택)"
-                                    helperText="검색 결과에 표시되는 제목, 비우면 상품명으로 대체"
+                                    placeholder="예) 경주·전주 수학여행 3박4일 | 로이투어  (비우면 상품명으로 자동 적용, 선택)"
+                                    helperText="네이버·구글 검색 결과에 표시되는 제목 (60자 이내 권장)"
                                 />
                                 <TextField
                                     name="seoDescription" label="SEO 설명"
                                     value={form.seoDescription} onChange={change}
                                     fullWidth multiline rows={2}
                                     inputProps={{ maxLength: 500 }}
-                                    placeholder="검색 결과에 표시되는 설명을 입력하세요. 150자 이내 권장 (선택)"
+                                    placeholder="예) 로이투어의 경주·전주 3박4일 수학여행. 불국사·한옥마을·국립박물관 등 핵심 코스, 안전하고 알찬 일정으로 진행합니다. (150자 이내 권장, 선택)"
                                 />
                                 <TextField
                                     name="hashtags" label="해시태그"
                                     value={form.hashtags} onChange={change}
                                     fullWidth inputProps={{ maxLength: 500 }}
-                                    placeholder="예) #단둥 #크루즈 #로이투어 #지중해 (공백으로 구분, 선택)"
-                                    helperText="공백으로 구분하여 입력 · 상세 페이지 및 SNS 홍보에 활용됩니다"
+                                    placeholder="예) #경주수학여행 #전주한옥마을 #로이투어 #3박4일  (띄어쓰기로 구분, 선택)"
+                                    helperText="상품 카드 하단 및 SNS 홍보에 활용 · 최대 5개 표시"
                                 />
                             </Stack>
                         </Box>

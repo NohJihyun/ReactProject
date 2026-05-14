@@ -77,7 +77,7 @@ const SECTIONS = [
 
 const formatPrice = (price) => {
     if (!price) return null;
-    return Number(price).toLocaleString('ko-KR') + '원~';
+    return '1인 가격 ' + Number(price).toLocaleString('ko-KR') + '원~';
 };
 
 const parseTags = (hashtags) =>
@@ -100,9 +100,9 @@ function ProductCard({ product, categorySlug, onClick }) {
     const hasRoute   = product.departureLocation || depDt;
     const statusChip = getStatusChip(product.exposureEndAt);
     const peopleLabel = product.minPeople && product.maxPeople
-        ? `${product.minPeople}~${product.maxPeople}인`
-        : product.minPeople ? `${product.minPeople}인 이상`
-        : product.maxPeople ? `최대 ${product.maxPeople}인` : null;
+        ? `모집인원 ${product.minPeople}~${product.maxPeople}명`
+        : product.minPeople ? `모집인원 최소 ${product.minPeople}명`
+        : product.maxPeople ? `모집인원 최대 ${product.maxPeople}명` : null;
 
     return (
         <Box
@@ -148,19 +148,39 @@ function ProductCard({ product, categorySlug, onClick }) {
 
             {/* 내용 */}
             <Box sx={{ p: 2.5, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                {/* 상태 + 추천 chip */}
-                <Stack direction="row" spacing={0.75} sx={{ mb: 1 }}>
-                    <Chip
-                        label={statusChip.label}
-                        size="small"
-                        sx={{ bgcolor: statusChip.bg, color: statusChip.color, fontWeight: 700, fontSize: '0.7rem' }}
-                    />
-                    {product.isFeatured === 'Y' && (
-                        <Chip label="추천" size="small"
-                            sx={{ bgcolor: '#ff6f00', color: 'white', fontWeight: 700, fontSize: '0.7rem' }}
+                {/* 상태 + 추천 chip + 확정인원 */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+                    <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+                        <Chip
+                            label={statusChip.label}
+                            size="small"
+                            sx={{ bgcolor: statusChip.bg, color: statusChip.color, fontWeight: 700, fontSize: '0.7rem' }}
                         />
+                        {product.isFeatured === 'Y' && (
+                            <Chip label="추천" size="small"
+                                sx={{ bgcolor: '#ff6f00', color: 'white', fontWeight: 700, fontSize: '0.7rem' }}
+                            />
+                        )}
+                    </Stack>
+                    {product.confirmedCount > 0 && (
+                        <Box sx={{ textAlign: 'right', flexShrink: 0, ml: 1 }}>
+                            <Typography variant="caption" fontWeight={700} sx={{ display: 'block', lineHeight: 1.3,
+                                color: product.confirmedCount >= product.minPeople ? '#2e7d32' : '#1565c0' }}>
+                                확정 인원 {product.confirmedCount}명
+                            </Typography>
+                            {product.minPeople > 0 && (
+                                <Box sx={{ height: 4, width: 72, borderRadius: 3, bgcolor: '#eee', overflow: 'hidden', mt: 0.4, ml: 'auto' }}>
+                                    <Box sx={{
+                                        height: '100%',
+                                        width: `${Math.min((product.confirmedCount / product.minPeople) * 100, 100)}%`,
+                                        bgcolor: product.confirmedCount >= product.minPeople ? '#2e7d32' : '#1976d2',
+                                        borderRadius: 3,
+                                    }} />
+                                </Box>
+                            )}
+                        </Box>
                     )}
-                </Stack>
+                </Box>
 
                 <Typography
                     variant="h6"
@@ -203,6 +223,7 @@ function ProductCard({ product, categorySlug, onClick }) {
                             label={peopleLabel}
                             size="small"
                             variant="outlined"
+                            color="primary"
                             sx={{ fontSize: '0.75rem' }}
                         />
                     )}

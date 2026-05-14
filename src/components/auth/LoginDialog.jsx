@@ -174,13 +174,14 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                             value={findName}
                             onChange={(e) => setFindName(e.target.value)}
                             fullWidth
+                            placeholder="예) 홍길동"
                         />
                         <TextField
                             label="휴대폰 번호"
                             value={findPhone}
                             onChange={(e) => setFindPhone(e.target.value)}
                             fullWidth
-                            placeholder="010-0000-0000"
+                            placeholder="예) 010-1234-5678"
                         />
                         <Button
                             variant="contained"
@@ -217,6 +218,7 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                                     value={pwLoginId}
                                     onChange={(e) => setPwLoginId(e.target.value)}
                                     fullWidth
+                                    placeholder="가입 시 사용한 이메일 아이디"
                                     slotProps={{ htmlInput: { translate: "no", spellCheck: "false" } }}
                                 />
                                 <TextField
@@ -224,13 +226,14 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                                     value={pwName}
                                     onChange={(e) => setPwName(e.target.value)}
                                     fullWidth
+                                    placeholder="예) 홍길동"
                                 />
                                 <TextField
                                     label="휴대폰 번호"
                                     value={pwPhone}
                                     onChange={(e) => setPwPhone(e.target.value)}
                                     fullWidth
-                                    placeholder="010-0000-0000"
+                                    placeholder="예) 010-1234-5678"
                                 />
                                 <Button
                                     variant="contained"
@@ -261,6 +264,7 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                         onChange={(e) => setLoginId(e.target.value)}
                         autoComplete="username"
                         fullWidth
+                        placeholder="가입 시 등록한 이메일 아이디를 입력하세요"
                         slotProps={{
                             htmlInput: {
                                 translate: "no",
@@ -275,6 +279,7 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                         onChange={(e) => setPassword(e.target.value)}
                         autoComplete="current-password"
                         fullWidth
+                        placeholder="비밀번호를 입력하세요"
                         slotProps={{
                             htmlInput: {
                                 translate: "no",

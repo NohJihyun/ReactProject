@@ -315,7 +315,7 @@ export default function MyReviewPage() {
                         <TextField label="후기 내용 *" multiline rows={4} fullWidth
                             value={form.content}
                             onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
-                            placeholder="여행 경험을 자유롭게 공유해주세요." />
+                            placeholder="예) 가이드분이 정말 친절하셨고 일정도 알차게 구성되어 있었어요. 숙박 시설도 깨끗하고 음식도 맛있었습니다. 다음에 또 이용하고 싶어요!" />
 
                         {/* 이미지 (신규만) */}
                         {!editTarget && (

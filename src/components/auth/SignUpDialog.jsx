@@ -208,6 +208,7 @@ export default function SignUpDialog({ open, onClose }) {
                         <TextField
                             label="이름 *" name="name" value={form.name}
                             onChange={handleChange} fullWidth disabled={!!success}
+                            placeholder="예) 홍길동"
                         />
 
                         {/* 생년월일 */}
@@ -242,12 +243,14 @@ export default function SignUpDialog({ open, onClose }) {
                         <TextField
                             label="비밀번호 *" name="password" type="password" value={form.password}
                             onChange={handleChange} fullWidth disabled={!!success}
+                            placeholder="영문+숫자+특수문자 조합 8자리 이상"
                         />
 
                         {/* 비밀번호 확인 */}
                         <TextField
                             label="비밀번호 확인 *" name="passwordConfirm" type="password"
                             value={form.passwordConfirm} onChange={handleChange} fullWidth disabled={!!success}
+                            placeholder="위에 입력한 비밀번호를 한 번 더 입력하세요"
                             error={form.passwordConfirm !== "" && form.password !== form.passwordConfirm}
                             helperText={
                                 form.passwordConfirm !== "" && form.password !== form.passwordConfirm
@@ -259,6 +262,7 @@ export default function SignUpDialog({ open, onClose }) {
                         <TextField
                             label="이메일 *" name="email" value={form.email}
                             onChange={handleChange} fullWidth disabled={emailVerified || !!success}
+                            placeholder="인증 코드를 받을 이메일 주소를 입력하세요"
                             InputProps={{
                                 endAdornment: emailVerified ? (
                                     <InputAdornment position="end">

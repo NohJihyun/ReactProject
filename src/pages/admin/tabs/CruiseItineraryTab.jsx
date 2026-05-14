@@ -190,9 +190,9 @@ export default function CruiseItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'insuranceInfo',    label: '여행자 보험',    rows: 4 },
-                        { key: 'emergencyContact', label: '비상 연락처',    rows: 3 },
-                        { key: 'passportVisaInfo', label: '여권 / 비자 안내', rows: 3 },
+                        { key: 'insuranceInfo',    label: '여행자 보험',      rows: 4, placeholder: '예) 여행자 보험 가입 안내, 보험사명, 보장 범위 및 청구 방법 등을 입력하세요.' },
+                        { key: 'emergencyContact', label: '비상 연락처',      rows: 3, placeholder: '예) 현지 가이드: 010-1234-5678 / 로이투어 본사: 02-0000-0000 (24시간)' },
+                        { key: 'passportVisaInfo', label: '여권 / 비자 안내', rows: 3, placeholder: '예) 여권 유효기간 6개월 이상 필요, 비자 취득 방법 및 비용 안내 (무비자 해당 국가 기재)' },
                         { key: 'otherNotices',     label: '기타 유의사항',  rows: 4 },
                     ]}
                     detail={detail} setDetail={setDetail}
@@ -205,8 +205,8 @@ export default function CruiseItineraryTab({ productId, onComplete }) {
                 detailLoad ? <Loading /> :
                 <DetailForm
                     fields={[
-                        { key: 'includedItems', label: '포함 사항',   rows: 7 },
-                        { key: 'excludedItems', label: '불포함 사항', rows: 7 },
+                        { key: 'includedItems', label: '포함 사항',   rows: 7, placeholder: '예) 항공료(인천 출발/도착), 크루즈 숙박비, 크루즈 식사(뷔페·정식), 현지 투어 입장료, 여행자 보험' },
+                        { key: 'excludedItems', label: '불포함 사항', rows: 7, placeholder: '예) 개인 용돈, 선택 관광비, 기사·가이드 팁, 항공 수하물 초과 요금, 여권 발급 비용' },
                     ]}
                     detail={detail} setDetail={setDetail}
                     saving={detailSaving} onSave={handleSaveDetail}
@@ -219,18 +219,22 @@ export default function CruiseItineraryTab({ productId, onComplete }) {
                 <Stack spacing={2} sx={{ pt: 1 }}>
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <TextField label="가이드 / 인솔자명" value={detail.guideName}
-                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guideName: e.target.value }))} fullWidth
+                            placeholder="예) 김철수 가이드" />
                         <TextField label="연락처" value={detail.guidePhone}
-                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth />
+                            onChange={e => setDetail(d => ({ ...d, guidePhone: e.target.value }))} fullWidth
+                            placeholder="예) 010-1234-5678" />
                     </Stack>
                     <TextField label="미팅 장소" value={detail.meetingLocation}
-                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth />
+                        onChange={e => setDetail(d => ({ ...d, meetingLocation: e.target.value }))} fullWidth
+                        placeholder="예) 인천항 제2여객터미널 A게이트 앞 로이투어 깃발 앞" />
                     <TextField label="미팅 시간" value={detail.meetingTime}
                         onChange={e => setDetail(d => ({ ...d, meetingTime: e.target.value }))}
-                        fullWidth placeholder="예: 08:00" />
+                        fullWidth placeholder="예) 출발 2시간 전  /  오전 08:00" />
                     <TextField label="안내 사항" value={detail.notes}
                         onChange={e => setDetail(d => ({ ...d, notes: e.target.value }))}
-                        fullWidth multiline rows={4} />
+                        fullWidth multiline rows={4}
+                        placeholder="예) 탑승 2시간 전 터미널 도착 권장, 여권 유효기간 6개월 이상 확인 필수, 현지 날씨에 맞는 복장 준비" />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
                             onClick={handleSaveDetail} disabled={detailSaving}>
@@ -292,17 +296,17 @@ export default function CruiseItineraryTab({ productId, onComplete }) {
                                         <TableCell align="center">
                                             <TextField size="small" type="number" value={priceForm.priceAdult}
                                                 onChange={e => setPriceForm(f => ({ ...f, priceAdult: e.target.value }))}
-                                                sx={{ width: 110 }} />
+                                                sx={{ width: 110 }} placeholder="예) 1200000" />
                                         </TableCell>
                                         <TableCell align="center">
                                             <TextField size="small" type="number" value={priceForm.priceChild}
                                                 onChange={e => setPriceForm(f => ({ ...f, priceChild: e.target.value }))}
-                                                sx={{ width: 110 }} />
+                                                sx={{ width: 110 }} placeholder="예) 900000" />
                                         </TableCell>
                                         <TableCell align="center">
                                             <TextField size="small" type="number" value={priceForm.priceInfant}
                                                 onChange={e => setPriceForm(f => ({ ...f, priceInfant: e.target.value }))}
-                                                sx={{ width: 110 }} />
+                                                sx={{ width: 110 }} placeholder="예) 300000" />
                                         </TableCell>
                                         <TableCell align="center">
                                             <Stack direction="row" justifyContent="center" spacing={0.5}>
@@ -401,13 +405,16 @@ export default function CruiseItineraryTab({ productId, onComplete }) {
                         fullWidth multiline rows={4} placeholder="유류할증료, 항만세 등 추가 비용 안내" />
                     <TextField label="상품 약관" value={detail.terms || ''}
                         onChange={e => setDetail(d => ({ ...d, terms: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="여행 약관, 취소·환불 규정 등을 입력하세요." />
                     <TextField label="예약시 유의사항" value={detail.reservationNotes || ''}
                         onChange={e => setDetail(d => ({ ...d, reservationNotes: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="예) 예약금 납부 기한, 잔금 납부일, 여권 사본 제출 기한 등 예약 확정 전 반드시 확인해야 할 사항을 입력하세요." />
                     <TextField label="나라별 입국규정" value={detail.entryRegulations || ''}
                         onChange={e => setDetail(d => ({ ...d, entryRegulations: e.target.value }))}
-                        fullWidth multiline rows={6} />
+                        fullWidth multiline rows={6}
+                        placeholder="예) 중국: 여권 유효기간 6개월 이상 필요, 15일 이내 무비자&#10;일본: 여권 유효기간 3개월 이상, 무비자 90일&#10;베트남: 전자비자(E-visa) 필요, 여행 전 사전 신청 권장" />
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                         <Button variant="contained" startIcon={<SaveIcon />}
@@ -440,7 +447,7 @@ function DetailForm({ fields, detail, setDetail, saving, onSave }) {
             {fields.map(f => (
                 <TextField key={f.key} label={f.label} value={detail[f.key] || ''}
                     onChange={e => setDetail(d => ({ ...d, [f.key]: e.target.value }))}
-                    fullWidth multiline rows={f.rows} />
+                    fullWidth multiline rows={f.rows} placeholder={f.placeholder} />
             ))}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pr: 9 }}>
                 <Button variant="contained" startIcon={<SaveIcon />} onClick={onSave} disabled={saving}>
@@ -758,7 +765,8 @@ function ItinerarySection({ productId, onAfterSave }) {
                         </Stack>
 
                         <TextField label="일정 설명" value={form.description} fullWidth multiline rows={2}
-                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                            placeholder="해당 일차의 상세 일정을 입력하세요 (선택)" />
 
                         <Divider><Typography variant="caption" color="text.secondary">시간대별 일정</Typography></Divider>
 
@@ -921,15 +929,19 @@ function ItinerarySection({ productId, onAfterSave }) {
 
                         <Divider><Typography variant="caption" color="text.secondary">숙박 정보 (선택)</Typography></Divider>
                         <TextField label="호텔명" value={form.hotelName} fullWidth
-                            onChange={e => setForm(f => ({ ...f, hotelName: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, hotelName: e.target.value }))}
+                            placeholder="예) 상하이 힐튼 호텔  /  코스타 크루즈 선내 객실 (선택)" />
 
                         <Divider><Typography variant="caption" color="text.secondary">쇼핑 정보 (선택)</Typography></Divider>
                         <TextField label="쇼핑센터 명칭" value={form.shoppingCenterName} fullWidth
-                            onChange={e => setForm(f => ({ ...f, shoppingCenterName: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, shoppingCenterName: e.target.value }))}
+                            placeholder="예) 상하이 면세점  /  베이징 동인당 한약재 쇼핑센터 (선택)" />
                         <TextField label="교환/환불 안내" value={form.shoppingExchangeInfo} fullWidth multiline rows={2}
-                            onChange={e => setForm(f => ({ ...f, shoppingExchangeInfo: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, shoppingExchangeInfo: e.target.value }))}
+                            placeholder="예) 구매 후 환불 불가, 교환은 당일 현장에서만 가능합니다. (선택)" />
                         <TextField label="간략한 쇼핑센터 정보" value={form.shoppingInfo} fullWidth multiline rows={2}
-                            onChange={e => setForm(f => ({ ...f, shoppingInfo: e.target.value }))} />
+                            onChange={e => setForm(f => ({ ...f, shoppingInfo: e.target.value }))}
+                            placeholder="예) 건강식품·화장품·기념품 판매, 면세 가격 적용, 한국어 안내 직원 상주 (선택)" />
                     </Stack>
                 </DialogContent>
                 <DialogActions>
