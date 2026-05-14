@@ -297,9 +297,9 @@ function ReviewCard({ review, onClick }) {
                 borderLeft: '5px solid #ff6f00',
                 p: 2.5,
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: { xs: 'column', sm: 'row' },
                 gap: 2,
-                height: 260,
+                height: { xs: 'auto', sm: 260 },
                 position: 'relative',
                 overflow: 'hidden',
                 cursor: 'pointer',
@@ -309,10 +309,12 @@ function ReviewCard({ review, onClick }) {
         >
             {/* 이미지 — 카드 높이 전체 */}
             <Box sx={{
-                width: 220, flexShrink: 0,
+                width: { xs: '100%', sm: 220 },
+                height: { xs: 160, sm: 'auto' },
+                flexShrink: 0,
                 borderRadius: 2,
                 overflow: 'hidden', bgcolor: '#f0f0f0',
-                alignSelf: 'stretch',
+                alignSelf: { xs: 'auto', sm: 'stretch' },
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
                 {firstImage ? (

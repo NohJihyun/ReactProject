@@ -79,7 +79,6 @@ export default function Header() {
 
     const [searchResults, setSearchResults] = useState([]);
     const [searchOpen, setSearchOpen] = useState(false);
-    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
     const debounceRef = useRef(null);
     const pcInputRef = useRef(null);
     const mobileInputRef = useRef(null);
@@ -112,7 +111,6 @@ export default function Header() {
         const cat = CATEGORY_PATH[product.rootCategoryName] || 'domestic';
         logSearch(keyword);
         setSearchOpen(false);
-        setMobileSearchOpen(false);
         setKeyword("");
         setSearchResults([]);
         navigate(`/tour/${cat}/${product.productId}`);
@@ -132,7 +130,6 @@ export default function Header() {
         if (e.key === 'Enter' && keyword.trim()) {
             logSearch(keyword.trim());
             setSearchOpen(false);
-            setMobileSearchOpen(false);
             navigate(`/search?q=${encodeURIComponent(keyword.trim())}`);
             window.scrollTo(0, 0);
         }
@@ -213,7 +210,7 @@ export default function Header() {
                         }}
                     >
                         <ClickAwayListener onClickAway={closeSearch}>
-                            <Box sx={{ width: 660, position: 'relative' }}>
+                            <Box sx={{ width: { md: 480, lg: 660 }, position: 'relative' }}>
                                 <Box
                                     ref={pcInputRef}
                                     sx={{
@@ -306,13 +303,6 @@ export default function Header() {
 
                         {/* 실시간 검색어 */}
                         <RealTimeKeywords onKeywordClick={handlePopularClick} />
-                    </Box>
-
-                    {/* 검색 아이콘 — 모바일만 표시 */}
-                    <Box sx={{ display: { xs: "flex", md: "none" }, flexGrow: 1, justifyContent: "flex-end" }}>
-                        <IconButton onClick={() => setMobileSearchOpen(v => !v)}>
-                            {mobileSearchOpen ? <CloseIcon /> : <SearchIcon />}
-                        </IconButton>
                     </Box>
 
                     {/* 사용자 영역 */}
@@ -477,8 +467,7 @@ export default function Header() {
                 </Box>
             </Toolbar>
             {/* ================= 모바일 검색바 ================= */}
-            {mobileSearchOpen && (
-                <Box sx={{ display: { xs: 'block', md: 'none' }, borderTop: '1px solid #eee', px: 2, py: 1, position: 'relative' }}>
+            <Box sx={{ display: { xs: 'block', md: 'none' }, borderTop: '1px solid #eee', px: 2, py: 1, position: 'relative' }}>
                     <ClickAwayListener onClickAway={() => setSearchOpen(false)}>
                         <Box>
                             <Box
@@ -490,7 +479,6 @@ export default function Header() {
                             >
                                 <SearchIcon sx={{ mr: 1, color: 'gray' }} />
                                 <InputBase
-                                    autoFocus
                                     value={keyword}
                                     onChange={handleKeywordChange}
                                     onKeyDown={handleEnter}
@@ -549,8 +537,7 @@ export default function Header() {
                             )}
                         </Box>
                     </ClickAwayListener>
-                </Box>
-            )}
+            </Box>
         </AppBar>
 
         {/* 전체메뉴 Drawer */}

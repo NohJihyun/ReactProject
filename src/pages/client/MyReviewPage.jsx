@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
     Box, Container, Typography, Stack, Button, Divider,
-    Card, CardContent, Chip, Rating, IconButton, Pagination,
+    Card, CardContent, Chip, Rating, IconButton,
     Dialog, DialogTitle, DialogContent, DialogActions,
     FormControl, InputLabel, Select, MenuItem, TextField,
     CircularProgress, Alert, Snackbar,
 } from '@mui/material';
+import CommonPagination from '../../components/CommonPagination';
 import EditIcon   from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon    from '@mui/icons-material/Add';
@@ -236,10 +237,8 @@ export default function MyReviewPage() {
                     ))}
 
                     {totalPage > 1 && (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                            <Pagination count={totalPage} page={page}
-                                onChange={(_, v) => setPage(v)} color="primary" />
-                        </Box>
+                        <CommonPagination count={totalPage} page={page}
+                            onChange={(_, v) => setPage(v)} />
                     )}
                 </Stack>
             )}
