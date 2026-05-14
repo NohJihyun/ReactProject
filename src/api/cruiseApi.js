@@ -28,6 +28,16 @@ export const uploadCruiseItineraryImage = (productId, itineraryId, formData) =>
 export const deleteCruiseItineraryImage = (productId, itineraryId, imageId) =>
     http.delete(`${base(productId)}/${itineraryId}/images/${imageId}`);
 
+/* 스케줄별 이미지 업로드 */
+export const uploadCruiseScheduleImage = (productId, itineraryId, scheduleId, formData) =>
+    http.post(`${base(productId)}/${itineraryId}/schedules/${scheduleId}/images`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(res => res.data);
+
+/* 스케줄별 이미지 삭제 */
+export const deleteCruiseScheduleImage = (productId, itineraryId, scheduleId, imageId) =>
+    http.delete(`${base(productId)}/${itineraryId}/schedules/${scheduleId}/images/${imageId}`);
+
 /* 스케줄 추가 */
 export const addCruiseSchedule = (productId, itineraryId, data) =>
     http.post(`${base(productId)}/${itineraryId}/schedules`, data).then(res => res.data);

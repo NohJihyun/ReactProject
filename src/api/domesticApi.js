@@ -22,6 +22,14 @@ export const uploadDomesticItineraryImage = (productId, itineraryId, formData) =
 export const deleteDomesticItineraryImage = (productId, itineraryId, imageId) =>
     http.delete(`${base(productId)}/${itineraryId}/images/${imageId}`);
 
+export const uploadDomesticScheduleImage = (productId, itineraryId, scheduleId, formData) =>
+    http.post(`${base(productId)}/${itineraryId}/schedules/${scheduleId}/images`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(res => res.data);
+
+export const deleteDomesticScheduleImage = (productId, itineraryId, scheduleId, imageId) =>
+    http.delete(`${base(productId)}/${itineraryId}/schedules/${scheduleId}/images/${imageId}`);
+
 export const addDomesticSchedule = (productId, itineraryId, data) =>
     http.post(`${base(productId)}/${itineraryId}/schedules`, data).then(res => res.data);
 

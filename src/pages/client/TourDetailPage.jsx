@@ -19,7 +19,6 @@ import SchoolIcon          from '@mui/icons-material/School';
 import LandscapeIcon       from '@mui/icons-material/Landscape';
 import FlightIcon          from '@mui/icons-material/Flight';
 import DirectionsBoatIcon  from '@mui/icons-material/DirectionsBoat';
-import AccessTimeIcon  from '@mui/icons-material/AccessTime';
 import HotelIcon       from '@mui/icons-material/Hotel';
 import { getProductById, getProductImages, getProductFiles, getCruiseItineraries, getCruiseDetail, getCruisePrices, getAirItineraries, getAirDetail, getDomesticItineraries, getDomesticDetail, getSchoolTripItineraries, getSchoolTripDetail } from '../../api/clientApi';
 import { getReviewStats } from '../../api/reviewApi';
@@ -50,6 +49,15 @@ const formatDt = (dt) => {
     const h = String(d.getHours()).padStart(2, '0');
     const min = String(d.getMinutes()).padStart(2, '0');
     return `${m}.${day}(${wd}) ${h}:${min}`;
+};
+
+const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+    const parts = timeStr.trim().split(' ');
+    if (parts.length >= 2 && (parts[1] === 'AM' || parts[1] === 'PM')) {
+        return `${parts[1]} ${parts[0]}`;
+    }
+    return timeStr;
 };
 
 const CONTACT_ITEMS = [
@@ -763,8 +771,6 @@ export default function TourDetailPage() {
                                 ) : (
                                     <Stack spacing={3}>
                                         {cruiseItineraries.map(item => {
-                                            const locImgs  = (item.images || []).filter(i => i.imageType === 'LOCATION');
-                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
                                             return (
                                                 <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
                                                     <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -777,54 +783,48 @@ export default function TourDetailPage() {
                                                                 {item.description}
                                                             </Typography>
                                                         )}
+                                                        {/* 타임라인 */}
                                                         {(item.schedules || []).length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <AccessTimeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
-                                                                </Stack>
-                                                                <Stack spacing={0.75}>
-                                                                    {item.schedules.map(s => (
-                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
-                                                                            <Typography variant="body2" fontWeight={700} color="primary.main" sx={{ minWidth: 48 }}>
-                                                                                {s.time || ''}
-                                                                            </Typography>
-                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
-                                                                        </Stack>
-                                                                    ))}
-                                                                </Stack>
-                                                            </Box>
-                                                        )}
-                                                        {locImgs.length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <LandscapeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
-                                                                </Stack>
-                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                    {locImgs.map(img => (
-                                                                        <Box key={img.id} component="img"
-                                                                            src={`${IMG_BASE}${img.imagePath}`}
-                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                    ))}
-                                                                </Stack>
+                                                            <Box sx={{ mb: 1 }}>
+                                                                {item.schedules.map((s, idx) => (
+                                                                    <Box key={s.id}>
+                                                                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                                                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                                                                                <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'primary.main', mt: '3px', flexShrink: 0 }} />
+                                                                                {(idx < item.schedules.length - 1 || (s.images || []).length > 0) && (
+                                                                                    <Box sx={{ width: 2, flex: 1, minHeight: 16, bgcolor: 'primary.light', my: 0.5 }} />
+                                                                                )}
+                                                                            </Box>
+                                                                            <Box sx={{ flex: 1, pb: 0.5 }}>
+                                                                                <Stack direction="row" spacing={1} alignItems="baseline" mb={0.5}>
+                                                                                    {s.time && (
+                                                                                        <Typography variant="caption" fontWeight={700} color="primary.main" sx={{ flexShrink: 0, minWidth: 58 }}>
+                                                                                            {formatTime(s.time)}
+                                                                                        </Typography>
+                                                                                    )}
+                                                                                    <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>{s.description}</Typography>
+                                                                                </Stack>
+                                                                                {(s.images || []).length > 0 && (
+                                                                                    <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                                                                                        {s.images.map(img => (
+                                                                                            <Box key={img.id} component="img"
+                                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                                        ))}
+                                                                                    </Stack>
+                                                                                )}
+                                                                            </Box>
+                                                                        </Box>
+                                                                    </Box>
+                                                                ))}
                                                             </Box>
                                                         )}
                                                         {item.hotelName && (
-                                                            <Box sx={{ mt: 1 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                            <Box sx={{ mt: 1, mb: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5}>
                                                                     <HotelIcon fontSize="small" color="action" />
                                                                     <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
                                                                 </Stack>
-                                                                {hotelImgs.length > 0 && (
-                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                        {hotelImgs.map(img => (
-                                                                            <Box key={img.id} component="img"
-                                                                                src={`${IMG_BASE}${img.imagePath}`}
-                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                        ))}
-                                                                    </Stack>
-                                                                )}
                                                             </Box>
                                                         )}
                                                         {item.shoppingCenterName && (
@@ -1027,8 +1027,6 @@ export default function TourDetailPage() {
                                 ) : (
                                     <Stack spacing={3}>
                                         {airItineraries.map(item => {
-                                            const locImgs   = (item.images || []).filter(i => i.imageType === 'LOCATION');
-                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
                                             return (
                                                 <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
                                                     <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#fff3e0', display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -1041,54 +1039,48 @@ export default function TourDetailPage() {
                                                                 {item.description}
                                                             </Typography>
                                                         )}
+                                                        {/* 타임라인 */}
                                                         {(item.schedules || []).length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <AccessTimeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
-                                                                </Stack>
-                                                                <Stack spacing={0.75}>
-                                                                    {item.schedules.map(s => (
-                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
-                                                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#e65100', minWidth: 48 }}>
-                                                                                {s.time || ''}
-                                                                            </Typography>
-                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
-                                                                        </Stack>
-                                                                    ))}
-                                                                </Stack>
-                                                            </Box>
-                                                        )}
-                                                        {locImgs.length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <LandscapeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
-                                                                </Stack>
-                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                    {locImgs.map(img => (
-                                                                        <Box key={img.id} component="img"
-                                                                            src={`${IMG_BASE}${img.imagePath}`}
-                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                    ))}
-                                                                </Stack>
+                                                            <Box sx={{ mb: 1 }}>
+                                                                {item.schedules.map((s, idx) => (
+                                                                    <Box key={s.id}>
+                                                                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                                                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                                                                                <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'primary.main', mt: '3px', flexShrink: 0 }} />
+                                                                                {(idx < item.schedules.length - 1 || (s.images || []).length > 0) && (
+                                                                                    <Box sx={{ width: 2, flex: 1, minHeight: 16, bgcolor: 'primary.light', my: 0.5 }} />
+                                                                                )}
+                                                                            </Box>
+                                                                            <Box sx={{ flex: 1, pb: 0.5 }}>
+                                                                                <Stack direction="row" spacing={1} alignItems="baseline" mb={0.5}>
+                                                                                    {s.time && (
+                                                                                        <Typography variant="caption" fontWeight={700} color="primary.main" sx={{ flexShrink: 0, minWidth: 58 }}>
+                                                                                            {formatTime(s.time)}
+                                                                                        </Typography>
+                                                                                    )}
+                                                                                    <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>{s.description}</Typography>
+                                                                                </Stack>
+                                                                                {(s.images || []).length > 0 && (
+                                                                                    <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                                                                                        {s.images.map(img => (
+                                                                                            <Box key={img.id} component="img"
+                                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                                        ))}
+                                                                                    </Stack>
+                                                                                )}
+                                                                            </Box>
+                                                                        </Box>
+                                                                    </Box>
+                                                                ))}
                                                             </Box>
                                                         )}
                                                         {item.hotelName && (
-                                                            <Box sx={{ mt: 1 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                            <Box sx={{ mt: 1, mb: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5}>
                                                                     <HotelIcon fontSize="small" color="action" />
                                                                     <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
                                                                 </Stack>
-                                                                {hotelImgs.length > 0 && (
-                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                        {hotelImgs.map(img => (
-                                                                            <Box key={img.id} component="img"
-                                                                                src={`${IMG_BASE}${img.imagePath}`}
-                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                        ))}
-                                                                    </Stack>
-                                                                )}
                                                             </Box>
                                                         )}
                                                         {item.shoppingCenterName && (
@@ -1298,8 +1290,6 @@ export default function TourDetailPage() {
                                 ) : (
                                     <Stack spacing={3}>
                                         {domesticItineraries.map(item => {
-                                            const locImgs   = (item.images || []).filter(i => i.imageType === 'LOCATION');
-                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
                                             return (
                                                 <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
                                                     <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#e8f5e9', display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -1312,54 +1302,48 @@ export default function TourDetailPage() {
                                                                 {item.description}
                                                             </Typography>
                                                         )}
+                                                        {/* 타임라인 */}
                                                         {(item.schedules || []).length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <AccessTimeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
-                                                                </Stack>
-                                                                <Stack spacing={0.75}>
-                                                                    {item.schedules.map(s => (
-                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
-                                                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#2e7d32', minWidth: 48 }}>
-                                                                                {s.time || ''}
-                                                                            </Typography>
-                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
-                                                                        </Stack>
-                                                                    ))}
-                                                                </Stack>
-                                                            </Box>
-                                                        )}
-                                                        {locImgs.length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <LandscapeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
-                                                                </Stack>
-                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                    {locImgs.map(img => (
-                                                                        <Box key={img.id} component="img"
-                                                                            src={`${IMG_BASE}${img.imagePath}`}
-                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                    ))}
-                                                                </Stack>
+                                                            <Box sx={{ mb: 1 }}>
+                                                                {item.schedules.map((s, idx) => (
+                                                                    <Box key={s.id}>
+                                                                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                                                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                                                                                <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'primary.main', mt: '3px', flexShrink: 0 }} />
+                                                                                {(idx < item.schedules.length - 1 || (s.images || []).length > 0) && (
+                                                                                    <Box sx={{ width: 2, flex: 1, minHeight: 16, bgcolor: 'primary.light', my: 0.5 }} />
+                                                                                )}
+                                                                            </Box>
+                                                                            <Box sx={{ flex: 1, pb: 0.5 }}>
+                                                                                <Stack direction="row" spacing={1} alignItems="baseline" mb={0.5}>
+                                                                                    {s.time && (
+                                                                                        <Typography variant="caption" fontWeight={700} color="primary.main" sx={{ flexShrink: 0, minWidth: 58 }}>
+                                                                                            {formatTime(s.time)}
+                                                                                        </Typography>
+                                                                                    )}
+                                                                                    <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>{s.description}</Typography>
+                                                                                </Stack>
+                                                                                {(s.images || []).length > 0 && (
+                                                                                    <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                                                                                        {s.images.map(img => (
+                                                                                            <Box key={img.id} component="img"
+                                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                                        ))}
+                                                                                    </Stack>
+                                                                                )}
+                                                                            </Box>
+                                                                        </Box>
+                                                                    </Box>
+                                                                ))}
                                                             </Box>
                                                         )}
                                                         {item.hotelName && (
-                                                            <Box sx={{ mt: 1 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                            <Box sx={{ mt: 1, mb: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5}>
                                                                     <HotelIcon fontSize="small" color="action" />
                                                                     <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
                                                                 </Stack>
-                                                                {hotelImgs.length > 0 && (
-                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                        {hotelImgs.map(img => (
-                                                                            <Box key={img.id} component="img"
-                                                                                src={`${IMG_BASE}${img.imagePath}`}
-                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                        ))}
-                                                                    </Stack>
-                                                                )}
                                                             </Box>
                                                         )}
                                                         {item.shoppingCenterName && (
@@ -1556,8 +1540,6 @@ export default function TourDetailPage() {
                                 ) : (
                                     <Stack spacing={3}>
                                         {schoolTripItineraries.map(item => {
-                                            const locImgs   = (item.images || []).filter(i => i.imageType === 'LOCATION');
-                                            const hotelImgs = (item.images || []).filter(i => i.imageType === 'HOTEL');
                                             return (
                                                 <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
                                                     <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#e8eaf6', display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -1570,54 +1552,48 @@ export default function TourDetailPage() {
                                                                 {item.description}
                                                             </Typography>
                                                         )}
+                                                        {/* 타임라인 */}
                                                         {(item.schedules || []).length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <AccessTimeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">시간대별 일정</Typography>
-                                                                </Stack>
-                                                                <Stack spacing={0.75}>
-                                                                    {item.schedules.map(s => (
-                                                                        <Stack key={s.id} direction="row" spacing={2} alignItems="flex-start">
-                                                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#3f51b5', minWidth: 48 }}>
-                                                                                {s.time || ''}
-                                                                            </Typography>
-                                                                            <Typography variant="body2" color="text.secondary">{s.description}</Typography>
-                                                                        </Stack>
-                                                                    ))}
-                                                                </Stack>
-                                                            </Box>
-                                                        )}
-                                                        {locImgs.length > 0 && (
-                                                            <Box sx={{ mb: 2 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
-                                                                    <LandscapeIcon fontSize="small" color="action" />
-                                                                    <Typography variant="caption" fontWeight={700} color="text.secondary">관광지 이미지</Typography>
-                                                                </Stack>
-                                                                <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                    {locImgs.map(img => (
-                                                                        <Box key={img.id} component="img"
-                                                                            src={`${IMG_BASE}${img.imagePath}`}
-                                                                            sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                    ))}
-                                                                </Stack>
+                                                            <Box sx={{ mb: 1 }}>
+                                                                {item.schedules.map((s, idx) => (
+                                                                    <Box key={s.id}>
+                                                                        <Box sx={{ display: 'flex', gap: 1.5 }}>
+                                                                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                                                                                <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: 'primary.main', mt: '3px', flexShrink: 0 }} />
+                                                                                {(idx < item.schedules.length - 1 || (s.images || []).length > 0) && (
+                                                                                    <Box sx={{ width: 2, flex: 1, minHeight: 16, bgcolor: 'primary.light', my: 0.5 }} />
+                                                                                )}
+                                                                            </Box>
+                                                                            <Box sx={{ flex: 1, pb: 0.5 }}>
+                                                                                <Stack direction="row" spacing={1} alignItems="baseline" mb={0.5}>
+                                                                                    {s.time && (
+                                                                                        <Typography variant="caption" fontWeight={700} color="primary.main" sx={{ flexShrink: 0, minWidth: 58 }}>
+                                                                                            {formatTime(s.time)}
+                                                                                        </Typography>
+                                                                                    )}
+                                                                                    <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>{s.description}</Typography>
+                                                                                </Stack>
+                                                                                {(s.images || []).length > 0 && (
+                                                                                    <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                                                                                        {s.images.map(img => (
+                                                                                            <Box key={img.id} component="img"
+                                                                                                src={`${IMG_BASE}${img.imagePath}`}
+                                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
+                                                                                        ))}
+                                                                                    </Stack>
+                                                                                )}
+                                                                            </Box>
+                                                                        </Box>
+                                                                    </Box>
+                                                                ))}
                                                             </Box>
                                                         )}
                                                         {item.hotelName && (
-                                                            <Box sx={{ mt: 1 }}>
-                                                                <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                                                            <Box sx={{ mt: 1, mb: 1 }}>
+                                                                <Stack direction="row" alignItems="center" spacing={0.5}>
                                                                     <HotelIcon fontSize="small" color="action" />
                                                                     <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
                                                                 </Stack>
-                                                                {hotelImgs.length > 0 && (
-                                                                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                                                                        {hotelImgs.map(img => (
-                                                                            <Box key={img.id} component="img"
-                                                                                src={`${IMG_BASE}${img.imagePath}`}
-                                                                                sx={{ width: 140, height: 100, objectFit: 'cover', borderRadius: 1 }} />
-                                                                        ))}
-                                                                    </Stack>
-                                                                )}
                                                             </Box>
                                                         )}
                                                         {item.shoppingCenterName && (

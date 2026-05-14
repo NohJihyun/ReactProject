@@ -22,6 +22,14 @@ export const uploadSchoolTripItineraryImage = (productId, itineraryId, formData)
 export const deleteSchoolTripItineraryImage = (productId, itineraryId, imageId) =>
     http.delete(`${base(productId)}/${itineraryId}/images/${imageId}`);
 
+export const uploadSchoolTripScheduleImage = (productId, itineraryId, scheduleId, formData) =>
+    http.post(`${base(productId)}/${itineraryId}/schedules/${scheduleId}/images`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(res => res.data);
+
+export const deleteSchoolTripScheduleImage = (productId, itineraryId, scheduleId, imageId) =>
+    http.delete(`${base(productId)}/${itineraryId}/schedules/${scheduleId}/images/${imageId}`);
+
 export const addSchoolTripSchedule = (productId, itineraryId, data) =>
     http.post(`${base(productId)}/${itineraryId}/schedules`, data).then(res => res.data);
 
