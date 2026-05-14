@@ -12,6 +12,9 @@ import PasswordResetPage from "./pages/PasswordResetPage";
 
 import ClientHome from "./pages/client/ClientHome";
 import AboutPage from "./pages/client/AboutPage";
+import TermsPage from "./pages/client/TermsPage";
+import PrivacyPage from "./pages/client/PrivacyPage";
+import TravelTermsPage from "./pages/client/TravelTermsPage";
 import OtherClientPage from "./pages/client/OtherClientPage";
 import TourListPage from "./pages/client/TourListPage";
 import TourDetailPage from "./pages/client/TourDetailPage";
@@ -40,6 +43,9 @@ export default function App() {
                     <Route element={<MainLayout />}>
                         <Route path="/" element={<ClientHome />} />
                         <Route path="/about" element={<AboutPage />} />
+                        <Route path="/terms" element={<TermsPage />} />
+                        <Route path="/privacy" element={<PrivacyPage />} />
+                        <Route path="/travel-terms" element={<TravelTermsPage />} />
                         <Route path="/tour/:category" element={<TourListPage />} />
                         <Route path="/tour/:category/:id" element={<TourDetailPage />} />
                         <Route path="/search" element={<SearchResultsPage />} />

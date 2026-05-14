@@ -6,9 +6,9 @@ import { Link } from 'react-router-dom';
 
 const LINKS = [
     { label: '회사소개',         path: '/about' },
-    { label: '이용약관',         path: null },
-    { label: '개인정보처리방침', path: null },
-    { label: '여행약관',         path: null },
+    { label: '이용약관',         path: '/terms' },
+    { label: '개인정보처리방침', path: '/privacy' },
+    { label: '여행약관',         path: '/travel-terms' },
 ];
 
 const Footer = () => {
