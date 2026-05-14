@@ -15,6 +15,7 @@ import AboutPage from "./pages/client/AboutPage";
 import OtherClientPage from "./pages/client/OtherClientPage";
 import TourListPage from "./pages/client/TourListPage";
 import TourDetailPage from "./pages/client/TourDetailPage";
+import SearchResultsPage from "./pages/client/SearchResultsPage";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CategoryPage from './pages/admin/CategoryPage';
@@ -41,6 +42,7 @@ export default function App() {
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/tour/:category" element={<TourListPage />} />
                         <Route path="/tour/:category/:id" element={<TourDetailPage />} />
+                        <Route path="/search" element={<SearchResultsPage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/oauth/callback" element={<OAuthCallback />} />
                         <Route path="/password-reset" element={<PasswordResetPage />} />

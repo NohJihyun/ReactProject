@@ -15,6 +15,9 @@ import {
     Divider,
     Snackbar,
     Alert,
+    Paper,
+    Popper,
+    ClickAwayListener,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
@@ -29,9 +32,13 @@ import BusinessIcon from "@mui/icons-material/Business";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import logo from "../assets/rohitourlogo.png";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { searchProducts, logSearch } from "../api/clientApi";
+import RealTimeKeywords from "./RealTimeKeywords";
 import Tooltip from "@mui/material/Tooltip";
 import LogoutIcon from "@mui/icons-material/Logout";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import InstagramIcon from "@mui/icons-material/Instagram";
 import LoginDialog from "./auth/LoginDialog";
 import SignUpDialog from "./auth/SignUpDialog";
 import SocialTermsDialog from "./auth/SocialTermsDialog";
@@ -40,6 +47,13 @@ import signupImg from "../assets/signup.png";
 import adminImg from "../assets/adminpage.png";
 import reviewImg from "../assets/travelreview.png";
 
+
+const CATEGORY_PATH = {
+    '국내여행': 'domestic',
+    '항공 해외여행': 'air',
+    '크루즈 해외여행': 'cruise',
+    '수학여행': 'school',
+};
 
 const NAV_ITEMS = [
     { label: '국내여행',       path: '/tour/domestic', icon: <LandscapeIcon fontSize="small" />,      color: '#2e7d32' },
@@ -62,6 +76,74 @@ export default function Header() {
     const [pendingOAuthToken, setPendingOAuthToken] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [guestSnack, setGuestSnack] = useState(false);
+
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+    const debounceRef = useRef(null);
+    const pcInputRef = useRef(null);
+    const mobileInputRef = useRef(null);
+
+    const runSearch = (kw) => {
+        if (!kw.trim()) {
+            setSearchResults([]);
+            setSearchOpen(false);
+            return;
+        }
+        clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+            try {
+                const results = await searchProducts(kw.trim());
+                setSearchResults(results);
+                setSearchOpen(true);
+            } catch {
+                setSearchResults([]);
+            }
+        }, 300);
+    };
+
+    const handleKeywordChange = (e) => {
+        const val = e.target.value;
+        setKeyword(val);
+        runSearch(val);
+    };
+
+    const handleSelectResult = (product) => {
+        const cat = CATEGORY_PATH[product.rootCategoryName] || 'domestic';
+        logSearch(keyword);
+        setSearchOpen(false);
+        setMobileSearchOpen(false);
+        setKeyword("");
+        setSearchResults([]);
+        navigate(`/tour/${cat}/${product.productId}`);
+        window.scrollTo(0, 0);
+    };
+
+    const handlePopularClick = (kw) => {
+        setKeyword(kw);
+        runSearch(kw);
+    };
+
+    const closeSearch = () => {
+        setSearchOpen(false);
+    };
+
+    const handleEnter = (e) => {
+        if (e.key === 'Enter' && keyword.trim()) {
+            logSearch(keyword.trim());
+            setSearchOpen(false);
+            setMobileSearchOpen(false);
+            navigate(`/search?q=${encodeURIComponent(keyword.trim())}`);
+            window.scrollTo(0, 0);
+        }
+        if (e.key === 'Escape') closeSearch();
+    };
+
+    const clearKeyword = () => {
+        setKeyword("");
+        setSearchResults([]);
+        setSearchOpen(false);
+    };
 
     useEffect(() => {
         if (location.state?.oauthError) {
@@ -118,94 +200,125 @@ export default function Header() {
                 >
                     {/* 로고 */}
                     <Box sx={{ cursor: "pointer" }} onClick={() => navigate("/")}>
-                        <Box component="img" src={logo} sx={{ height: { xs: 60, md: 150 } }} />
+                        <Box component="img" src={logo} sx={{ height: { xs: 60, md: 190 } }} />
                     </Box>
 
                     {/* 검색 + 실시간 — PC만 표시 */}
                     <Box
                         sx={{
-                            flexGrow: 1,
                             display: { xs: "none", md: "flex" },
                             alignItems: "center",
                             gap: 2,
-                            maxWidth: 720
+                            flexShrink: 0,
                         }}
                     >
-                        <Box
-                            sx={{
-                                flex: 1,
-                                display: "flex",
-                                alignItems: "center",
-                                px: 2,
-                                border: "1px solid #ddd",
-                                borderRadius: 2
-                            }}
-                        >
-                            <SearchIcon sx={{ mr: 1, color: "gray" }} />
-                            <InputBase
-                                value={keyword}
-                                onChange={(e) => setKeyword(e.target.value)}
-                                placeholder="어디로 떠나실까요?"
-                                sx={{ flex: 1 }}
-                                inputProps={{
-                                    translate: "no",
-                                    lang: "ko"
-                                }}
-                            />
-                        </Box>
+                        <ClickAwayListener onClickAway={closeSearch}>
+                            <Box sx={{ width: 660, position: 'relative' }}>
+                                <Box
+                                    ref={pcInputRef}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        px: 2,
+                                        py: 0.5,
+                                        border: "2px solid #2e7d32",
+                                        borderRadius: 10,
+                                        bgcolor: '#fff',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                        transition: 'all 0.2s ease',
+                                        '&:focus-within': {
+                                            boxShadow: '0 4px 16px rgba(46,125,50,0.18)',
+                                        },
+                                    }}
+                                >
+                                    <SearchIcon sx={{ mr: 1, color: '#2e7d32', fontSize: 22 }} />
+                                    <InputBase
+                                        value={keyword}
+                                        onChange={handleKeywordChange}
+                                        onFocus={() => searchResults.length > 0 && setSearchOpen(true)}
+                                        onKeyDown={handleEnter}
+                                        placeholder="어디로 떠나실까요?"
+                                        sx={{ flex: 1, fontSize: '0.95rem' }}
+                                        inputProps={{ translate: "no", lang: "ko" }}
+                                    />
+                                    {keyword && (
+                                        <IconButton size="small" onClick={clearKeyword} sx={{ p: 0.3 }}>
+                                            <CloseIcon fontSize="small" sx={{ color: '#999' }} />
+                                        </IconButton>
+                                    )}
+                                </Box>
 
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ whiteSpace: "nowrap" }}
-                        >
-                            제주도 · 서귀포
-                        </Typography>
+                                {/* 검색 결과 드롭다운 */}
+                                <Popper
+                                    open={searchOpen && searchResults.length > 0}
+                                    anchorEl={pcInputRef.current}
+                                    placement="bottom-start"
+                                    style={{ zIndex: 1400, width: pcInputRef.current?.offsetWidth }}
+                                >
+                                    <Paper elevation={4} sx={{ mt: 0.5, maxHeight: 480, overflow: 'auto', borderRadius: 2 }}>
+                                        {searchResults.map((product, idx) => (
+                                            <Box
+                                                key={product.productId}
+                                                onClick={() => handleSelectResult(product)}
+                                                sx={{
+                                                    display: 'flex', alignItems: 'center', gap: 1.5,
+                                                    px: 2, py: 1.2, cursor: 'pointer',
+                                                    borderTop: idx > 0 ? '1px solid #f0f0f0' : 'none',
+                                                    '&:hover': { bgcolor: '#f9f9f9' },
+                                                }}
+                                            >
+                                                {product.thumbnailPath ? (
+                                                    <Box
+                                                        component="img"
+                                                        src={product.thumbnailPath}
+                                                        sx={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
+                                                    />
+                                                ) : (
+                                                    <Box sx={{ width: 64, height: 48, bgcolor: '#eee', borderRadius: 1, flexShrink: 0 }} />
+                                                )}
+                                                <Box sx={{ minWidth: 0 }}>
+                                                    <Typography variant="body2" fontWeight={600} noWrap>{product.productName}</Typography>
+                                                    <Typography variant="caption" color="text.secondary">{product.rootCategoryName}</Typography>
+                                                    {product.pricePerPerson && (
+                                                        <Typography variant="caption" color={BRAND_GREEN} sx={{ ml: 1 }}>
+                                                            {Number(product.pricePerPerson).toLocaleString()}원~
+                                                        </Typography>
+                                                    )}
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                    </Paper>
+                                </Popper>
+
+                                {/* 검색 결과 없음 */}
+                                <Popper
+                                    open={searchOpen && searchResults.length === 0 && keyword.trim().length > 0}
+                                    anchorEl={pcInputRef.current}
+                                    placement="bottom-start"
+                                    style={{ zIndex: 1400, width: pcInputRef.current?.offsetWidth }}
+                                >
+                                    <Paper elevation={4} sx={{ mt: 0.5, px: 2, py: 2, borderRadius: 2 }}>
+                                        <Typography variant="body2" color="text.secondary">검색 결과가 없습니다.</Typography>
+                                    </Paper>
+                                </Popper>
+                            </Box>
+                        </ClickAwayListener>
+
+                        {/* 실시간 검색어 */}
+                        <RealTimeKeywords onKeywordClick={handlePopularClick} />
                     </Box>
 
                     {/* 검색 아이콘 — 모바일만 표시 */}
                     <Box sx={{ display: { xs: "flex", md: "none" }, flexGrow: 1, justifyContent: "flex-end" }}>
-                        <IconButton>
-                            <SearchIcon />
+                        <IconButton onClick={() => setMobileSearchOpen(v => !v)}>
+                            {mobileSearchOpen ? <CloseIcon /> : <SearchIcon />}
                         </IconButton>
                     </Box>
 
                     {/* 사용자 영역 */}
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Tooltip title="YouTube">
-                            <Box
-                                component="a"
-                                href="https://www.youtube.com/@rohitour_travel"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{ display: 'flex', alignItems: 'center', px: 0.5, '&:hover': { opacity: 0.75 } }}
-                            >
-                                <Box component="svg" viewBox="0 0 24 24" sx={{ width: 22, height: 22 }}>
-                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z" fill="#FF0000"/>
-                                    <path d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#ffffff"/>
-                                </Box>
-                            </Box>
-                        </Tooltip>
-                        <Tooltip title="Instagram">
-                            <Box
-                                component="a"
-                                href="https://www.instagram.com/rohitour_travel/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{ display: 'flex', alignItems: 'center', px: 0.5, mr: 1, '&:hover': { opacity: 0.75 } }}
-                            >
-                                <Box component="svg" viewBox="0 0 24 24" sx={{ width: 20, height: 20, fill: 'url(#igGradHeader)' }}>
-                                    <defs>
-                                        <linearGradient id="igGradHeader" x1="0%" y1="100%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor="#f09433" />
-                                            <stop offset="50%" stopColor="#dc2743" />
-                                            <stop offset="100%" stopColor="#bc1888" />
-                                        </linearGradient>
-                                    </defs>
-                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                                </Box>
-                            </Box>
-                        </Tooltip>
+                    <Box sx={{ display: "flex", flexDirection: 'column', alignItems: "center", ml: 'auto', gap: 0.3, alignSelf: 'flex-end', pb: 1 }}>
+                        {/* 버튼 가로 배치 */}
+                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                         {!user ? (
                         <>
                             <Tooltip title="로그인">
@@ -257,6 +370,28 @@ export default function Header() {
                                 </Tooltip>
                             </>
                         )}
+                        </Box>
+
+                        {/* SNS 피드 — PC만 */}
+                        <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'column', alignItems: 'center', mt: 0.5, gap: 0.3 }}>
+                            <Typography variant="caption" sx={{ fontSize: '0.68rem', color: '#000', letterSpacing: 0.2, whiteSpace: 'nowrap', fontWeight: 600 }}>
+                                실시간 로이투어 피드를 확인해보세요
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                <Tooltip title="유튜브">
+                                    <IconButton size="small" sx={{ color: '#FF0000', p: 0.4 }}
+                                        onClick={() => window.open('https://www.youtube.com/@rohitour_travel', '_blank', 'noopener')}>
+                                        <YouTubeIcon sx={{ fontSize: 22 }} />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="인스타그램">
+                                    <IconButton size="small" sx={{ color: '#E1306C', p: 0.4 }}
+                                        onClick={() => window.open('https://www.instagram.com/rohitour_travel/', '_blank', 'noopener')}>
+                                        <InstagramIcon sx={{ fontSize: 20 }} />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                        </Box>
 
                         {/* 로그인 모달 */}
                         <LoginDialog
@@ -341,6 +476,81 @@ export default function Header() {
 
                 </Box>
             </Toolbar>
+            {/* ================= 모바일 검색바 ================= */}
+            {mobileSearchOpen && (
+                <Box sx={{ display: { xs: 'block', md: 'none' }, borderTop: '1px solid #eee', px: 2, py: 1, position: 'relative' }}>
+                    <ClickAwayListener onClickAway={() => setSearchOpen(false)}>
+                        <Box>
+                            <Box
+                                ref={mobileInputRef}
+                                sx={{
+                                    display: 'flex', alignItems: 'center', px: 2,
+                                    border: '1px solid #ddd', borderRadius: 2, bgcolor: '#fff',
+                                }}
+                            >
+                                <SearchIcon sx={{ mr: 1, color: 'gray' }} />
+                                <InputBase
+                                    autoFocus
+                                    value={keyword}
+                                    onChange={handleKeywordChange}
+                                    onKeyDown={handleEnter}
+                                    placeholder="어디로 떠나실까요?"
+                                    sx={{ flex: 1 }}
+                                    inputProps={{ translate: 'no', lang: 'ko' }}
+                                />
+                                {keyword && (
+                                    <IconButton size="small" onClick={clearKeyword} sx={{ p: 0.3 }}>
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                )}
+                            </Box>
+
+                            {/* 모바일 실시간 검색어 */}
+                            <Box sx={{ mt: 1 }}>
+                                <RealTimeKeywords onKeywordClick={handlePopularClick} />
+                            </Box>
+
+                            {/* 모바일 검색 결과 */}
+                            {searchOpen && searchResults.length > 0 && (
+                                <Paper elevation={4} sx={{ mt: 0.5, maxHeight: 360, overflow: 'auto', borderRadius: 2 }}>
+                                    {searchResults.map((product, idx) => (
+                                        <Box
+                                            key={product.productId}
+                                            onClick={() => handleSelectResult(product)}
+                                            sx={{
+                                                display: 'flex', alignItems: 'center', gap: 1.5,
+                                                px: 2, py: 1.2, cursor: 'pointer',
+                                                borderTop: idx > 0 ? '1px solid #f0f0f0' : 'none',
+                                                '&:hover': { bgcolor: '#f9f9f9' },
+                                            }}
+                                        >
+                                            {product.thumbnailPath ? (
+                                                <Box
+                                                    component="img"
+                                                    src={product.thumbnailPath}
+                                                    sx={{ width: 56, height: 42, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
+                                                />
+                                            ) : (
+                                                <Box sx={{ width: 56, height: 42, bgcolor: '#eee', borderRadius: 1, flexShrink: 0 }} />
+                                            )}
+                                            <Box sx={{ minWidth: 0 }}>
+                                                <Typography variant="body2" fontWeight={600} noWrap>{product.productName}</Typography>
+                                                <Typography variant="caption" color="text.secondary">{product.rootCategoryName}</Typography>
+                                            </Box>
+                                        </Box>
+                                    ))}
+                                </Paper>
+                            )}
+
+                            {searchOpen && searchResults.length === 0 && keyword.trim() && (
+                                <Paper elevation={4} sx={{ mt: 0.5, px: 2, py: 2, borderRadius: 2 }}>
+                                    <Typography variant="body2" color="text.secondary">검색 결과가 없습니다.</Typography>
+                                </Paper>
+                            )}
+                        </Box>
+                    </ClickAwayListener>
+                </Box>
+            )}
         </AppBar>
 
         {/* 전체메뉴 Drawer */}

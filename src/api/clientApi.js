@@ -38,3 +38,12 @@ export const getSchoolTripItineraries = (id) =>
 
 export const getSchoolTripDetail = (id) =>
     http.get(`/api/products/${id}/school-trip-details`).then(res => res.data);
+
+export const searchProducts = (keyword, limit = 8) =>
+    http.get('/api/products/search', { params: { keyword, limit } }).then(res => res.data);
+
+export const logSearch = (keyword) =>
+    http.post('/api/search/log', null, { params: { keyword } }).catch(() => {});
+
+export const getPopularKeywords = (limit = 10) =>
+    http.get('/api/search/popular', { params: { limit } }).then(res => res.data);
