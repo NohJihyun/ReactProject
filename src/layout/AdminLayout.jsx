@@ -3,6 +3,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Outlet, NavLink, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { getUncheckedCount } from '../api/bookingApi';
 //import logo from '../assets/rohitour.jpg'
 
 /* 관리자 레이아웃 */
@@ -10,11 +11,20 @@ const drawerWidth = 240;
 export default function AdminLayout() {
     const [open, setOpen] = useState(false);
     const [showTop, setShowTop] = useState(false);
+    const [uncheckedCount, setUncheckedCount] = useState(0);
 
     useEffect(() => {
         const onScroll = () => setShowTop(window.scrollY > 300);
         window.addEventListener("scroll", onScroll);
         return () => window.removeEventListener("scroll", onScroll);
+    }, []);
+
+    useEffect(() => {
+        const fetchCount = () =>
+            getUncheckedCount().then(r => setUncheckedCount(r.count ?? 0)).catch(() => {});
+        fetchCount();
+        const timer = setInterval(fetchCount, 30000);
+        return () => clearInterval(timer);
     }, []);
     // 자바스크립트 배열안 요소 객체 키,값형태
     // 키 label, to 값 대시보드 등
@@ -60,18 +70,35 @@ export default function AdminLayout() {
             }}>
                 <Toolbar />
                 <List>
-                    {/* map 배열 data 하나씩 꺼내서 반복실행
-                        i 변수에 배열에서 꺼낸 값을 넣어 실행
-                    */}
                     {items.map(i => (
                         <ListItemButton
                             key={i.to}
                             component={NavLink}
                             to={i.to}
-                            end              // ← 정확히 일치할 때만 active
-                            sx={{ '&.active': { bgcolor: 'action.selected' }}} // 활성화 스타일
+                            end
+                            sx={{ '&.active': { bgcolor: 'action.selected' } }}
                         >
-                            {i.label}
+                            {i.to === '/admin/bookings' ? (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                                    <Box sx={{ flex: 1 }}>{i.label}</Box>
+                                    {uncheckedCount > 0 && (
+                                        <Box component="span" sx={{
+                                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                            minWidth: 22, height: 22, borderRadius: 11,
+                                            bgcolor: 'error.main', color: '#fff',
+                                            fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
+                                            '@keyframes pulse': {
+                                                '0%':   { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
+                                                '70%':  { boxShadow: '0 0 0 8px rgba(211,47,47,0)' },
+                                                '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
+                                            },
+                                            animation: 'pulse 1.5s infinite',
+                                        }}>
+                                            {uncheckedCount > 99 ? '99+' : uncheckedCount}
+                                        </Box>
+                                    )}
+                                </Box>
+                            ) : i.label}
                         </ListItemButton>
                     ))}
                 </List>
@@ -89,9 +116,29 @@ export default function AdminLayout() {
                             to={i.to}
                             end
                             onClick={()=>setOpen(false)}
-                            sx={{ '&.active': { bgcolor: 'action.selected' }}}
+                            sx={{ '&.active': { bgcolor: 'action.selected' } }}
                         >
-                            {i.label}
+                            {i.to === '/admin/bookings' ? (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                                    <Box sx={{ flex: 1 }}>{i.label}</Box>
+                                    {uncheckedCount > 0 && (
+                                        <Box component="span" sx={{
+                                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                            minWidth: 22, height: 22, borderRadius: 11,
+                                            bgcolor: 'error.main', color: '#fff',
+                                            fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
+                                            '@keyframes pulse': {
+                                                '0%':   { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
+                                                '70%':  { boxShadow: '0 0 0 8px rgba(211,47,47,0)' },
+                                                '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
+                                            },
+                                            animation: 'pulse 1.5s infinite',
+                                        }}>
+                                            {uncheckedCount > 99 ? '99+' : uncheckedCount}
+                                        </Box>
+                                    )}
+                                </Box>
+                            ) : i.label}
                         </ListItemButton>
                     ))}
                 </List>

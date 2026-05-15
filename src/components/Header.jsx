@@ -31,6 +31,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import BusinessIcon from "@mui/icons-material/Business";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
+import { useUiStore } from "../pages/store/uiStore";
 import logo from "../assets/rohitourlogo.png";
 import { useState, useEffect, useRef } from "react";
 import { searchProducts, logSearch } from "../api/clientApi";
@@ -68,8 +69,8 @@ export default function Header() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const { isLoginModalOpen, openLoginModal, closeLoginModal } = useUiStore();
     const [keyword, setKeyword] = useState("");
-    const [loginOpen, setLoginOpen] = useState(false);
     const [signupOpen, setSignupOpen] = useState(false);
     const [oauthError, setOauthError] = useState("");
     const [termsOpen, setTermsOpen] = useState(false);
@@ -145,7 +146,7 @@ export default function Header() {
     useEffect(() => {
         if (location.state?.oauthError) {
             setOauthError(location.state.oauthError);
-            setLoginOpen(true);
+            openLoginModal();
             window.history.replaceState({}, "");
         }
         if (location.state?.oauthNeedsTerms) {
@@ -312,7 +313,7 @@ export default function Header() {
                         {!user ? (
                         <>
                             <Tooltip title="로그인">
-                                <IconButton onClick={() => setLoginOpen(true)} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                <IconButton onClick={() => openLoginModal()} sx={{ p: 0.5, flexDirection: 'column' }}>
                                     <Box component="img" src={loginImg} alt="login"
                                         sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
                                     <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>로그인</Typography>
@@ -345,13 +346,23 @@ export default function Header() {
                                     </Tooltip>
                                 )}
                                 {!isAdmin && (
-                                    <Tooltip title="여행후기">
-                                        <IconButton onClick={handleReviewClick} sx={{ p: 0.5, flexDirection: 'column' }}>
-                                            <Box component="img" src={reviewImg} alt="여행후기"
-                                                sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
-                                            <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
-                                        </IconButton>
-                                    </Tooltip>
+                                    <>
+                                        <Tooltip title="여행후기">
+                                            <IconButton onClick={handleReviewClick} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                                <Box component="img" src={reviewImg} alt="여행후기"
+                                                    sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                                <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="예약 및 결제 이용내역">
+                                            <IconButton onClick={() => { navigate('/client/bookings'); window.scrollTo(0, 0); }} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                                <Box sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Typography sx={{ fontSize: { xs: '1rem', md: '1.6rem' } }}>📋</Typography>
+                                                </Box>
+                                                <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>이용내역</Typography>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </>
                                 )}
                                 <Tooltip title="로그아웃">
                                     <IconButton onClick={() => { logout(); navigate("/"); }}>
@@ -385,10 +396,11 @@ export default function Header() {
 
                         {/* 로그인 모달 */}
                         <LoginDialog
-                            open={loginOpen}
-                            onClose={() => { setLoginOpen(false); setOauthError(""); }}
+                            open={isLoginModalOpen}
+                            onClose={() => { closeLoginModal(); setOauthError(""); }}
                             oauthError={oauthError}
                             onNeedsTerms={handleNeedsTerms}
+                            onSignUp={() => { closeLoginModal(); setOauthError(""); setSignupOpen(true); }}
                         />
                         <SignUpDialog open={signupOpen} onClose={() => setSignupOpen(false)} />
                         <SocialTermsDialog

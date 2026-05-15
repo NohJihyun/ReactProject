@@ -23,7 +23,7 @@ const OAUTH_START_URL = {
     google: `${API_BASE}/oauth2/authorization/google`,
 };
 
-export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTerms }) {
+export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTerms, onSignUp }) {
     const { login, loginWithToken } = useAuth();
     const [loginId, setLoginId] = useState("");
     const [password, setPassword] = useState("");
@@ -357,6 +357,34 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                         >
                             비밀번호 찾기
                         </Button>
+
+                        {onSignUp && (
+                            <>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ lineHeight: 1 }}
+                                >
+                                    |
+                                </Typography>
+
+                                <Button
+                                    variant="text"
+                                    size="small"
+                                    onClick={onSignUp}
+                                    sx={{
+                                        minWidth: "auto",
+                                        p: 0,
+                                        color: "primary.main",
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        textTransform: "none"
+                                    }}
+                                >
+                                    회원가입
+                                </Button>
+                            </>
+                        )}
                     </Box>
                 </Stack>
 

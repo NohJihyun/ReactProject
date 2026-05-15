@@ -125,13 +125,22 @@ function ProductCard({ product, categorySlug, onClick }) {
                             />
                         )}
                     </Stack>
-                    {product.confirmedCount > 0 && (
+                    {(product.reservedCount > 0 || product.confirmedCount > 0) && (
                         <Box sx={{ textAlign: 'right', flexShrink: 0, ml: 1 }}>
-                            <Typography variant="caption" fontWeight={700} sx={{ display: 'block', lineHeight: 1.3,
-                                color: product.confirmedCount >= product.minPeople ? '#2e7d32' : '#1565c0' }}>
-                                확정 인원 {product.confirmedCount}명
-                            </Typography>
-                            {product.minPeople > 0 && (
+                            <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                {product.reservedCount > 0 && (
+                                    <Typography variant="caption" fontWeight={700} sx={{ lineHeight: 1.3, color: '#1565c0' }}>
+                                        예약 인원 {product.reservedCount}명
+                                    </Typography>
+                                )}
+                                {product.confirmedCount > 0 && (
+                                    <Typography variant="caption" fontWeight={700} sx={{ lineHeight: 1.3,
+                                        color: product.confirmedCount >= product.minPeople ? '#2e7d32' : '#1565c0' }}>
+                                        확정 인원 {product.confirmedCount}명
+                                    </Typography>
+                                )}
+                            </Stack>
+                            {product.minPeople > 0 && product.confirmedCount > 0 && (
                                 <Box sx={{ height: 4, width: 72, borderRadius: 3, bgcolor: '#eee', overflow: 'hidden', mt: 0.4, ml: 'auto' }}>
                                     <Box sx={{
                                         height: '100%',

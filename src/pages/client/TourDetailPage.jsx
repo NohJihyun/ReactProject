@@ -4,7 +4,16 @@ import {
     Box, Container, Typography, Chip, Button, Skeleton,
     Stack, Divider, Tab, Tabs, IconButton, Alert,
     Table, TableHead, TableBody, TableRow, TableCell,
+    Dialog, DialogTitle, DialogContent, DialogActions,
+    TextField, MenuItem, Select, FormControl, InputLabel, CircularProgress,
 } from '@mui/material';
+import AddIcon    from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import EventIcon  from '@mui/icons-material/Event';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { useAuthStore } from '../../auth/authStore';
+import { useUiStore } from '../store/uiStore';
+import { createBooking } from '../../api/bookingApi';
 import ArrowBackIcon       from '@mui/icons-material/ArrowBack';
 import PeopleIcon          from '@mui/icons-material/People';
 import GroupsIcon          from '@mui/icons-material/Groups';
@@ -97,9 +106,13 @@ const getYoutubeEmbedUrl = (url, autoplay = false) => {
     return `https://www.youtube.com/embed/${match[1]}${autoplay ? '?autoplay=1' : ''}`;
 };
 
+const BOOKING_INIT = { name: '', phone: '', email: '', adultCount: 1, childCount: 0, infantCount: 0, desiredDepartureAt: '', requestMemo: '' };
+
 export default function TourDetailPage() {
     const { category, id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuthStore();
+    const { openLoginModal } = useUiStore();
 
     const [product,            setProduct]            = useState(null);
     const [images,             setImages]             = useState([]);
@@ -118,6 +131,50 @@ export default function TourDetailPage() {
     const [schoolTripDetail,      setSchoolTripDetail]      = useState(null);
     const [reviewStats,           setReviewStats]           = useState({ totalCount: 0, averageRating: 0 });
     const reviewSectionRef = useRef(null);
+
+    const [bookingOpen,       setBookingOpen]       = useState(false);
+    const [bookingSuccess,    setBookingSuccess]    = useState(false);
+    const [bookingSubmitting, setBookingSubmitting] = useState(false);
+    const [bookingForm,       setBookingForm]       = useState(BOOKING_INIT);
+    const [bookingNumber,     setBookingNumber]     = useState('');
+    const [bookingCabinType,  setBookingCabinType]  = useState('');
+
+    const priceInfo = category === 'air'      ? { adult: airDetail?.priceAdult,       child: airDetail?.priceChild,       infant: airDetail?.priceInfant }
+                    : category === 'domestic' ? { adult: domesticDetail?.priceAdult,   child: domesticDetail?.priceChild,   infant: domesticDetail?.priceInfant }
+                    : category === 'school'   ? { adult: schoolTripDetail?.priceAdult, child: schoolTripDetail?.priceChild, infant: schoolTripDetail?.priceInfant }
+                    : category === 'cruise'   ? (() => { const p = cruisePrices.find(p => p.cabinType === bookingCabinType) || cruisePrices[0]; return p ? { adult: p.priceAdult, child: p.priceChild, infant: p.priceInfant } : null; })()
+                    : null;
+    const bookingTotalPrice = priceInfo
+        ? (Number(priceInfo.adult)  || 0) * bookingForm.adultCount
+        + (Number(priceInfo.child)  || 0) * bookingForm.childCount
+        + (Number(priceInfo.infant) || 0) * bookingForm.infantCount
+        : 0;
+
+    const handleBookingOpen = () => {
+        if (!user) { openLoginModal(); return; }
+        setBookingForm({ ...BOOKING_INIT, name: user.name ?? '', email: user.email ?? '' });
+        setBookingCabinType(cruisePrices[0]?.cabinType || '');
+        setBookingOpen(true);
+    };
+
+    const handleBookingSubmit = async () => {
+        if (!bookingForm.name.trim() || !bookingForm.phone.trim()) return;
+        setBookingSubmitting(true);
+        try {
+            const payload = {
+                ...bookingForm,
+                productId: Number(id),
+                desiredDepartureAt: product?.departureAt || bookingForm.desiredDepartureAt || null,
+                totalPrice: bookingTotalPrice > 0 ? bookingTotalPrice : null,
+            };
+            const res = await createBooking(payload);
+            setBookingNumber(res?.bookingNumber ?? '');
+            setBookingOpen(false);
+            setBookingSuccess(true);
+        } finally {
+            setBookingSubmitting(false);
+        }
+    };
 
     useEffect(() => {
         Promise.all([getProductById(id), getProductImages(id), getProductFiles(id)])
@@ -385,9 +442,9 @@ export default function TourDetailPage() {
                                         <Button
                                             variant="contained"
                                             fullWidth
+                                            disabled={category === 'school'}
+                                            onClick={handleBookingOpen}
                                             sx={{
-                                                bgcolor: '#1976d2',
-                                                '&:hover': { bgcolor: '#1565c0' },
                                                 py: 1.2, borderRadius: 2,
                                                 fontWeight: 700,
                                                 boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
@@ -458,9 +515,9 @@ export default function TourDetailPage() {
                                         <Button
                                             variant="contained"
                                             fullWidth
+                                            disabled={category === 'school'}
+                                            onClick={handleBookingOpen}
                                             sx={{
-                                                bgcolor: '#1976d2',
-                                                '&:hover': { bgcolor: '#1565c0' },
                                                 py: 1.2, borderRadius: 2,
                                                 fontWeight: 700,
                                                 boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
@@ -1796,6 +1853,289 @@ export default function TourDetailPage() {
                 </Box>
 
             </Container>
+
+            {/* ── 예약 신청 다이얼로그 ── */}
+            <Dialog
+                open={bookingOpen}
+                onClose={() => !bookingSubmitting && setBookingOpen(false)}
+                maxWidth="sm" fullWidth
+                PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}
+            >
+                {/* 헤더 */}
+                <Box sx={{
+                    background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
+                    px: 3, pt: 3, pb: 2.5,
+                }}>
+                    <Typography variant="h6" fontWeight={700} color="white" sx={{ letterSpacing: -0.3 }}>
+                        예약 신청
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.78)', mt: 0.3, fontSize: '0.82rem' }}>
+                        담당자 확인 후 연락드립니다
+                    </Typography>
+                    {product?.productName && (
+                        <Chip
+                            label={product.productName}
+                            size="small"
+                            sx={{
+                                mt: 1.5,
+                                backgroundColor: 'rgba(255,255,255,0.18)',
+                                color: 'white',
+                                fontWeight: 600,
+                                fontSize: '0.78rem',
+                                maxWidth: '100%',
+                                height: 26,
+                                '& .MuiChip-label': { px: 1.5 },
+                            }}
+                        />
+                    )}
+                </Box>
+
+                <DialogContent sx={{ px: 3, pt: 2.5, pb: 1 }}>
+                    <Stack spacing={2.5}>
+
+                        {/* 예약자 정보 */}
+                        <Box>
+                            <Typography variant="caption" color="text.disabled" fontWeight={700}
+                                sx={{ textTransform: 'uppercase', letterSpacing: 0.8, fontSize: '0.7rem' }}>
+                                예약자 정보
+                            </Typography>
+                            <Stack spacing={1.5} sx={{ mt: 1.2 }}>
+                                <TextField
+                                    label="이름 *" size="small" fullWidth
+                                    value={bookingForm.name}
+                                    onChange={e => setBookingForm(f => ({ ...f, name: e.target.value }))}
+                                />
+                                <TextField
+                                    label="연락처 *" size="small" fullWidth
+                                    placeholder="010-0000-0000"
+                                    value={bookingForm.phone}
+                                    onChange={e => setBookingForm(f => ({ ...f, phone: e.target.value }))}
+                                />
+                                <TextField
+                                    label="이메일" size="small" fullWidth
+                                    value={bookingForm.email}
+                                    onChange={e => setBookingForm(f => ({ ...f, email: e.target.value }))}
+                                />
+                            </Stack>
+                        </Box>
+
+                        <Divider />
+
+                        {/* 여행 정보 */}
+                        <Box>
+                            <Typography variant="caption" color="text.disabled" fontWeight={700}
+                                sx={{ textTransform: 'uppercase', letterSpacing: 0.8, fontSize: '0.7rem' }}>
+                                여행 정보
+                            </Typography>
+                            <Stack spacing={1.5} sx={{ mt: 1.2 }}>
+
+                                {/* 크루즈 객실 타입 선택 */}
+                                {category === 'cruise' && cruisePrices.length > 0 && (
+                                    <FormControl size="small" fullWidth>
+                                        <InputLabel>객실 타입</InputLabel>
+                                        <Select
+                                            value={bookingCabinType}
+                                            label="객실 타입"
+                                            onChange={e => setBookingCabinType(e.target.value)}
+                                        >
+                                            {cruisePrices.map(p => (
+                                                <MenuItem key={p.id} value={p.cabinType}>
+                                                    {p.cabinType}
+                                                    {p.priceAdult ? ` — 성인 ${Number(p.priceAdult).toLocaleString()}원` : ''}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                )}
+
+                                {/* 인원수 */}
+                                <Stack direction="row" spacing={1}>
+                                    {[
+                                        { key: 'adultCount',  label: '성인', min: 1, required: true,  price: priceInfo?.adult  },
+                                        { key: 'childCount',  label: '아동', min: 0, required: false, price: priceInfo?.child  },
+                                        { key: 'infantCount', label: '유아', min: 0, required: false, price: priceInfo?.infant },
+                                    ].map(({ key, label, min, required, price }) => (
+                                        <Box key={key} sx={{
+                                            flex: 1,
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            borderRadius: 2,
+                                            p: 1.2,
+                                            textAlign: 'center',
+                                            bgcolor: 'grey.50',
+                                        }}>
+                                            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                                                {label}{required && ' *'}
+                                            </Typography>
+                                            <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ mt: 0.5 }}>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => setBookingForm(f => ({ ...f, [key]: Math.max(min, f[key] - 1) }))}
+                                                    disabled={bookingForm[key] <= min}
+                                                    sx={{ p: 0.3, color: 'primary.main' }}
+                                                >
+                                                    <RemoveIcon sx={{ fontSize: 16 }} />
+                                                </IconButton>
+                                                <Typography fontWeight={700} sx={{ minWidth: 24, fontSize: '1rem' }}>
+                                                    {bookingForm[key]}
+                                                </Typography>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => setBookingForm(f => ({ ...f, [key]: f[key] + 1 }))}
+                                                    sx={{ p: 0.3, color: 'primary.main' }}
+                                                >
+                                                    <AddIcon sx={{ fontSize: 16 }} />
+                                                </IconButton>
+                                            </Stack>
+                                            {price ? (
+                                                <Typography variant="caption" color="text.disabled" sx={{ mt: 0.4, display: 'block', fontSize: '0.68rem' }}>
+                                                    {Number(price).toLocaleString()}원/인
+                                                </Typography>
+                                            ) : null}
+                                        </Box>
+                                    ))}
+                                </Stack>
+
+                                {/* 예상 금액 */}
+                                {bookingTotalPrice > 0 && (
+                                    <Box sx={{ p: 1.5, bgcolor: '#e8f5e9', borderRadius: 2, border: '1px solid #a5d6a7' }}>
+                                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                            <Typography variant="body2" color="text.secondary" fontWeight={600}>예상 금액</Typography>
+                                            <Typography fontWeight={800} color="#2e7d32" sx={{ fontSize: '1.05rem' }}>
+                                                {bookingTotalPrice.toLocaleString()}원
+                                            </Typography>
+                                        </Stack>
+                                        <Typography variant="caption" color="text.disabled" sx={{ mt: 0.3, display: 'block' }}>
+                                            * 최종 금액은 담당자 확인 후 안내드립니다.
+                                        </Typography>
+                                    </Box>
+                                )}
+
+                                {/* 출발일 */}
+                                {product?.departureAt ? (
+                                    <Box sx={{ px: 1.5, py: 1.2, bgcolor: 'grey.50', borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
+                                        <Typography variant="caption" color="text.disabled" fontWeight={600} display="block" mb={0.3}>출발일</Typography>
+                                        <Typography variant="body2" fontWeight={700}>
+                                            {new Date(product.departureAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                        </Typography>
+                                    </Box>
+                                ) : (
+                                    <TextField
+                                        label="희망 출발일" size="small" fullWidth type="date"
+                                        InputLabelProps={{ shrink: true }}
+                                        value={bookingForm.desiredDepartureAt}
+                                        onChange={e => setBookingForm(f => ({ ...f, desiredDepartureAt: e.target.value }))}
+                                    />
+                                )}
+                            </Stack>
+                        </Box>
+
+                        <Divider />
+
+                        {/* 요청사항 */}
+                        <TextField
+                            label="요청사항" size="small" fullWidth multiline rows={3}
+                            placeholder="특별한 요청사항이 있으시면 입력해 주세요."
+                            value={bookingForm.requestMemo}
+                            onChange={e => setBookingForm(f => ({ ...f, requestMemo: e.target.value }))}
+                        />
+
+                    </Stack>
+                </DialogContent>
+
+                <DialogActions sx={{ px: 3, pt: 1.5, pb: 3, gap: 1 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => setBookingOpen(false)}
+                        disabled={bookingSubmitting}
+                        sx={{ flex: 1, borderRadius: 2 }}
+                    >
+                        취소
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleBookingSubmit}
+                        disabled={bookingSubmitting || !bookingForm.name.trim() || !bookingForm.phone.trim()}
+                        sx={{ flex: 2, borderRadius: 2, py: 1, fontWeight: 700 }}
+                    >
+                        {bookingSubmitting
+                            ? <CircularProgress size={20} color="inherit" />
+                            : '예약하기'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* ── 예약 완료 다이얼로그 ── */}
+            <Dialog open={bookingSuccess} onClose={() => setBookingSuccess(false)} maxWidth="xs" fullWidth
+                PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}>
+                <Box sx={{ textAlign: 'center', pt: 4, pb: 1, px: 3 }}>
+                    <Box sx={{
+                        width: 64, height: 64, borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #43a047, #1b5e20)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        mx: 'auto', mb: 2,
+                    }}>
+                        <Typography sx={{ fontSize: 28, lineHeight: 1 }}>✓</Typography>
+                    </Box>
+                    <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>
+                        예약 신청 완료!
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        담당자 확인 후 연락드리겠습니다
+                    </Typography>
+                </Box>
+                <DialogContent sx={{ px: 3, pt: 1.5 }}>
+                    <Stack spacing={1.5}>
+                        {bookingNumber && (
+                            <Box sx={{
+                                border: '1px solid',
+                                borderColor: 'primary.light',
+                                borderRadius: 2,
+                                px: 2, py: 1.5,
+                                bgcolor: 'primary.50',
+                                textAlign: 'center',
+                            }}>
+                                <Typography variant="caption" color="primary.main" fontWeight={600}
+                                    sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                    예약번호
+                                </Typography>
+                                <Typography variant="body1" fontWeight={700} color="primary.main" sx={{ mt: 0.3 }}>
+                                    {bookingNumber}
+                                </Typography>
+                            </Box>
+                        )}
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={() => {
+                                const w = 540, h = 660;
+                                const left = Math.round((window.screen.width - w) / 2);
+                                const top = Math.round((window.screen.height - h) / 2);
+                                window.open(`/payment/${bookingNumber}`, '_blank', `width=${w},height=${h},left=${left},top=${top},noopener,noreferrer`);
+                            }}
+                            sx={{
+                                bgcolor: '#1976d2', color: '#fff', fontWeight: 700,
+                                borderRadius: 2, py: 1.2, fontSize: '1rem',
+                                '&:hover': { bgcolor: '#1565c0' },
+                            }}>
+                            결제하기
+                        </Button>
+                        <Typography variant="caption" color="text.disabled" sx={{ textAlign: 'center', display: 'block' }}>
+                            문의: 031-466-9600 · with@rohitour.com
+                        </Typography>
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
+                    <Button variant="contained" onClick={() => setBookingSuccess(false)}
+                        sx={{ flex: 1, borderRadius: 2 }}>확인</Button>
+                    <Button variant="contained" onClick={() => { setBookingSuccess(false); navigate('/client/bookings'); }}
+                        sx={{ flex: 2, borderRadius: 2, fontWeight: 700 }}>
+                        이용내역 보기
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
         </Box>
     );
 }

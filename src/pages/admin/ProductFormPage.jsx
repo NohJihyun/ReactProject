@@ -30,6 +30,7 @@ const EMPTY_FORM = {
     minPeople:         '',
     maxPeople:         '',
     pricePerPerson:    '',
+    reservedCount:     0,
     confirmedCount:    0,
     exposureStartAt:   '',
     exposureEndAt:     '',
@@ -153,6 +154,7 @@ export default function ProductFormPage() {
                     minPeople:       data.minPeople       ?? '',
                     maxPeople:       data.maxPeople       ?? '',
                     pricePerPerson:  data.pricePerPerson  ?? '',
+                    reservedCount:   data.reservedCount   ?? 0,
                     confirmedCount:  data.confirmedCount  ?? 0,
                     exposureStartAt:   toDatetimeLocal(data.exposureStartAt),
                     exposureEndAt:     toDatetimeLocal(data.exposureEndAt),
@@ -205,7 +207,8 @@ export default function ProductFormPage() {
             minPeople:       form.minPeople      !== '' ? Number(form.minPeople)      : null,
             maxPeople:       form.maxPeople      !== '' ? Number(form.maxPeople)      : null,
             pricePerPerson:  form.pricePerPerson !== '' ? Number(form.pricePerPerson) : null,
-            confirmedCount:  Number(form.confirmedCount) || 0,
+            reservedCount:   Number(form.reservedCount)   || 0,
+            confirmedCount:  Number(form.confirmedCount)  || 0,
             exposureStartAt:   nullIfEmpty(form.exposureStartAt),
             exposureEndAt:     nullIfEmpty(form.exposureEndAt),
             transportType:    nullIfEmpty(form.transportType),
@@ -489,12 +492,35 @@ export default function ProductFormPage() {
                                         helperText="선택 · 정확한 금액은 상담 후 안내"
                                     />
                                 </Stack>
+                                <Alert severity="info" sx={{ py: 0.5 }}>
+                                    <strong>아래 두 항목은 로이투어 홈페이지 온라인 예약·결제와 무관하게 직접 입력하는 필드입니다.</strong>
+                                    <Box component="ol" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
+                                        <li>예약 인원 (외부) — 유선·이메일·협력업체 등 외부 경로로 예약된 인원 수를 직접 입력하세요.</li>
+                                        <li>확정 인원 (외부) — 외부 경로로 최종 확정된 인원 수를 직접 입력하세요.</li>
+                                    </Box>
+                                    <Box sx={{ mt: 1 }}>
+                                        <strong>입력된 외부 인원</strong>과 <strong>홈페이지 온라인 예약·결제 완료 인원</strong>은 시스템이 자동으로 합산하여 메인 상품카드에 예약 인원·확정 인원으로 표기됩니다.
+                                        홈페이지로 유입된 예약 및 결제 인원은 <strong>예약 및 결제 관리</strong> 메뉴에서 확인하실 수 있습니다.
+                                    </Box>
+                                </Alert>
                                 <TextField
-                                    name="confirmedCount" label="확정 인원"
+                                    name="reservedCount" label="예약 인원 (외부)"
+                                    value={form.reservedCount} onChange={change}
+                                    type="number" fullWidth
+                                    inputProps={{ min: 0 }}
+                                    InputLabelProps={{ sx: { color: '#1565c0', fontWeight: 700 } }}
+                                    placeholder="유선·이메일·협력업체 등 홈페이지 외 경로로 예약된 인원"
+                                    helperText="홈페이지 온라인 예약 인원은 자동 합산됩니다"
+                                    sx={{ '& input::placeholder': { color: '#444', opacity: 1 } }}
+                                />
+                                <TextField
+                                    name="confirmedCount" label="확정 인원 (외부)"
                                     value={form.confirmedCount} onChange={change}
                                     type="number" fullWidth
                                     inputProps={{ min: 0 }}
+                                    InputLabelProps={{ sx: { color: '#2e7d32', fontWeight: 700 } }}
                                     placeholder="유선·이메일·협력업체 등 홈페이지 외 경로 포함 현재 확정된 총 인원"
+                                    helperText="홈페이지 결제 완료 인원은 자동 합산됩니다"
                                     sx={{ '& input::placeholder': { color: '#444', opacity: 1 } }}
                                 />
                             </Stack>

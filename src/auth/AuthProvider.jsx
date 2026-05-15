@@ -38,6 +38,11 @@ export default function AuthProvider({ children }) {
         else localStorage.removeItem("accessToken");
     };
 
+    const syncUser = (me) => {
+        setUser(me);
+        useAuthStore.getState().setUser(me);
+    };
+
     // 앱 시작 시: 서버 기준으로 로그인 상태 확정
     useEffect(() => {
         let alive = true;
@@ -75,7 +80,7 @@ export default function AuthProvider({ children }) {
 
             if (!alive) return;
 
-            setUser(me);
+            syncUser(me);
             if (!me) syncAccessToken(null);
 
             clearTimeout(safetyTimer);
@@ -96,7 +101,7 @@ export default function AuthProvider({ children }) {
         syncAccessToken(data?.accessToken);
 
         const me = await meApi();
-        setUser(me);
+        syncUser(me);
 
         //혹시 me가 null이면 토큰 정리
         if (!me) syncAccessToken(null);
@@ -108,7 +113,7 @@ export default function AuthProvider({ children }) {
     const loginWithToken = async (token) => {
         syncAccessToken(token);
         const me = await meApi();
-        setUser(me);
+        syncUser(me);
         if (!me) syncAccessToken(null);
         return me;
     };
@@ -118,7 +123,7 @@ export default function AuthProvider({ children }) {
         try {
             await logoutApi();
         } finally {
-            setUser(null);
+            syncUser(null);
             syncAccessToken(null); // store + localStorage + state 모두 정리
         }
     };

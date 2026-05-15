@@ -5,7 +5,6 @@ import MainLayout from "./layout/MainLayout";
 import AdminLayout from './layout/AdminLayout';
 
 // pages
-import LoginPage from "./pages/LoginPage";
 import Forbidden from "./pages/Forbidden";
 import OAuthCallback from "./pages/OAuthCallback";
 import PasswordResetPage from "./pages/PasswordResetPage";
@@ -28,6 +27,8 @@ import AdminReviewPage from './pages/admin/AdminReviewPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminBookingPage from './pages/admin/AdminBookingPage';
 import MyReviewPage from './pages/client/MyReviewPage';
+import MyBookingPage from './pages/client/MyBookingPage';
+import PaymentPage from './pages/client/PaymentPage';
 
 // auth
 import AuthProvider from "./auth/AuthProvider";
@@ -49,7 +50,6 @@ export default function App() {
                         <Route path="/tour/:category" element={<TourListPage />} />
                         <Route path="/tour/:category/:id" element={<TourDetailPage />} />
                         <Route path="/search" element={<SearchResultsPage />} />
-                        <Route path="/login" element={<LoginPage />} />
                         <Route path="/oauth/callback" element={<OAuthCallback />} />
                         <Route path="/password-reset" element={<PasswordResetPage />} />
                     </Route>
@@ -61,6 +61,7 @@ export default function App() {
                         <Route path="/client" element={<ClientHome />} />
                         <Route path="/client/other" element={<OtherClientPage />} />
                         <Route path="/client/reviews" element={<MyReviewPage />} />
+                        <Route path="/client/bookings" element={<MyBookingPage />} />
                     </Route>
 
                     {/*  관리자 영역 (ADMIN) */}
@@ -78,6 +79,9 @@ export default function App() {
                             <Route path="/admin/review" element={<AdminReviewPage />} />
                         </Route>
                     </Route>
+
+                    {/* 결제 페이지 (새 창) */}
+                    <Route path="/payment/:bookingNumber" element={<PaymentPage />} />
 
                     {/* 권한 없음 */}
                     <Route path="/forbidden" element={<Forbidden />} />
