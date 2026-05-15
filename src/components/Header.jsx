@@ -35,6 +35,7 @@ import { useUiStore } from "../pages/store/uiStore";
 import logo from "../assets/rohitourlogo.png";
 import { useState, useEffect, useRef } from "react";
 import { searchProducts, logSearch } from "../api/clientApi";
+import { getUncheckedCount } from "../api/bookingApi";
 import RealTimeKeywords from "./RealTimeKeywords";
 import Tooltip from "@mui/material/Tooltip";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -77,6 +78,7 @@ export default function Header() {
     const [pendingOAuthToken, setPendingOAuthToken] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [guestSnack, setGuestSnack] = useState(false);
+    const [uncheckedCount, setUncheckedCount] = useState(0);
 
     const [searchResults, setSearchResults] = useState([]);
     const [searchOpen, setSearchOpen] = useState(false);
@@ -166,6 +168,15 @@ export default function Header() {
 
     const isAdmin = user?.role === "ADMIN";
 
+    useEffect(() => {
+        if (!isAdmin) return;
+        const fetchCount = () =>
+            getUncheckedCount().then(r => setUncheckedCount(r.count ?? 0)).catch(() => {});
+        fetchCount();
+        const timer = setInterval(fetchCount, 30000);
+        return () => clearInterval(timer);
+    }, [isAdmin]);
+
     const handleReviewClick = () => {
         if (!user) {
             setGuestSnack(true);
@@ -197,7 +208,7 @@ export default function Header() {
                     }}
                 >
                     {/* 로고 */}
-                    <Box sx={{ cursor: "pointer" }} onClick={() => navigate("/")}>
+                    <Box sx={{ cursor: "pointer" }} onClick={() => { navigate("/"); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                         <Box component="img" src={logo} sx={{ height: { xs: 60, md: 190 } }} />
                     </Box>
 
@@ -337,13 +348,54 @@ export default function Header() {
                         ) : (
                             <>
                                 {isAdmin && (
-                                    <Tooltip title="관리자 페이지">
-                                        <IconButton onClick={() => navigate("/admin")} sx={{ p: 0.5, flexDirection: 'column' }}>
-                                            <Box component="img" src={adminImg} alt="admin"
-                                                sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
-                                            <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자페이지</Typography>
-                                        </IconButton>
-                                    </Tooltip>
+                                    <Box sx={{ position: 'relative', display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {uncheckedCount > 0 && (
+                                            <Box sx={{
+                                                position: 'absolute', top: -22, left: '50%',
+                                                transform: 'translateX(-50%)',
+                                                bgcolor: '#d32f2f', color: '#fff',
+                                                fontSize: '0.62rem', fontWeight: 700,
+                                                borderRadius: '10px', px: 1, py: 0.3,
+                                                whiteSpace: 'nowrap',
+                                                '&::after': {
+                                                    content: '""',
+                                                    position: 'absolute', bottom: -5, left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    borderWidth: '5px 4px 0 4px',
+                                                    borderStyle: 'solid',
+                                                    borderColor: '#d32f2f transparent transparent transparent',
+                                                },
+                                                '@keyframes pulse': {
+                                                    '0%': { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
+                                                    '70%': { boxShadow: '0 0 0 5px rgba(211,47,47,0)' },
+                                                    '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
+                                                },
+                                                animation: 'pulse 1.5s infinite',
+                                            }}>
+                                                예약 및 결제 {uncheckedCount > 99 ? '99+' : uncheckedCount}건
+                                            </Box>
+                                        )}
+                                        <Tooltip title="관리자 페이지">
+                                            <IconButton onClick={() => navigate("/admin")} sx={{ p: 0.5, flexDirection: 'column', position: 'relative' }}>
+                                                <Box component="img" src={adminImg} alt="admin"
+                                                    sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                                {uncheckedCount > 0 && (
+                                                    <Box sx={{
+                                                        position: 'absolute', top: 0, right: 0,
+                                                        minWidth: 18, height: 18, borderRadius: 9,
+                                                        bgcolor: '#d32f2f', color: '#fff',
+                                                        fontSize: '0.65rem', fontWeight: 700,
+                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                        px: 0.4,
+                                                        animation: 'pulse 1.5s infinite',
+                                                    }}>
+                                                        {uncheckedCount > 99 ? '99+' : uncheckedCount}
+                                                    </Box>
+                                                )}
+                                                <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자페이지</Typography>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Box>
                                 )}
                                 {!isAdmin && (
                                     <>

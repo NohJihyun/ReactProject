@@ -11,6 +11,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import PhoneIcon from '@mui/icons-material/Phone';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyBookings, updateBooking, deleteBooking } from '../../api/bookingApi';
@@ -18,7 +20,7 @@ import { getMyBookings, updateBooking, deleteBooking } from '../../api/bookingAp
 const BOOKING_STATUS = {
     PENDING:   { label: '신청',  color: 'warning', desc: '예약 신청이 접수되었습니다.' },
     CONFIRMED: { label: '확정',  color: 'success', desc: '예약이 확정되었습니다. 담당자가 곧 연락드립니다.' },
-    COMPLETED: { label: '완료',  color: 'default', desc: '여행이 완료되었습니다.' },
+    COMPLETED: { label: '완료',  color: 'primary', desc: '여행이 완료되었습니다.' },
     CANCELLED: { label: '취소',  color: 'error',   desc: '예약이 취소되었습니다.' },
 };
 
@@ -66,7 +68,7 @@ function BookingDetailDialog({ booking, open, onClose }) {
                     <Divider />
                     <Stack direction="row" spacing={1}>
                         <Chip label={bs.label} color={bs.color} size="small" />
-                        <Chip label={ps.label} color={ps.color} size="small" variant="outlined" />
+                        <Chip label={ps.label} color={ps.color} size="small" />
                     </Stack>
                     <Box>
                         <Typography variant="caption" color="text.secondary">예약자</Typography>
@@ -248,6 +250,60 @@ function DeleteConfirmDialog({ booking, open, onClose, onDeleted }) {
     );
 }
 
+function CancelGuideDialog({ open, onClose }) {
+    return (
+        <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+            <DialogTitle sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CancelIcon sx={{ color: '#e53935', fontSize: 22 }} />
+                취소·환불 안내
+            </DialogTitle>
+            <DialogContent dividers>
+                <Stack spacing={2}>
+                    <Alert severity="info" sx={{ fontSize: '0.82rem' }}>
+                        취소 및 환불은 담당자와 직접 상담 후 처리됩니다.
+                    </Alert>
+                    <Box sx={{ bgcolor: '#fff8e1', borderRadius: 2, p: 2, border: '1px solid #ffe082' }}>
+                        <Typography variant="caption" color="text.secondary" fontWeight={700} display="block" mb={0.5}>
+                            고객센터
+                        </Typography>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <PhoneIcon sx={{ color: '#e65100', fontSize: 20 }} />
+                            <Typography fontWeight={800} fontSize="1.1rem" color="#e65100">
+                                031-466-9600
+                            </Typography>
+                        </Stack>
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                            평일 09:00 ~ 18:00 (점심 12:00 ~ 13:00)
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant="caption" color="text.secondary" fontWeight={700} display="block" mb={0.5}>
+                            취소·환불 수수료 기준
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+                            취소 시점에 따라 취소수수료가 부과될 수 있습니다.<br />
+                            자세한 내용은 여행약관을 확인해 주세요.
+                        </Typography>
+                        <Box sx={{ mt: 1 }}>
+                            <Button
+                                size="small"
+                                variant="text"
+                                sx={{ p: 0, fontSize: '0.75rem', color: '#1565c0', textDecoration: 'underline' }}
+                                onClick={() => window.open('/travel-terms', '_blank')}
+                            >
+                                여행약관 보기 →
+                            </Button>
+                        </Box>
+                    </Box>
+                </Stack>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose} variant="contained" fullWidth sx={{ fontWeight: 700 }}>확인</Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
 export default function MyBookingPage() {
     const navigate = useNavigate();
     const [bookings,    setBookings]    = useState([]);
@@ -258,6 +314,7 @@ export default function MyBookingPage() {
     const [editOpen,    setEditOpen]    = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [deleteOpen,  setDeleteOpen]  = useState(false);
+    const [cancelGuideOpen, setCancelGuideOpen] = useState(false);
 
     const load = () => {
         setLoading(true);
@@ -285,8 +342,10 @@ export default function MyBookingPage() {
                     <Typography variant="h5" fontWeight={800}>나의 이용내역</Typography>
                 </Stack>
 
-                <Alert severity="info" sx={{ mb: 3, fontSize: '0.85rem' }}>
-                    예약 신청 후 담당자 확인을 거쳐 예약이 확정됩니다. 문의사항은 <strong>031-466-9600</strong> 으로 연락주세요.
+                <Alert severity="info" sx={{ mb: 3, fontSize: '0.85rem', lineHeight: 1.8 }}>
+                    예약 신청이 완료되면 담당자가 확인 후 연락드립니다.<br />
+                    담당자와 예약 및 결제 처리가 완료되면 <strong>예약상태</strong>와 <strong>결제상태</strong>가 자동으로 변경됩니다.<br />
+                    문의사항은 <strong>031-466-9600</strong> 으로 연락주세요.
                 </Alert>
 
                 <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -311,14 +370,14 @@ export default function MyBookingPage() {
                         <Box sx={{ overflowX: 'auto' }}>
                             <Table sx={{ minWidth: 700, tableLayout: 'fixed' }}>
                                 <colgroup>
-                                    <col style={{ width: '14%' }} />  {/* 예약번호 */}
-                                    <col style={{ width: '22%' }} />  {/* 상품명 */}
-                                    <col style={{ width: '8%' }}  />  {/* 인원 */}
-                                    <col style={{ width: '11%' }} />  {/* 출발일 */}
-                                    <col style={{ width: '10%' }} />  {/* 예약상태 */}
-                                    <col style={{ width: '10%' }} />  {/* 결제상태 */}
-                                    <col style={{ width: '10%' }} />  {/* 신청일 */}
-                                    <col style={{ width: '15%' }} />  {/* 관리 */}
+                                    <col style={{ width: '13%' }} />  {/* 예약번호 */}
+                                    <col style={{ width: '20%' }} />  {/* 상품명 */}
+                                    <col style={{ width: '7%' }}  />  {/* 인원 */}
+                                    <col style={{ width: '10%' }} />  {/* 출발일 */}
+                                    <col style={{ width: '11%' }} />  {/* 예약상태 */}
+                                    <col style={{ width: '11%' }} />  {/* 결제상태 */}
+                                    <col style={{ width: '9%' }}  />  {/* 신청일 */}
+                                    <col style={{ width: '19%' }} />  {/* 관리 */}
                                 </colgroup>
                                 <TableHead>
                                     <TableRow sx={{ bgcolor: '#1976d2' }}>
@@ -345,7 +404,8 @@ export default function MyBookingPage() {
                                         const bs = BOOKING_STATUS[row.status] ?? { label: row.status, color: 'default' };
                                         const ps = PAYMENT_STATUS[row.paymentStatus] ?? { label: row.paymentStatus, color: 'default' };
                                         const total = row.adultCount + row.childCount + row.infantCount;
-                                        const isPending = row.status === 'PENDING';
+                                        const isPending   = row.status === 'PENDING';
+                                        const isCancelable = row.status === 'CONFIRMED' && row.paymentStatus === 'PAID';
                                         return (
                                             <TableRow key={row.bookingId} hover
                                                 sx={{ bgcolor: idx % 2 === 0 ? '#fff' : '#fafafa',
@@ -375,7 +435,7 @@ export default function MyBookingPage() {
                                                         sx={{ fontSize: '0.72rem', height: 22 }} />
                                                 </TableCell>
                                                 <TableCell align="center" sx={{ py: 1.5 }}>
-                                                    <Chip label={ps.label} color={ps.color} size="small" variant="outlined"
+                                                    <Chip label={ps.label} color={ps.color} size="small"
                                                         sx={{ fontSize: '0.72rem', height: 22 }} />
                                                 </TableCell>
                                                 <TableCell align="center" sx={{ py: 1.5 }}>
@@ -385,7 +445,7 @@ export default function MyBookingPage() {
                                                 </TableCell>
                                                 <TableCell align="center" sx={{ py: 1 }}>
                                                     <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
-                                                        <Button size="small" variant="outlined" onClick={() => handleDetail(row)}
+                                                        <Button size="small" variant="contained" onClick={() => handleDetail(row)}
                                                             sx={{ minWidth: 0, px: 1.2, py: 0.3, fontSize: '0.72rem' }}>
                                                             상세
                                                         </Button>
@@ -400,6 +460,17 @@ export default function MyBookingPage() {
                                                                     <DeleteIcon sx={{ fontSize: 15 }} />
                                                                 </IconButton>
                                                             </>
+                                                        )}
+                                                        {isCancelable && (
+                                                            <Button
+                                                                size="small"
+                                                                variant="contained"
+                                                                color="error"
+                                                                onClick={() => setCancelGuideOpen(true)}
+                                                                sx={{ minWidth: 0, px: 1, py: 0.3, fontSize: '0.7rem', whiteSpace: 'nowrap' }}
+                                                            >
+                                                                취소·환불
+                                                            </Button>
                                                         )}
                                                     </Stack>
                                                 </TableCell>
@@ -416,6 +487,7 @@ export default function MyBookingPage() {
             <BookingDetailDialog booking={selected} open={detailOpen} onClose={() => setDetailOpen(false)} />
             <EditDialog booking={editTarget} open={editOpen} onClose={() => setEditOpen(false)} onSaved={load} />
             <DeleteConfirmDialog booking={deleteTarget} open={deleteOpen} onClose={() => setDeleteOpen(false)} onDeleted={load} />
+            <CancelGuideDialog open={cancelGuideOpen} onClose={() => setCancelGuideOpen(false)} />
         </Box>
     );
 }

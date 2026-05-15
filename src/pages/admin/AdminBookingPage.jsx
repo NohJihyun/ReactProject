@@ -2,21 +2,34 @@ import {
     Box, Paper, Typography, Grid, Card, CardContent,
     TextField, MenuItem, Button, Stack, Table, TableHead,
     TableRow, TableCell, TableBody, Chip, CircularProgress,
-    Dialog, DialogTitle, DialogContent, DialogActions, Divider
+    Dialog, DialogTitle, DialogContent, DialogActions, Divider, Alert
 } from '@mui/material';
+import LandscapeIcon      from '@mui/icons-material/Landscape';
+import FlightIcon         from '@mui/icons-material/Flight';
+import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import SchoolIcon         from '@mui/icons-material/School';
 import EventNoteIcon      from '@mui/icons-material/EventNote';
 import CheckCircleIcon    from '@mui/icons-material/CheckCircle';
 import CancelIcon         from '@mui/icons-material/Cancel';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import PaidIcon           from '@mui/icons-material/Paid';
 import MoneyOffIcon       from '@mui/icons-material/MoneyOff';
+import DownloadIcon       from '@mui/icons-material/Download';
 import { useState, useEffect, useCallback } from 'react';
 import CommonPagination from '../../components/CommonPagination';
 import {
     getAdminBookings, getAdminBooking,
-    updateBookingStatus, updateBookingMemo, markBookingChecked
+    updateBookingStatus, updatePaymentStatus, updateBookingMemo, markBookingChecked, getBookingStats,
+    exportBookings
 } from '../../api/bookingApi';
 import { getProducts } from '../../api/productApi';
+
+const CATEGORY_BADGE = {
+    '국내여행':        { icon: <LandscapeIcon sx={{ fontSize: 14 }} />,         color: '#2e7d32', bg: '#e8f5e9' },
+    '항공 해외여행':   { icon: <FlightIcon sx={{ fontSize: 14 }} />,         color: '#e65100', bg: '#fff3e0' },
+    '크루즈 해외여행': { icon: <DirectionsBoatIcon sx={{ fontSize: 14 }} />, color: '#0277bd', bg: '#e1f5fe' },
+    '수학여행':        { icon: <SchoolIcon sx={{ fontSize: 14 }} />,         color: '#3f51b5', bg: '#e8eaf6' },
+};
 
 const BOOKING_STATUS = {
     PENDING:   { label: '신청',  color: 'warning' },
@@ -29,6 +42,16 @@ const PAYMENT_STATUS = {
     UNPAID:   { label: '미결제',   color: 'warning' },
     PAID:     { label: '결제완료', color: 'success' },
     REFUNDED: { label: '환불',     color: 'error'   },
+};
+
+const getPaymentLabel = (paymentStatus, paymentMethod) => {
+    if (paymentStatus === 'PAID') {
+        return paymentMethod === 'ONLINE' ? '온라인결제완료' : '수기결제완료';
+    }
+    if (paymentStatus === 'REFUNDED') {
+        return paymentMethod === 'ONLINE' ? '온라인환불' : '수기환불';
+    }
+    return PAYMENT_STATUS[paymentStatus]?.label ?? paymentStatus;
 };
 
 const StatCard = ({ icon, label, value, color }) => (
@@ -63,6 +86,17 @@ function BookingDetailDialog({ bookingId, open, onClose, onUpdated }) {
     const handleStatus = async (status) => {
         await updateBookingStatus(bookingId, status);
         setBooking(prev => ({ ...prev, status }));
+        onUpdated();
+    };
+
+    const handlePayment = async (paymentStatus, paymentMethod) => {
+        await updatePaymentStatus(bookingId, paymentStatus, paymentMethod);
+        setBooking(prev => ({
+            ...prev,
+            paymentStatus,
+            paymentMethod,
+            ...(paymentStatus === 'PAID' ? { status: 'CONFIRMED' } : {}),
+        }));
         onUpdated();
     };
 
@@ -138,7 +172,7 @@ function BookingDetailDialog({ bookingId, open, onClose, onUpdated }) {
                     {/* 상태 */}
                     <Stack direction="row" spacing={1} alignItems="center">
                         <Chip label={bs.label} color={bs.color} size="small" />
-                        <Chip label={ps.label} color={ps.color} size="small" />
+                        <Chip label={getPaymentLabel(booking.paymentStatus, booking.paymentMethod)} color={ps.color} size="small" />
                     </Stack>
 
                     {/* 상태 변경 버튼 */}
@@ -153,6 +187,37 @@ function BookingDetailDialog({ bookingId, open, onClose, onUpdated }) {
                                     {v.label}
                                 </Button>
                             ))}
+                        </Stack>
+                    </Box>
+                    {/* 결제 상태 변경 버튼 */}
+                    <Box>
+                        <Typography variant="caption" color="text.secondary" mb={0.5} display="block">결제 상태 변경</Typography>
+                        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                            <Button size="small"
+                                variant={booking.paymentStatus === 'UNPAID' ? 'contained' : 'outlined'}
+                                color="warning"
+                                onClick={() => handlePayment('UNPAID', null)}>
+                                미결제
+                            </Button>
+                            <Button size="small"
+                                variant={booking.paymentStatus === 'PAID' && booking.paymentMethod === 'MANUAL' ? 'contained' : 'outlined'}
+                                color="success"
+                                onClick={() => handlePayment('PAID', 'MANUAL')}>
+                                수기결제완료
+                            </Button>
+                            <Button size="small"
+                                variant={booking.paymentStatus === 'PAID' && booking.paymentMethod === 'ONLINE' ? 'contained' : 'outlined'}
+                                color="success"
+                                onClick={() => handlePayment('PAID', 'ONLINE')}
+                                disabled>
+                                온라인결제완료
+                            </Button>
+                            <Button size="small"
+                                variant={booking.paymentStatus === 'REFUNDED' ? 'contained' : 'outlined'}
+                                color="error"
+                                onClick={() => handlePayment('REFUNDED', booking.paymentMethod)}>
+                                환불
+                            </Button>
                         </Stack>
                     </Box>
                     <Divider />
@@ -193,10 +258,19 @@ export default function AdminBookingPage() {
     const [loading, setLoading]               = useState(false);
     const [selectedId, setSelectedId]         = useState(null);
     const [detailOpen, setDetailOpen]         = useState(false);
+    const [stats, setStats]                   = useState(null);
+    const [productPage, setProductPage]       = useState(1);
+    const [exporting, setExporting]           = useState(false);
+    const PRODUCT_PAGE_SIZE = 6;
+
+    const loadStats = useCallback(() => {
+        getBookingStats().then(setStats).catch(() => {});
+    }, []);
 
     useEffect(() => {
         getProducts({ size: 200 }).then(res => setProducts(res.list ?? []));
-    }, []);
+        loadStats();
+    }, [loadStats]);
 
     const fetch = useCallback(async () => {
         setLoading(true);
@@ -213,18 +287,38 @@ export default function AdminBookingPage() {
     const handleSearch = () => { setKeyword(searchInput); setPage(1); };
     const handleReset  = () => { setBookingStatus(''); setPaymentStatus(''); setSearchInput(''); setKeyword(''); setProductId(''); setPage(1); };
 
+    const handleExport = async () => {
+        setExporting(true);
+        try {
+            const blob = await exportBookings({ keyword, status: bookingStatus, paymentStatus, productId: productId || null });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            a.href = url;
+            a.download = `예약내역_${date}.xlsx`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } finally {
+            setExporting(false);
+        }
+    };
+
     const handleDetail = (id) => { setSelectedId(id); setDetailOpen(true); };
+;
 
     const rows = data?.list ?? [];
 
-    /* 현황 카드 통계 (전체 목록 기준 임시 집계) */
+    const byStatus       = stats?.byStatus  ?? {};
+    const byPayment      = stats?.byPayment ?? {};
     const totalCount     = data?.totalCount ?? 0;
-    const pendingCount   = rows.filter(r => r.status === 'PENDING').length;
-    const confirmedCount = rows.filter(r => r.status === 'CONFIRMED').length;
-    const cancelledCount = rows.filter(r => r.status === 'CANCELLED').length;
-    const unpaidCount    = rows.filter(r => r.paymentStatus === 'UNPAID').length;
-    const paidCount      = rows.filter(r => r.paymentStatus === 'PAID').length;
-    const refundedCount  = rows.filter(r => r.paymentStatus === 'REFUNDED').length;
+    const pendingCount   = byStatus['PENDING']    ?? 0;
+    const confirmedCount = byStatus['CONFIRMED']  ?? 0;
+    const cancelledCount = byStatus['CANCELLED']  ?? 0;
+    const unpaidCount       = byPayment['UNPAID']      ?? 0;
+    const paidManualCount   = byPayment['PAID_MANUAL'] ?? 0;
+    const paidOnlineCount   = byPayment['PAID_ONLINE'] ?? 0;
+    const refundedCount     = byPayment['REFUNDED']    ?? 0;
+    const byProduct      = stats?.byProduct ?? [];
 
     return (
         <Box>
@@ -232,7 +326,10 @@ export default function AdminBookingPage() {
 
             {/* 예약 현황 카드 */}
             <Paper variant="outlined" sx={{ p: 2.5, mb: 3 }}>
-                <Typography variant="subtitle1" fontWeight={700} mb={2} color="text.secondary">예약 현황</Typography>
+                <Stack direction="row" alignItems="center" spacing={1.5} mb={2} flexWrap="wrap">
+                    <Typography variant="subtitle1" fontWeight={700} color="text.secondary">전체 예약 현황</Typography>
+                    <Alert severity="info" sx={{ py: 0, fontSize: '0.92rem', fontWeight: 700 }}>로이투어에 등록된 전체 상품의 예약 현황입니다.</Alert>
+                </Stack>
                 <Grid container spacing={2}>
                     <Grid size={{ xs: 6, sm: 3 }}>
                         <StatCard icon={<EventNoteIcon />}      label="전체 예약" value={totalCount}     color="#1976d2" />
@@ -249,25 +346,80 @@ export default function AdminBookingPage() {
                 </Grid>
             </Paper>
 
+            {/* 상품별 예약 현황 */}
+            <Paper variant="outlined" sx={{ p: 2.5, mb: 3 }}>
+                <Stack direction="row" alignItems="center" spacing={1.5} mb={2} flexWrap="wrap">
+                    <Typography variant="subtitle1" fontWeight={700} color="text.secondary">상품별 예약 현황</Typography>
+                    <Alert severity="info" sx={{ py: 0, fontSize: '0.92rem', fontWeight: 700 }}>각 등록된 상품의 예약 현황입니다.</Alert>
+                </Stack>
+                {byProduct.length === 0 ? (
+                    <Typography variant="body2" color="text.disabled" sx={{ py: 1 }}>예약 데이터가 없습니다.</Typography>
+                ) : (
+                    <>
+                        <Grid container spacing={1.5}>
+                            {byProduct.slice((productPage - 1) * PRODUCT_PAGE_SIZE, productPage * PRODUCT_PAGE_SIZE).map((item, idx) => (
+                                <Grid key={idx} size={{ xs: 12, sm: 6, md: 4 }}>
+                                    <Box sx={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                        border: '1px solid', borderColor: 'divider', borderRadius: 2,
+                                        px: 2, py: 1.2, bgcolor: '#fafafa',
+                                    }}>
+                                        <Stack direction="row" alignItems="center" spacing={1} sx={{ flex: 1, mr: 1, overflow: 'hidden' }}>
+                                            {(() => {
+                                                const badge = CATEGORY_BADGE[item.root_category_name];
+                                                return badge ? (
+                                                    <Box sx={{
+                                                        display: 'inline-flex', alignItems: 'center', gap: 0.4,
+                                                        bgcolor: badge.bg, color: badge.color,
+                                                        borderRadius: 1, px: 0.8, py: 0.2,
+                                                        fontSize: '0.72rem', fontWeight: 700, flexShrink: 0,
+                                                    }}>
+                                                        {badge.icon} {item.root_category_name}
+                                                    </Box>
+                                                ) : null;
+                                            })()}
+                                            <Typography variant="body2" noWrap title={item.product_name}>
+                                                {item.product_name}
+                                            </Typography>
+                                        </Stack>
+                                        <Chip label={`${item.cnt}건`} size="small" color="primary" variant="outlined" sx={{ fontWeight: 700, flexShrink: 0 }} />
+                                    </Box>
+                                </Grid>
+                            ))}
+                        </Grid>
+                        <CommonPagination
+                            count={Math.ceil(byProduct.length / PRODUCT_PAGE_SIZE)}
+                            page={productPage}
+                            onChange={(_, v) => setProductPage(v)}
+                        />
+                    </>
+                )}
+            </Paper>
+
             {/* 결제 현황 카드 */}
             <Paper variant="outlined" sx={{ p: 2.5, mb: 3 }}>
                 <Typography variant="subtitle1" fontWeight={700} mb={2} color="text.secondary">결제 현황</Typography>
                 <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                        <StatCard icon={<MoneyOffIcon />} label="미결제"   value={unpaidCount}   color="#f57c00" />
+                    <Grid size={{ xs: 12, sm: 3 }}>
+                        <StatCard icon={<MoneyOffIcon />} label="미결제"        value={unpaidCount}     color="#f57c00" />
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                        <StatCard icon={<PaidIcon />}     label="결제완료" value={paidCount}      color="#1976d2" />
+                    <Grid size={{ xs: 12, sm: 3 }}>
+                        <StatCard icon={<PaidIcon />}     label="수기결제완료"  value={paidManualCount} color="#388e3c" />
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                        <StatCard icon={<MoneyOffIcon />} label="환불"     value={refundedCount}  color="#d32f2f" />
+                    <Grid size={{ xs: 12, sm: 3 }}>
+                        <StatCard icon={<PaidIcon />}     label="온라인결제완료" value={paidOnlineCount} color="#1976d2" />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 3 }}>
+                        <StatCard icon={<MoneyOffIcon />} label="환불"          value={refundedCount}   color="#d32f2f" />
                     </Grid>
                 </Grid>
             </Paper>
 
             {/* 목록 */}
             <Paper variant="outlined" sx={{ p: 2.5 }}>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} flexWrap="wrap" useFlexGap>
+                <Typography variant="h6" fontWeight={800} color="text.primary" mb={1}>예약 목록 관리</Typography>
+                <Alert severity="info" sx={{ mb: 2, fontSize: '0.92rem', fontWeight: 700 }}>각 상품에 예약된 현황을 확인 관리 하실수 있습니다.</Alert>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} flexWrap="wrap" useFlexGap alignItems="center">
                     <TextField select size="small" label="예약 상태" value={bookingStatus}
                         onChange={e => { setBookingStatus(e.target.value); setPage(1); }} sx={{ minWidth: 130 }}>
                         <MenuItem value="">전체</MenuItem>
@@ -295,6 +447,18 @@ export default function AdminBookingPage() {
                         sx={{ minWidth: 280 }} />
                     <Button variant="contained" size="small" onClick={handleSearch}>검색</Button>
                     <Button variant="outlined"  size="small" onClick={handleReset}>초기화</Button>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        color="success"
+                        startIcon={exporting ? <CircularProgress size={14} color="inherit" /> : <DownloadIcon />}
+                        onClick={handleExport}
+                        disabled={exporting}
+                        sx={{ whiteSpace: 'nowrap', fontWeight: 700 }}
+                    >
+                        {exporting ? '다운로드 중...' : '엑셀 다운로드'}
+                    </Button>
                 </Stack>
 
                 {loading ? (
@@ -351,7 +515,7 @@ export default function AdminBookingPage() {
                                                 <Chip label={bs.label} color={bs.color} size="small" />
                                             </TableCell>
                                             <TableCell align="center">
-                                                <Chip label={ps.label} color={ps.color} size="small" />
+                                                <Chip label={getPaymentLabel(row.paymentStatus, row.paymentMethod)} color={ps.color} size="small" />
                                             </TableCell>
                                             <TableCell align="center">
                                                 <Button size="small" variant="contained"
@@ -378,7 +542,7 @@ export default function AdminBookingPage() {
                 bookingId={selectedId}
                 open={detailOpen}
                 onClose={() => setDetailOpen(false)}
-                onUpdated={fetch}
+                onUpdated={() => { fetch(); loadStats(); }}
             />
         </Box>
     );

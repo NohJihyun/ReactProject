@@ -180,14 +180,14 @@ export default function AdminDashboard() {
                         <Box sx={{ display: 'flex', alignItems: { sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
                             <Typography variant="subtitle1" fontWeight={700} color="text.secondary" sx={{ flexShrink: 0 }}>예약·결제 현황</Typography>
                             <Alert severity="info" sx={{ py: 0.5 }}>
-                                전체 상품의 누적 인원 현황입니다. 개별 예약 건 관리는 <strong>예약 및 결제 관리</strong> 메뉴를 이용하세요.
+                                전체 상품의 누적 인원 현황입니다. 개별 예약 건 관리는 <strong>예약 및 결제 관리 현황</strong> 메뉴를 이용하세요.
                             </Alert>
                         </Box>
                         <Grid container spacing={2}>
                             <Grid size={{ xs: 6, sm: 3 }}>
                                 <StatCard
                                     icon={<EventNoteIcon />}
-                                    label="예약된 인원"
+                                    label={<>로이투어 전체 상품에 <span style={{ fontWeight: 900, color: '#1976d2' }}>예약된</span> 인원</>}
                                     value={stats?.reservedPeople?.toLocaleString()}
                                     color="#f57c00"
                                 />
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
                             <Grid size={{ xs: 6, sm: 3 }}>
                                 <StatCard
                                     icon={<HowToRegIcon />}
-                                    label="확정 인원"
+                                    label={<>로이투어 전체 상품에 <span style={{ fontWeight: 900, color: '#388e3c' }}>확정된</span> 인원</>}
                                     value={stats?.confirmedPeople?.toLocaleString()}
                                     color="#388e3c"
                                 />
