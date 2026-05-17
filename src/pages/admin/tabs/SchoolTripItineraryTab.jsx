@@ -84,7 +84,7 @@ export default function SchoolTripItineraryTab({ productId, onComplete }) {
             const saved = await api.saveSchoolTripDetail(productId, detail);
             setDetail({ ...EMPTY_DETAIL, ...saved });
             showSnack('저장되었습니다.');
-            if (activeTab < 4) setActiveTab(prev => prev + 1);
+            if (activeTab < 3) setActiveTab(prev => prev + 1);
             else {
                 onComplete?.();
                 if (!onComplete) {
@@ -113,7 +113,7 @@ export default function SchoolTripItineraryTab({ productId, onComplete }) {
                 <Tab label="유의사항" />
                 <Tab label="포함 / 불포함" />
                 <Tab label="가이드 미팅정보" />
-                <Tab label="상품 가격" />
+                <Tab label="상품 가격" disabled />
             </Tabs>
 
             {/* ── 탭 0: 여행 일정 ── */}
@@ -184,8 +184,8 @@ export default function SchoolTripItineraryTab({ productId, onComplete }) {
                 </Stack>
             )}
 
-            {/* ── 탭 4: 상품 가격 ── */}
-            {activeTab === 4 && (
+            {/* ── 탭 4: 상품 가격 ── 수학여행은 입찰·상담 플로우로 진행되어 비활성화 */}
+            {false && activeTab === 4 && (
                 detailLoad ? <Loading /> :
                 <Stack spacing={3} sx={{ pt: 1 }}>
 

@@ -29,6 +29,8 @@ import AdminBookingPage from './pages/admin/AdminBookingPage';
 import MyReviewPage from './pages/client/MyReviewPage';
 import MyBookingPage from './pages/client/MyBookingPage';
 import PaymentPage from './pages/client/PaymentPage';
+import InquiryPage from './pages/client/InquiryPage';
+import AdminInquiryPage from './pages/admin/AdminInquiryPage';
 
 // auth
 import AuthProvider from "./auth/AuthProvider";
@@ -50,6 +52,7 @@ export default function App() {
                         <Route path="/tour/:category" element={<TourListPage />} />
                         <Route path="/tour/:category/:id" element={<TourDetailPage />} />
                         <Route path="/search" element={<SearchResultsPage />} />
+                        <Route path="/inquiry" element={<InquiryPage />} />
                         <Route path="/oauth/callback" element={<OAuthCallback />} />
                         <Route path="/password-reset" element={<PasswordResetPage />} />
                     </Route>
@@ -77,6 +80,7 @@ export default function App() {
                             <Route path="/admin/users" element={<AdminUsersPage />} />
                             <Route path="/admin/bookings" element={<AdminBookingPage />} />
                             <Route path="/admin/review" element={<AdminReviewPage />} />
+                            <Route path="/admin/inquiries" element={<AdminInquiryPage />} />
                         </Route>
                     </Route>
 

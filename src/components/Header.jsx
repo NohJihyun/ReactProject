@@ -36,6 +36,7 @@ import logo from "../assets/rohitourlogo.png";
 import { useState, useEffect, useRef } from "react";
 import { searchProducts, logSearch } from "../api/clientApi";
 import { getUncheckedCount } from "../api/bookingApi";
+import { getInquiryNewCount } from "../api/inquiryApi";
 import RealTimeKeywords from "./RealTimeKeywords";
 import Tooltip from "@mui/material/Tooltip";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -79,6 +80,7 @@ export default function Header() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [guestSnack, setGuestSnack] = useState(false);
     const [uncheckedCount, setUncheckedCount] = useState(0);
+    const [inquiryNewCount, setInquiryNewCount] = useState(0);
 
     const [searchResults, setSearchResults] = useState([]);
     const [searchOpen, setSearchOpen] = useState(false);
@@ -170,8 +172,10 @@ export default function Header() {
 
     useEffect(() => {
         if (!isAdmin) return;
-        const fetchCount = () =>
+        const fetchCount = () => {
             getUncheckedCount().then(r => setUncheckedCount(r.count ?? 0)).catch(() => {});
+            getInquiryNewCount().then(r => setInquiryNewCount(r.count ?? 0)).catch(() => {});
+        };
         fetchCount();
         const timer = setInterval(fetchCount, 30000);
         return () => clearInterval(timer);
@@ -318,30 +322,38 @@ export default function Header() {
                     </Box>
 
                     {/* 사용자 영역 */}
-                    <Box sx={{ display: "flex", flexDirection: 'column', alignItems: "center", ml: 'auto', gap: 0.3, alignSelf: 'flex-end', pb: 1 }}>
+                    <Box sx={{ display: "flex", flexDirection: 'column', alignItems: "center", ml: 'auto', gap: 0.3, alignSelf: 'flex-end', pb: 1, pr: { md: 0 } }}>
                         {/* 버튼 가로 배치 */}
-                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0 }}>
                         {!user ? (
                         <>
                             <Tooltip title="로그인">
                                 <IconButton onClick={() => openLoginModal()} sx={{ p: 0.5, flexDirection: 'column' }}>
                                     <Box component="img" src={loginImg} alt="login"
-                                        sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                        sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20 }} />
                                     <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>로그인</Typography>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title="회원가입">
                                 <IconButton onClick={() => setSignupOpen(true)} sx={{ p: 0.5, flexDirection: 'column' }}>
                                     <Box component="img" src={signupImg} alt="signup"
-                                        sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                        sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20 }} />
                                     <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>회원가입</Typography>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title="여행후기">
                                 <IconButton onClick={handleReviewClick} sx={{ p: 0.5, flexDirection: 'column' }}>
                                     <Box component="img" src={reviewImg} alt="여행후기"
-                                        sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                        sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20 }} />
                                     <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="문의하기">
+                                <IconButton onClick={() => { navigate('/inquiry'); window.scrollTo(0, 0); }} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                    <Box sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Typography sx={{ fontSize: { xs: '0.85rem', md: '1.1rem' } }}>💬</Typography>
+                                    </Box>
+                                    <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>문의하기</Typography>
                                 </IconButton>
                             </Tooltip>
                         </>
@@ -349,47 +361,57 @@ export default function Header() {
                             <>
                                 {isAdmin && (
                                     <Box sx={{ position: 'relative', display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        {uncheckedCount > 0 && (
-                                            <Box sx={{
-                                                position: 'absolute', top: -22, left: '50%',
+                                        {/* 미리보기용 하드코딩 — 실데이터 연결 전 */}
+                                        <Box sx={{
+                                            position: 'absolute', top: -34, left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            display: 'flex', flexDirection: 'row', gap: 0.5,
+                                            alignItems: 'center',
+                                            '&::after': {
+                                                content: '""',
+                                                position: 'absolute', bottom: -5, left: '50%',
                                                 transform: 'translateX(-50%)',
-                                                bgcolor: '#d32f2f', color: '#fff',
-                                                fontSize: '0.62rem', fontWeight: 700,
-                                                borderRadius: '10px', px: 1, py: 0.3,
-                                                whiteSpace: 'nowrap',
-                                                '&::after': {
-                                                    content: '""',
-                                                    position: 'absolute', bottom: -5, left: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    borderWidth: '5px 4px 0 4px',
-                                                    borderStyle: 'solid',
-                                                    borderColor: '#d32f2f transparent transparent transparent',
-                                                },
-                                                '@keyframes pulse': {
-                                                    '0%': { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
-                                                    '70%': { boxShadow: '0 0 0 5px rgba(211,47,47,0)' },
-                                                    '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
-                                                },
-                                                animation: 'pulse 1.5s infinite',
-                                            }}>
-                                                예약 및 결제 {uncheckedCount > 99 ? '99+' : uncheckedCount}건
-                                            </Box>
-                                        )}
+                                                borderWidth: '5px 4px 0 4px',
+                                                borderStyle: 'solid',
+                                                borderColor: '#555 transparent transparent transparent',
+                                            },
+                                        }}>
+                                            {[
+                                                { label: `예약신청 총 ${uncheckedCount > 99 ? '99+' : uncheckedCount}건`, color: '#d32f2f' },
+                                                // { label: '결제완료 2건', color: '#2e7d32' }, // TODO: PG 연동 후 실데이터 연결
+                                                { label: `문의 ${inquiryNewCount > 99 ? '99+' : inquiryNewCount}건`, color: '#1565c0' },
+                                            ].map((badge) => (
+                                                <Box key={badge.label} sx={{
+                                                    bgcolor: badge.color, color: '#fff',
+                                                    fontSize: '0.62rem', fontWeight: 700,
+                                                    borderRadius: '10px', px: 1, py: 0.3,
+                                                    whiteSpace: 'nowrap',
+                                                    '@keyframes pulse': {
+                                                        '0%':   { boxShadow: `0 0 0 0 ${badge.color}b3` },
+                                                        '70%':  { boxShadow: `0 0 0 5px ${badge.color}00` },
+                                                        '100%': { boxShadow: `0 0 0 0 ${badge.color}00` },
+                                                    },
+                                                    animation: 'pulse 1.5s infinite',
+                                                }}>
+                                                    {badge.label}
+                                                </Box>
+                                            ))}
+                                        </Box>
                                         <Tooltip title="관리자 페이지">
                                             <IconButton onClick={() => navigate("/admin")} sx={{ p: 0.5, flexDirection: 'column', position: 'relative' }}>
                                                 <Box component="img" src={adminImg} alt="admin"
-                                                    sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                                    sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20 }} />
                                                 {uncheckedCount > 0 && (
                                                     <Box sx={{
                                                         position: 'absolute', top: 0, right: 0,
                                                         minWidth: 18, height: 18, borderRadius: 9,
                                                         bgcolor: '#d32f2f', color: '#fff',
-                                                        fontSize: '0.65rem', fontWeight: 700,
+                                                        fontSize: '0.7rem', fontWeight: 900,
                                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                         px: 0.4,
                                                         animation: 'pulse 1.5s infinite',
                                                     }}>
-                                                        {uncheckedCount > 99 ? '99+' : uncheckedCount}
+                                                        !
                                                     </Box>
                                                 )}
                                                 <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자페이지</Typography>
@@ -402,22 +424,30 @@ export default function Header() {
                                         <Tooltip title="여행후기">
                                             <IconButton onClick={handleReviewClick} sx={{ p: 0.5, flexDirection: 'column' }}>
                                                 <Box component="img" src={reviewImg} alt="여행후기"
-                                                    sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20 }} />
+                                                    sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20 }} />
                                                 <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="예약 및 결제 이용내역">
                                             <IconButton onClick={() => { navigate('/client/bookings'); window.scrollTo(0, 0); }} sx={{ p: 0.5, flexDirection: 'column' }}>
-                                                <Box sx={{ width: { xs: 30, md: 50 }, height: { xs: 30, md: 50 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Typography sx={{ fontSize: { xs: '1rem', md: '1.6rem' } }}>📋</Typography>
+                                                <Box sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Typography sx={{ fontSize: { xs: '0.85rem', md: '1.1rem' } }}>📋</Typography>
                                                 </Box>
                                                 <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>이용내역</Typography>
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="문의하기">
+                                            <IconButton onClick={() => { navigate('/inquiry'); window.scrollTo(0, 0); }} sx={{ p: 0.5, flexDirection: 'column' }}>
+                                                <Box sx={{ width: { xs: 26, md: 36 }, height: { xs: 26, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Typography sx={{ fontSize: { xs: '0.85rem', md: '1.1rem' } }}>💬</Typography>
+                                                </Box>
+                                                <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>문의하기</Typography>
                                             </IconButton>
                                         </Tooltip>
                                     </>
                                 )}
                                 <Tooltip title="로그아웃">
-                                    <IconButton onClick={() => { logout(); navigate("/"); }}>
+                                    <IconButton onClick={async () => { await logout(); navigate("/"); }}>
                                         <LogoutIcon />
                                     </IconButton>
                                 </Tooltip>

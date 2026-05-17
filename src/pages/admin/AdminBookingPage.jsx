@@ -87,6 +87,7 @@ function BookingDetailDialog({ bookingId, open, onClose, onUpdated }) {
         await updateBookingStatus(bookingId, status);
         setBooking(prev => ({ ...prev, status }));
         onUpdated();
+        window.dispatchEvent(new CustomEvent('booking-status-changed'));
     };
 
     const handlePayment = async (paymentStatus, paymentMethod) => {
@@ -98,6 +99,7 @@ function BookingDetailDialog({ bookingId, open, onClose, onUpdated }) {
             ...(paymentStatus === 'PAID' ? { status: 'CONFIRMED' } : {}),
         }));
         onUpdated();
+        window.dispatchEvent(new CustomEvent('booking-status-changed'));
     };
 
     const handleMemoSave = async () => {

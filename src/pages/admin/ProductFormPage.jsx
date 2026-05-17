@@ -393,6 +393,16 @@ export default function ProductFormPage() {
                     </Alert>
                 )}
 
+                {/* 수학여행 안내 알럿 */}
+                {tab === 0 && categoryType === 'school' && (
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                        수학여행 상품은 <strong>예약이 아닌 문의·상담</strong>으로 진행되며, 관심을 보이는 선생님이나 학교가 생기면
+                        상담 후 <strong>입찰까지 진행</strong>하시면 됩니다.
+                        메인 화면에 노출되는 수학여행 상품은 로이투어가 함께해온 <strong>수학여행 업력</strong>과
+                        <strong> 기획 중인 일정</strong>을 보여주는 <strong>경력 인증 형태</strong>의 상품입니다.
+                    </Alert>
+                )}
+
                 {/* ── 기본정보 탭 ── */}
                 {tab === 0 && (
                     <Stack spacing={3} sx={{ maxWidth: 720 }}>
@@ -422,10 +432,13 @@ export default function ProductFormPage() {
                                     placeholder="예) 경주·전주 수학여행 3박 4일  /  지중해 크루즈 7박 8일  /  도쿄 항공 패키지 4박 5일"
                                 />
                                 <TextField
-                                    name="productSubname" label="부제목"
+                                    name="productSubname"
+                                    label={getCategoryType() === 'school' ? '학교명' : '부제목'}
                                     value={form.productSubname} onChange={change}
                                     fullWidth inputProps={{ maxLength: 200 }}
-                                    placeholder="예) 역사와 문화를 담은 특별한 여행  /  MSC 크루즈 최고급 객실 포함  (선택)"
+                                    placeholder={getCategoryType() === 'school'
+                                        ? '예) ○○중학교  /  ○○고등학교  (선택)'
+                                        : '예) 역사와 문화를 담은 특별한 여행  /  MSC 크루즈 최고급 객실 포함  (선택)'}
                                 />
                             </Stack>
                         </Box>
@@ -458,71 +471,81 @@ export default function ProductFormPage() {
                         <Box>
                             <SectionTitle>여행 옵션</SectionTitle>
                             <Stack spacing={2}>
-                                <TextField
-                                    select name="travelType" label="여행 유형"
-                                    value={form.travelType} onChange={change} fullWidth
-                                >
-                                    <MenuItem value="BOTH">모두 (개인/단체)</MenuItem>
-                                    <MenuItem value="INDIVIDUAL">개인/가족</MenuItem>
-                                    <MenuItem value="GROUP">단체</MenuItem>
-                                </TextField>
+                                {categoryType !== 'school' && (
+                                    <TextField
+                                        select name="travelType" label="여행 유형"
+                                        value={form.travelType} onChange={change} fullWidth
+                                    >
+                                        <MenuItem value="BOTH">모두 (개인/단체)</MenuItem>
+                                        <MenuItem value="INDIVIDUAL">개인/가족</MenuItem>
+                                        <MenuItem value="GROUP">단체</MenuItem>
+                                    </TextField>
+                                )}
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                                     <TextField
-                                        name="minPeople" label="최소 인원"
+                                        name="minPeople"
+                                        label={categoryType === 'school' ? '함께 진행한 학생 수' : '최소 인원'}
                                         value={form.minPeople} onChange={change}
                                         type="number" fullWidth
                                         inputProps={{ min: 1 }}
-                                        placeholder="예) 10 (출발 확정 최소 인원)"
+                                        placeholder={categoryType === 'school' ? '예) 30 (함께 진행한 학생 수)' : '예) 10 (출발 확정 최소 인원)'}
                                         helperText="선택"
                                     />
                                     <TextField
-                                        name="maxPeople" label="최대 인원"
+                                        name="maxPeople"
+                                        label={categoryType === 'school' ? '최대 학생 수' : '최대 인원'}
                                         value={form.maxPeople} onChange={change}
                                         type="number" fullWidth
                                         inputProps={{ min: 1 }}
-                                        placeholder="예) 45 (수용 가능 최대 인원)"
+                                        placeholder={categoryType === 'school' ? '예) 45 (최대 참여 학생 수)' : '예) 45 (수용 가능 최대 인원)'}
                                         helperText="선택"
                                     />
-                                    <TextField
-                                        name="pricePerPerson" label="1인 참고가격 (원)"
-                                        value={form.pricePerPerson} onChange={change}
-                                        type="number" fullWidth
-                                        inputProps={{ min: 0 }}
-                                        placeholder="예) 150000 (숫자만 입력)"
-                                        helperText="선택 · 정확한 금액은 상담 후 안내"
-                                    />
+                                    {categoryType !== 'school' && (
+                                        <TextField
+                                            name="pricePerPerson" label="1인 참고가격 (원)"
+                                            value={form.pricePerPerson} onChange={change}
+                                            type="number" fullWidth
+                                            inputProps={{ min: 0 }}
+                                            placeholder="예) 150000 (숫자만 입력)"
+                                            helperText="선택 · 정확한 금액은 상담 후 안내"
+                                        />
+                                    )}
                                 </Stack>
-                                <Alert severity="info" sx={{ py: 0.5 }}>
-                                    <strong>아래 두 항목은 로이투어 홈페이지 온라인 예약·결제와 무관하게 직접 입력하는 필드입니다.</strong>
-                                    <Box component="ol" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
-                                        <li>예약 인원 (외부) — 유선·이메일·협력업체 등 외부 경로로 예약된 인원 수를 직접 입력하세요.</li>
-                                        <li>확정 인원 (외부) — 외부 경로로 최종 확정된 인원 수를 직접 입력하세요.</li>
-                                    </Box>
-                                    <Box sx={{ mt: 1 }}>
-                                        <strong>입력된 외부 인원</strong>과 <strong>홈페이지 온라인 예약·결제 완료 인원</strong>은 시스템이 자동으로 합산하여 메인 상품카드에 예약 인원·확정 인원으로 표기됩니다.
-                                        홈페이지로 유입된 예약 및 결제 인원은 <strong>예약 및 결제 관리</strong> 메뉴에서 확인하실 수 있습니다.
-                                    </Box>
-                                </Alert>
-                                <TextField
-                                    name="reservedCount" label="예약 인원 (외부)"
-                                    value={form.reservedCount} onChange={change}
-                                    type="number" fullWidth
-                                    inputProps={{ min: 0 }}
-                                    InputLabelProps={{ sx: { color: '#1565c0', fontWeight: 700 } }}
-                                    placeholder="유선·이메일·협력업체 등 홈페이지 외 경로로 예약된 인원"
-                                    helperText="홈페이지 온라인 예약 인원은 자동 합산됩니다"
-                                    sx={{ '& input::placeholder': { color: '#444', opacity: 1 } }}
-                                />
-                                <TextField
-                                    name="confirmedCount" label="확정 인원 (외부)"
-                                    value={form.confirmedCount} onChange={change}
-                                    type="number" fullWidth
-                                    inputProps={{ min: 0 }}
-                                    InputLabelProps={{ sx: { color: '#2e7d32', fontWeight: 700 } }}
-                                    placeholder="유선·이메일·협력업체 등 홈페이지 외 경로 포함 현재 확정된 총 인원"
-                                    helperText="홈페이지 결제 완료 인원은 자동 합산됩니다"
-                                    sx={{ '& input::placeholder': { color: '#444', opacity: 1 } }}
-                                />
+                                {categoryType !== 'school' && (
+                                    <>
+                                        <Alert severity="info" sx={{ py: 0.5 }}>
+                                            <strong>아래 두 항목은 로이투어 홈페이지 온라인 예약·결제와 무관하게 직접 입력하는 필드입니다.</strong>
+                                            <Box component="ol" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
+                                                <li>예약 인원 (외부) — 유선·이메일·협력업체 등 외부 경로로 예약된 인원 수를 직접 입력하세요.</li>
+                                                <li>확정 인원 (외부) — 외부 경로로 최종 확정된 인원 수를 직접 입력하세요.</li>
+                                            </Box>
+                                            <Box sx={{ mt: 1 }}>
+                                                <strong>입력된 외부 인원</strong>과 <strong>홈페이지 온라인 예약·결제 완료 인원</strong>은 시스템이 자동으로 합산하여 메인 상품카드에 예약 인원·확정 인원으로 표기됩니다.
+                                                홈페이지로 유입된 예약 및 결제 인원은 <strong>예약 및 결제 관리</strong> 메뉴에서 확인하실 수 있습니다.
+                                            </Box>
+                                        </Alert>
+                                        <TextField
+                                            name="reservedCount" label="예약 인원 (외부)"
+                                            value={form.reservedCount} onChange={change}
+                                            type="number" fullWidth
+                                            inputProps={{ min: 0 }}
+                                            InputLabelProps={{ sx: { color: '#1565c0', fontWeight: 700 } }}
+                                            placeholder="유선·이메일·협력업체 등 홈페이지 외 경로로 예약된 인원"
+                                            helperText="홈페이지 온라인 예약 인원은 자동 합산됩니다"
+                                            sx={{ '& input::placeholder': { color: '#444', opacity: 1 } }}
+                                        />
+                                        <TextField
+                                            name="confirmedCount" label="확정 인원 (외부)"
+                                            value={form.confirmedCount} onChange={change}
+                                            type="number" fullWidth
+                                            inputProps={{ min: 0 }}
+                                            InputLabelProps={{ sx: { color: '#2e7d32', fontWeight: 700 } }}
+                                            placeholder="유선·이메일·협력업체 등 홈페이지 외 경로 포함 현재 확정된 총 인원"
+                                            helperText="홈페이지 결제 완료 인원은 자동 합산됩니다"
+                                            sx={{ '& input::placeholder': { color: '#444', opacity: 1 } }}
+                                        />
+                                    </>
+                                )}
                             </Stack>
                         </Box>
 
@@ -544,11 +567,12 @@ export default function ProductFormPage() {
                                 </TextField>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
                                     {[
-                                        { name: 'hasShopping',     label: '🛍️ 쇼핑' },
-                                        { name: 'hasGuideFee',     label: '🪙 가이드비용' },
-                                        { name: 'hasEscort',       label: '🧑‍✈️ 인솔자' },
-                                        { name: 'hasOptionalTour', label: '🎯 선택관광' },
-                                    ].map(({ name, label }) => (
+                                        { name: 'hasShopping',     label: '🛍️ 쇼핑',     hideForSchool: true },
+                                        { name: 'hasGuideFee',     label: '🪙 가이드비용', hideForSchool: false },
+                                        { name: 'hasEscort',       label: '🧑‍✈️ 인솔자',   hideForSchool: false },
+                                        { name: 'hasOptionalTour', label: '🎯 선택관광',  hideForSchool: true },
+                                    ].filter(({ hideForSchool }) => !(categoryType === 'school' && hideForSchool))
+                                    .map(({ name, label }) => (
                                         <FormControlLabel
                                             key={name}
                                             control={
@@ -617,15 +641,17 @@ export default function ProductFormPage() {
                                     <MenuItem value="ENDED">종료</MenuItem>
                                 </TextField>
                                 <Stack direction="row" spacing={3}>
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={form.isFeatured === 'Y'}
-                                                onChange={(e) => setForm({ ...form, isFeatured: e.target.checked ? 'Y' : 'N' })}
-                                            />
-                                        }
-                                        label="추천 상품"
-                                    />
+                                    {categoryType !== 'school' && (
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={form.isFeatured === 'Y'}
+                                                    onChange={(e) => setForm({ ...form, isFeatured: e.target.checked ? 'Y' : 'N' })}
+                                                />
+                                            }
+                                            label="추천 상품"
+                                        />
+                                    )}
                                     <FormControlLabel
                                         control={
                                             <Switch
@@ -637,25 +663,38 @@ export default function ProductFormPage() {
                                     />
                                 </Stack>
                                 <Alert severity="info" sx={{ fontSize: '0.82rem' }}>
-                                    노출 종료일 기준으로 고객 화면 카드의 상태가 자동 변경됩니다.&nbsp;
-                                    <strong>종료일 없음</strong> → 상시운영 &nbsp;|&nbsp;
-                                    <strong>8일 이상</strong> → 진행중 &nbsp;|&nbsp;
-                                    <strong>7일 이내</strong> → 마감임박 &nbsp;|&nbsp;
-                                    <strong>종료일 지남</strong> → 마감
+                                    {categoryType === 'school' ? (
+                                        <>
+                                            <strong>여정 날짜</strong> 기준으로 수학여행 카드의 상태가 자동 구분됩니다.&nbsp;
+                                            <strong>미입력 또는 미래 날짜</strong> → 기획 중 &nbsp;|&nbsp;
+                                            <strong>지난 날짜</strong> → 여행 기록
+                                        </>
+                                    ) : (
+                                        <>
+                                            노출 종료일 기준으로 고객 화면 카드의 상태가 자동 변경됩니다.&nbsp;
+                                            <strong>종료일 없음</strong> → 상시운영 &nbsp;|&nbsp;
+                                            <strong>8일 이상</strong> → 진행중 &nbsp;|&nbsp;
+                                            <strong>7일 이내</strong> → 마감임박 &nbsp;|&nbsp;
+                                            <strong>종료일 지남</strong> → 마감
+                                        </>
+                                    )}
                                 </Alert>
                                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                    {categoryType !== 'school' && (
+                                        <TextField
+                                            name="exposureStartAt" label="노출 시작일"
+                                            type="datetime-local" value={form.exposureStartAt}
+                                            onChange={change} fullWidth
+                                            InputLabelProps={{ shrink: true }}
+                                        />
+                                    )}
                                     <TextField
-                                        name="exposureStartAt" label="노출 시작일"
-                                        type="datetime-local" value={form.exposureStartAt}
-                                        onChange={change} fullWidth
-                                        InputLabelProps={{ shrink: true }}
-                                    />
-                                    <TextField
-                                        name="exposureEndAt" label="노출 종료일"
+                                        name="exposureEndAt"
+                                        label={categoryType === 'school' ? '여정 날짜' : '노출 종료일'}
                                         type="datetime-local" value={form.exposureEndAt}
                                         onChange={change} fullWidth
                                         InputLabelProps={{ shrink: true }}
-                                        helperText="비워두면 상시운영"
+                                        helperText={categoryType !== 'school' ? '비워두면 상시운영' : undefined}
                                     />
                                 </Stack>
                             </Stack>

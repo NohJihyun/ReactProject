@@ -260,6 +260,35 @@ export default function TourDetailPage() {
     const depDt = formatDt(product.departureAt);
     const arrDt = formatDt(product.arrivalAt);
     const hasRoute = product.departureLocation || depDt;
+    const isSchool = category === 'school';
+    const maskSchoolName = (name) => {
+        if (!name) return name;
+        const suffixes = ['초등학교', '중학교', '고등학교', '대학교', '대학원', '초교', '중교', '고교'];
+        for (const suffix of suffixes) {
+            if (name.includes(suffix)) return '○○' + suffix;
+        }
+        return '○○학교';
+    };
+    const maskSchoolText = (text) => {
+        if (!text) return text;
+        // 1차: 완전한 학교명 (예: 안양서중학교, 부산고등학교)
+        let result = text.replace(
+            /[가-힣a-zA-Z0-9]+(?:초등학교|중학교|고등학교|대학교|대학원|초교|중교|고교)/g,
+            (m) => {
+                const suffix = ['초등학교','중학교','고등학교','대학교','대학원','초교','중교','고교'].find(s => m.endsWith(s));
+                return '○○' + suffix;
+            }
+        );
+        // 2차: 약어 형태 (예: 안양서중, 부산고, 서울초) — 앞에 2~4글자 + 중/고/초
+        result = result.replace(
+            /[가-힣]{2,4}(?:중|고|초)/g,
+            (m) => {
+                const suffix = ['중','고','초'].find(s => m.endsWith(s));
+                return '○○' + suffix;
+            }
+        );
+        return result;
+    };
 
     return (
         <Box sx={{ bgcolor: '#f7f8fc', minHeight: '100vh' }}>
@@ -424,38 +453,60 @@ export default function TourDetailPage() {
 
                                     {/* 문의 정보 — 이미지 탭 */}
                                     <Stack spacing={1.5} sx={{ mt: 1.5 }}>
-                                        {CONTACT_ITEMS.map(item => (
-                                            <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5 }}>
-                                                <Box sx={{ color: '#1976d2', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                        {category === 'school' ? (
+                                            CONTACT_ITEMS.map(item => (
+                                                <Box
+                                                    key={item.label}
+                                                    sx={{
+                                                        display: 'flex', alignItems: 'center', gap: 1.5,
+                                                        py: 1.2, px: 2.5, borderRadius: 2,
+                                                        bgcolor: '#1565c0',
+                                                        boxShadow: '0 3px 10px rgba(21,101,192,0.3)',
+                                                        color: '#fff',
+                                                    }}
+                                                >
                                                     {item.icon}
+                                                    <Box>
+                                                        <Typography variant="caption" sx={{ opacity: 0.8, display: 'block', lineHeight: 1.3 }}>{item.label}</Typography>
+                                                        <Typography variant="body2" fontWeight={700}>{item.value}</Typography>
+                                                    </Box>
                                                 </Box>
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.3 }}>
-                                                        {item.label}
-                                                    </Typography>
-                                                    <Typography fontWeight={700} variant="body2">
-                                                        {item.value}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-                                        ))}
-                                        <Button
-                                            variant="contained"
-                                            fullWidth
-                                            disabled={category === 'school'}
-                                            onClick={handleBookingOpen}
-                                            sx={{
-                                                py: 1.2, borderRadius: 2,
-                                                fontWeight: 700,
-                                                boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
-                                                mt: 0.5,
-                                            }}
-                                        >
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                {inquiryActionButton.icon}
-                                                <span>{inquiryActionButton.label}</span>
-                                            </Box>
-                                        </Button>
+                                            ))
+                                        ) : (
+                                            <>
+                                                {CONTACT_ITEMS.map(item => (
+                                                    <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5 }}>
+                                                        <Box sx={{ color: '#1976d2', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                                            {item.icon}
+                                                        </Box>
+                                                        <Box>
+                                                            <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.3 }}>
+                                                                {item.label}
+                                                            </Typography>
+                                                            <Typography fontWeight={700} variant="body2">
+                                                                {item.value}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                ))}
+                                                <Button
+                                                    variant="contained"
+                                                    fullWidth
+                                                    onClick={handleBookingOpen}
+                                                    sx={{
+                                                        py: 1.2, borderRadius: 2,
+                                                        fontWeight: 700,
+                                                        boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
+                                                        mt: 0.5,
+                                                    }}
+                                                >
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        {inquiryActionButton.icon}
+                                                        <span>{inquiryActionButton.label}</span>
+                                                    </Box>
+                                                </Button>
+                                            </>
+                                        )}
                                     </Stack>
                                 </>
                             )}
@@ -497,38 +548,60 @@ export default function TourDetailPage() {
 
                                     {/* 문의 정보 — 동영상 탭 */}
                                     <Stack spacing={1.5} sx={{ mt: 1.5 }}>
-                                        {CONTACT_ITEMS.map(item => (
-                                            <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5 }}>
-                                                <Box sx={{ color: '#1976d2', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                        {category === 'school' ? (
+                                            CONTACT_ITEMS.map(item => (
+                                                <Box
+                                                    key={item.label}
+                                                    sx={{
+                                                        display: 'flex', alignItems: 'center', gap: 1.5,
+                                                        py: 1.2, px: 2.5, borderRadius: 2,
+                                                        bgcolor: '#1565c0',
+                                                        boxShadow: '0 3px 10px rgba(21,101,192,0.3)',
+                                                        color: '#fff',
+                                                    }}
+                                                >
                                                     {item.icon}
+                                                    <Box>
+                                                        <Typography variant="caption" sx={{ opacity: 0.8, display: 'block', lineHeight: 1.3 }}>{item.label}</Typography>
+                                                        <Typography variant="body2" fontWeight={700}>{item.value}</Typography>
+                                                    </Box>
                                                 </Box>
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.3 }}>
-                                                        {item.label}
-                                                    </Typography>
-                                                    <Typography fontWeight={700} variant="body2">
-                                                        {item.value}
-                                                    </Typography>
-                                                </Box>
-                                            </Box>
-                                        ))}
-                                        <Button
-                                            variant="contained"
-                                            fullWidth
-                                            disabled={category === 'school'}
-                                            onClick={handleBookingOpen}
-                                            sx={{
-                                                py: 1.2, borderRadius: 2,
-                                                fontWeight: 700,
-                                                boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
-                                                mt: 0.5,
-                                            }}
-                                        >
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                {inquiryActionButton.icon}
-                                                <span>{inquiryActionButton.label}</span>
-                                            </Box>
-                                        </Button>
+                                            ))
+                                        ) : (
+                                            <>
+                                                {CONTACT_ITEMS.map(item => (
+                                                    <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 0.5 }}>
+                                                        <Box sx={{ color: '#1976d2', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                                            {item.icon}
+                                                        </Box>
+                                                        <Box>
+                                                            <Typography variant="caption" color="text.secondary" display="block" sx={{ lineHeight: 1.3 }}>
+                                                                {item.label}
+                                                            </Typography>
+                                                            <Typography fontWeight={700} variant="body2">
+                                                                {item.value}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                ))}
+                                                <Button
+                                                    variant="contained"
+                                                    fullWidth
+                                                    onClick={handleBookingOpen}
+                                                    sx={{
+                                                        py: 1.2, borderRadius: 2,
+                                                        fontWeight: 700,
+                                                        boxShadow: '0 3px 10px rgba(25,118,210,0.25)',
+                                                        mt: 0.5,
+                                                    }}
+                                                >
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        {inquiryActionButton.icon}
+                                                        <span>{inquiryActionButton.label}</span>
+                                                    </Box>
+                                                </Button>
+                                            </>
+                                        )}
                                     </Stack>
                                 </>
                             )}
@@ -606,14 +679,14 @@ export default function TourDetailPage() {
                             {/* 부제목 */}
                             {product.productSubname && (
                                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                                    {product.productSubname}
+                                    {isSchool ? maskSchoolName(product.productSubname) : product.productSubname}
                                 </Typography>
                             )}
 
                             <Divider sx={{ my: 2 }} />
 
                             {/* 가격 */}
-                            {product.pricePerPerson && (
+                            {!isSchool && product.pricePerPerson && (
                                 <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                                     <AttachMoneyIcon sx={{ color: '#1976d2', fontSize: 20 }} />
                                     <Box>
@@ -633,13 +706,23 @@ export default function TourDetailPage() {
                                     <Stack direction="row" alignItems="center" spacing={1.5}>
                                         <PeopleIcon sx={{ color: '#bbb', fontSize: 18 }} />
                                         <Typography variant="body2">
-                                            {product.minPeople && `최소 ${product.minPeople}인`}
-                                            {product.minPeople && product.maxPeople && ' · '}
-                                            {product.maxPeople && `최대 ${product.maxPeople}인`}
+                                            {isSchool ? (
+                                                product.minPeople && product.maxPeople
+                                                    ? `함께 진행한 학생 ${product.minPeople}~${product.maxPeople}명`
+                                                    : product.minPeople
+                                                    ? `함께 진행한 학생 ${product.minPeople}명`
+                                                    : `함께 진행한 학생 ${product.maxPeople}명`
+                                            ) : (
+                                                <>
+                                                    {product.minPeople && `최소 ${product.minPeople}인`}
+                                                    {product.minPeople && product.maxPeople && ' · '}
+                                                    {product.maxPeople && `최대 ${product.maxPeople}인`}
+                                                </>
+                                            )}
                                         </Typography>
                                     </Stack>
                                 )}
-                                {product.travelType && (
+                                {!isSchool && product.travelType && (
                                     <Stack direction="row" alignItems="center" spacing={1.5}>
                                         <GroupsIcon sx={{ color: '#bbb', fontSize: 18 }} />
                                         <Typography variant="body2">{TRAVEL_TYPE_LABEL[product.travelType]}</Typography>
@@ -659,7 +742,7 @@ export default function TourDetailPage() {
                                             <Box sx={{ flex: 1 }}>
                                                 <Typography variant="caption" color="text.secondary" display="block">출발</Typography>
                                                 <Typography variant="body2" fontWeight={600}>
-                                                    {product.departureLocation}
+                                                    {isSchool ? maskSchoolName(product.departureLocation) : product.departureLocation}
                                                     {depDt && <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>{depDt}</Typography>}
                                                 </Typography>
                                             </Box>
@@ -671,7 +754,7 @@ export default function TourDetailPage() {
                                             <Box sx={{ flex: 1 }}>
                                                 <Typography variant="caption" color="text.secondary" display="block">도착</Typography>
                                                 <Typography variant="body2" fontWeight={600}>
-                                                    {product.arrivalLocation}
+                                                    {isSchool ? maskSchoolName(product.arrivalLocation) : product.arrivalLocation}
                                                     {arrDt && <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>{arrDt}</Typography>}
                                                 </Typography>
                                             </Box>
@@ -743,11 +826,12 @@ export default function TourDetailPage() {
                                             </Stack>
                                         )}
                                         {[
-                                            { key: 'hasShopping',     emoji: '🛍️', label: '쇼핑' },
-                                            { key: 'hasGuideFee',     emoji: '🪙', label: '가이드비용' },
-                                            { key: 'hasEscort',       emoji: '🧑‍✈️', label: '인솔자' },
-                                            { key: 'hasOptionalTour', emoji: '🎯', label: '선택관광' },
-                                        ].map(({ key, emoji, label, gold }) => (
+                                            { key: 'hasShopping',     emoji: '🛍️', label: '쇼핑',     hideForSchool: true },
+                                            { key: 'hasGuideFee',     emoji: '🪙', label: '가이드비용', hideForSchool: false },
+                                            { key: 'hasEscort',       emoji: '🧑‍✈️', label: '인솔자',   hideForSchool: false },
+                                            { key: 'hasOptionalTour', emoji: '🎯', label: '선택관광',  hideForSchool: true },
+                                        ].filter(({ hideForSchool }) => !(isSchool && hideForSchool))
+                                        .map(({ key, emoji, label, gold }) => (
                                             <Stack key={key} direction="row" alignItems="center" spacing={1}>
                                                 <Typography sx={{ fontSize: '1.2rem', ...(gold && { color: '#FFD700', textShadow: '0 0 2px #b8860b' }) }}>{emoji}</Typography>
                                                 <Box>
@@ -1601,12 +1685,12 @@ export default function TourDetailPage() {
                                                 <Box key={item.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
                                                     <Box sx={{ px: 2.5, py: 1.5, bgcolor: '#e8eaf6', display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                                         <Chip label={`${item.dayNumber}일차`} size="small" sx={{ bgcolor: '#3f51b5', color: '#fff', fontWeight: 700 }} />
-                                                        <Typography fontWeight={700} sx={{ fontSize: '1rem' }}>{item.title}</Typography>
+                                                        <Typography fontWeight={700} sx={{ fontSize: '1rem' }}>{maskSchoolText(item.title)}</Typography>
                                                     </Box>
                                                     <Box sx={{ px: 2.5, py: 2 }}>
                                                         {item.description && (
                                                             <Typography variant="body2" color="text.secondary" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
-                                                                {item.description}
+                                                                {maskSchoolText(item.description)}
                                                             </Typography>
                                                         )}
                                                         {/* 타임라인 */}
@@ -1628,7 +1712,7 @@ export default function TourDetailPage() {
                                                                                             {formatTime(s.time)}
                                                                                         </Typography>
                                                                                     )}
-                                                                                    <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>{s.description}</Typography>
+                                                                                    <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>{maskSchoolText(s.description)}</Typography>
                                                                                 </Stack>
                                                                                 {(s.images || []).length > 0 && (
                                                                                     <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
@@ -1649,16 +1733,8 @@ export default function TourDetailPage() {
                                                             <Box sx={{ mt: 1, mb: 1 }}>
                                                                 <Stack direction="row" alignItems="center" spacing={0.5}>
                                                                     <HotelIcon fontSize="small" color="action" />
-                                                                    <Typography variant="body2" fontWeight={700}>숙박: {item.hotelName}</Typography>
+                                                                    <Typography variant="body2" fontWeight={700}>숙박: {maskSchoolText(item.hotelName)}</Typography>
                                                                 </Stack>
-                                                            </Box>
-                                                        )}
-                                                        {item.shoppingCenterName && (
-                                                            <Box sx={{ mt: 2, p: 1.5, bgcolor: 'warning.50', borderRadius: 1 }}>
-                                                                <Typography variant="caption" fontWeight={700} color="warning.dark">🛍 쇼핑</Typography>
-                                                                <Typography variant="body2" fontWeight={600}>{item.shoppingCenterName}</Typography>
-                                                                {item.shoppingInfo && <Typography variant="caption" color="text.secondary" display="block">{item.shoppingInfo}</Typography>}
-                                                                {item.shoppingExchangeInfo && <Typography variant="caption" color="text.secondary" display="block">교환/환불: {item.shoppingExchangeInfo}</Typography>}
                                                             </Box>
                                                         )}
                                                     </Box>
@@ -1679,7 +1755,7 @@ export default function TourDetailPage() {
                                         교통편 안내
                                     </Typography>
                                     <Box sx={{ p: 2, bgcolor: '#e8eaf6', borderRadius: 2, borderLeft: '4px solid #3f51b5' }}>
-                                        <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{schoolTripDetail.transportInfo}</Typography>
+                                        <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{maskSchoolText(schoolTripDetail.transportInfo)}</Typography>
                                     </Box>
                                 </Box>
                             </Box>
@@ -1697,13 +1773,13 @@ export default function TourDetailPage() {
                                         {schoolTripDetail.includedItems && (
                                             <Box sx={{ flex: 1, p: 2, bgcolor: '#f1f8e9', borderRadius: 2, borderLeft: '4px solid #66bb6a' }}>
                                                 <Typography variant="body2" fontWeight={700} color="#2e7d32" mb={1}>✅ 포함 사항</Typography>
-                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{schoolTripDetail.includedItems}</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{maskSchoolText(schoolTripDetail.includedItems)}</Typography>
                                             </Box>
                                         )}
                                         {schoolTripDetail.excludedItems && (
                                             <Box sx={{ flex: 1, p: 2, bgcolor: '#fce4ec', borderRadius: 2, borderLeft: '4px solid #ef5350' }}>
                                                 <Typography variant="body2" fontWeight={700} color="#c62828" mb={1}>❌ 불포함 사항</Typography>
-                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{schoolTripDetail.excludedItems}</Typography>
+                                                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{maskSchoolText(schoolTripDetail.excludedItems)}</Typography>
                                             </Box>
                                         )}
                                     </Stack>
@@ -1735,7 +1811,7 @@ export default function TourDetailPage() {
                                         {schoolTripDetail.meetingLocation && (
                                             <Stack direction="row" spacing={2}>
                                                 <Typography variant="body2" color="text.secondary" sx={{ minWidth: 80 }}>미팅 장소</Typography>
-                                                <Typography variant="body2" fontWeight={600}>{schoolTripDetail.meetingLocation}</Typography>
+                                                <Typography variant="body2" fontWeight={600}>{maskSchoolText(schoolTripDetail.meetingLocation)}</Typography>
                                             </Stack>
                                         )}
                                         {schoolTripDetail.meetingTime && (
@@ -1746,7 +1822,7 @@ export default function TourDetailPage() {
                                         )}
                                         {schoolTripDetail.notes && (
                                             <Box sx={{ mt: 1, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111', fontWeight: 500 }}>{schoolTripDetail.notes}</Typography>
+                                                <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111', fontWeight: 500 }}>{maskSchoolText(schoolTripDetail.notes)}</Typography>
                                             </Box>
                                         )}
                                     </Stack>
@@ -1754,8 +1830,8 @@ export default function TourDetailPage() {
                             </Box>
                         )}
 
-                        {/* 상품 가격 */}
-                        {schoolTripDetail && (schoolTripDetail.priceAdult || schoolTripDetail.priceChild || schoolTripDetail.priceInfant) && (
+                        {/* 상품 가격 — 수학여행은 입찰·상담 플로우로 진행되어 클라이언트 화면에 미표시 */}
+                        {false && schoolTripDetail && (schoolTripDetail.priceAdult || schoolTripDetail.priceChild || schoolTripDetail.priceInfant) && (
                             <Box>
                                 <Divider />
                                 <Box sx={{ p: { xs: 2.5, md: 4 } }}>
@@ -1814,7 +1890,7 @@ export default function TourDetailPage() {
                                             <Box key={r.label}>
                                                 <Typography variant="body2" fontWeight={700} sx={{ mb: 0.75 }}>{r.label}</Typography>
                                                 <Box sx={{ p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{r.value}</Typography>
+                                                    <Typography variant="body2" sx={{ whiteSpace: 'pre-line', color: '#111' }}>{maskSchoolText(r.value)}</Typography>
                                                 </Box>
                                             </Box>
                                         ))}

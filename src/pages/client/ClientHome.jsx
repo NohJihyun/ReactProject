@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import NoticePopup from '../../components/NoticePopup';
 import { Box, Typography, Chip, Container, Skeleton, Stack, Rating, Fade } from '@mui/material';
 import SchoolIcon           from '@mui/icons-material/School';
 import LandscapeIcon        from '@mui/icons-material/Landscape';
@@ -71,9 +72,26 @@ const SECTIONS = [
         icon:  <SchoolIcon />,
         color: '#3f51b5',
         gradient: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
-        desc:  '소중한 추억을 만드는 특별한 여행',
+        desc:  '20년 이상의 경험을 갖춘 검증된 전문 인력과 안전 중심의 체계적인 기획으로 완성해온 로이투어 수학여행의 기록과 새롭게 준비 중인 여정을 한눈에 확인하세요.',
     },
 ];
+
+const maskSchoolName = (name) => {
+    if (!name) return name;
+    // 완전한 학교명 (예: 안양서중학교)
+    const fullSuffixes = ['초등학교', '중학교', '고등학교', '대학교', '대학원', '초교', '중교', '고교'];
+    for (const suffix of fullSuffixes) {
+        if (name.includes(suffix)) return '○○' + suffix;
+    }
+    // 약어 형태 (예: 안양서중, 부산고)
+    const abbrMatch = name.match(/[가-힣]{2,4}(?:중|고|초)/);
+    if (abbrMatch) {
+        const m = abbrMatch[0];
+        const suffix = ['중','고','초'].find(s => m.endsWith(s));
+        return '○○' + suffix;
+    }
+    return '○○학교';
+};
 
 const formatPrice = (price) => {
     if (!price) return null;
@@ -83,12 +101,19 @@ const formatPrice = (price) => {
 const parseTags = (hashtags) =>
     hashtags.split(' #').map((t, i) => i === 0 ? t : '#' + t).slice(0, 5);
 
-const getStatusChip = (exposureEndAt) => {
+const getStatusChip = (exposureEndAt, isSchool = false) => {
+    if (isSchool) {
+        const year = new Date().getFullYear();
+        if (!exposureEndAt) return { label: `★ ${year} ~ 함께 기록할 여정 기획`, color: '#3f51b5', bg: '#e8eaf6' };
+        const days = Math.ceil((new Date(exposureEndAt) - new Date()) / 86400000);
+        if (days <= 0) return { label: '🏆 로이투어와 함께한 수학여행 추억 기록', color: '#fff', bg: '#3f51b5' };
+        return             { label: `★ ${year} ~ 함께 기록할 여정 기획`, color: '#3f51b5', bg: '#e8eaf6' };
+    }
     if (!exposureEndAt) return { label: '상시운영', color: '#2e7d32', bg: '#e8f5e9' };
     const days = Math.ceil((new Date(exposureEndAt) - new Date()) / 86400000);
-    if (days <= 0)  return { label: '마감',          color: '#757575', bg: '#f5f5f5' };
+    if (days <= 0)  return { label: '마감',              color: '#757575', bg: '#f5f5f5' };
     if (days <= 7)  return { label: `마감임박 D-${days}`, color: '#e65100', bg: '#fff3e0' };
-    return               { label: '진행중',          color: '#1565c0', bg: '#e3f2fd' };
+    return               { label: '진행중',              color: '#1565c0', bg: '#e3f2fd' };
 };
 
 /* ── 상품 카드 ── */
@@ -98,11 +123,20 @@ function ProductCard({ product, categorySlug, onClick }) {
     const depDt      = formatDt(product.departureAt);
     const arrDt      = formatDt(product.arrivalAt);
     const hasRoute   = product.departureLocation || depDt;
-    const statusChip = getStatusChip(product.exposureEndAt);
+    const statusChip = getStatusChip(product.exposureEndAt, categorySlug === 'school');
+    const isSchool = categorySlug === 'school';
+    const depLabel = isSchool ? maskSchoolName(product.departureLocation) : product.departureLocation;
+    const arrLabel = isSchool ? maskSchoolName(product.arrivalLocation)   : product.arrivalLocation;
     const peopleLabel = product.minPeople && product.maxPeople
-        ? `모집인원 ${product.minPeople}~${product.maxPeople}명`
-        : product.minPeople ? `모집인원 최소 ${product.minPeople}명`
-        : product.maxPeople ? `모집인원 최대 ${product.maxPeople}명` : null;
+        ? isSchool ? `함께 진행한 학생 ${product.minPeople}~${product.maxPeople}명`
+                   : `모집인원 ${product.minPeople}~${product.maxPeople}명`
+        : product.minPeople
+        ? isSchool ? `함께 진행한 학생 ${product.minPeople}명`
+                   : `모집인원 최소 ${product.minPeople}명`
+        : product.maxPeople
+        ? isSchool ? `함께 진행한 학생 ${product.maxPeople}명`
+                   : `모집인원 최대 ${product.maxPeople}명`
+        : null;
 
     return (
         <Box
@@ -149,20 +183,20 @@ function ProductCard({ product, categorySlug, onClick }) {
             {/* 내용 */}
             <Box sx={{ p: 2.5, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 {/* 상태 + 추천 chip + 확정인원 */}
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: isSchool ? 'center' : 'space-between', mb: 1 }}>
                     <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
                         <Chip
                             label={statusChip.label}
                             size="small"
                             sx={{ bgcolor: statusChip.bg, color: statusChip.color, fontWeight: 700, fontSize: '0.7rem' }}
                         />
-                        {product.isFeatured === 'Y' && (
+                        {!isSchool && product.isFeatured === 'Y' && (
                             <Chip label="추천" size="small"
                                 sx={{ bgcolor: '#ff6f00', color: 'white', fontWeight: 700, fontSize: '0.7rem' }}
                             />
                         )}
                     </Stack>
-                    {(product.reservedCount > 0 || product.confirmedCount > 0) && (
+                    {!isSchool && (product.reservedCount > 0 || product.confirmedCount > 0) && (
                         <Box sx={{ textAlign: 'right', flexShrink: 0, ml: 1 }}>
                             <Stack direction="row" spacing={1} justifyContent="flex-end">
                                 {product.reservedCount > 0 && (
@@ -228,23 +262,34 @@ function ProductCard({ product, categorySlug, onClick }) {
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 0.5 }}>
                     {peopleLabel && (
                         <Chip
-                            icon={<PeopleIcon sx={{ fontSize: '15px !important' }} />}
+                            icon={<PeopleIcon sx={{ fontSize: '15px !important', color: isSchool ? '#fff !important' : undefined }} />}
                             label={peopleLabel}
                             size="small"
-                            variant="outlined"
+                            variant={isSchool ? 'filled' : 'outlined'}
                             color="primary"
-                            sx={{ fontSize: '0.75rem' }}
+                            sx={{ fontSize: '0.75rem', ...(isSchool && { bgcolor: '#3f51b5', color: '#fff', fontWeight: 700 }) }}
                         />
                     )}
-                    {price && (
-                        <Chip
-                            icon={<AttachMoneyIcon sx={{ fontSize: '15px !important' }} />}
-                            label={price}
-                            size="small"
-                            variant="outlined"
-                            color="primary"
-                            sx={{ fontSize: '0.75rem' }}
-                        />
+                    {isSchool ? (
+                        product.productSubname && (
+                            <Chip
+                                icon={<SchoolIcon sx={{ fontSize: '15px !important', color: '#fff !important' }} />}
+                                label={maskSchoolName(product.productSubname)}
+                                size="small"
+                                sx={{ fontSize: '0.75rem', bgcolor: '#3f51b5', color: '#fff', fontWeight: 700 }}
+                            />
+                        )
+                    ) : (
+                        price && (
+                            <Chip
+                                icon={<AttachMoneyIcon sx={{ fontSize: '15px !important' }} />}
+                                label={price}
+                                size="small"
+                                variant="outlined"
+                                color="primary"
+                                sx={{ fontSize: '0.75rem' }}
+                            />
+                        )
                     )}
                 </Stack>
 
@@ -264,14 +309,14 @@ function ProductCard({ product, categorySlug, onClick }) {
                             {meta.icon}
                         </Box>
                         <Typography variant="caption" fontWeight={600} sx={{ flexShrink: 0 }}>
-                            {product.departureLocation}
+                            {depLabel}
                         </Typography>
                         {depDt && (
                             <Typography variant="caption" sx={{ flexShrink: 0 }}>{depDt}</Typography>
                         )}
                         <Typography variant="caption" sx={{ flexShrink: 0, color: '#aaa' }}>→</Typography>
                         <Typography variant="caption" fontWeight={600} sx={{ flexShrink: 0 }}>
-                            {product.arrivalLocation}
+                            {arrLabel}
                         </Typography>
                         {arrDt && (
                             <Typography variant="caption" sx={{ flexShrink: 0 }}>{arrDt}</Typography>
@@ -460,17 +505,77 @@ function CategorySection({ section }) {
                         {section.icon}
                     </Box>
                     <Box>
-                        <Typography variant="h5" fontWeight={800} lineHeight={1.2}>
-                            {section.label}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="h5" fontWeight={800} lineHeight={1.2}>
+                                {section.label}
+                            </Typography>
+                            {section.id === 'school' && (
+                                <Typography sx={{ color: '#FFD700', fontSize: '1.5rem', lineHeight: 1 }}>
+                                    ★★★★★
+                                </Typography>
+                            )}
+                        </Box>
                         <Typography variant="body2" color="text.secondary">
-                            {section.desc}
+                            {section.id === 'school' ? (
+                                <>
+                                    <Box component="span" sx={{ fontWeight: 800, color: '#3f51b5' }}>20년 이상의 경험</Box>을 갖춘 검증된 <Box component="span" sx={{ fontWeight: 800, color: '#3f51b5' }}>전문 인력</Box>과 <Box component="span" sx={{ fontWeight: 800, color: '#3f51b5' }}>안전 중심</Box>의 체계적인 기획으로 완성해온 <Box component="span" sx={{ fontWeight: 800, color: '#3f51b5' }}>로이투어</Box> 수학여행의 기록과 새롭게 준비 중인 여정을 한눈에 확인하세요.
+                                </>
+                            ) : section.desc}
                         </Typography>
                     </Box>
                 </Box>
 
                 {/* 구분선 */}
                 <Box sx={{ height: 3, width: 48, borderRadius: 2, background: section.gradient, mb: 2.5 }} />
+
+                {/* 수학여행 전용 안내 배너 */}
+                {section.id === 'school' && (
+                    <Box sx={{
+                        display: 'flex', flexDirection: { xs: 'column', sm: 'row' },
+                        gap: { xs: 1.5, sm: 0 },
+                        mb: 3, borderRadius: 2.5, overflow: 'hidden',
+                        border: '1px solid #c5cae9',
+                        boxShadow: '0 2px 12px rgba(63,81,181,0.1)',
+                    }}>
+                        <Box sx={{
+                            flex: 1, px: 2.5, py: 2,
+                            background: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
+                            display: 'flex', alignItems: 'center', gap: 1.5,
+                        }}>
+                            <Typography sx={{ fontSize: '1.6rem', lineHeight: 1 }}>🏆</Typography>
+                            <Box>
+                                <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700, letterSpacing: 1, fontSize: '0.72rem', display: 'block', mb: 0.3 }}>
+                                    TRACK RECORD
+                                </Typography>
+                                <Typography fontWeight={800} color="#fff" sx={{ fontSize: '1.15rem', lineHeight: 1.3 }}>
+                                    직접 동행한 진행 실적
+                                </Typography>
+                                <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', mt: 0.3 }}>
+                                    실제 운영·관리한 수학여행
+                                </Typography>
+                            </Box>
+                        </Box>
+                        <Box sx={{ width: { xs: '100%', sm: 2 }, height: { xs: 2, sm: 'auto' }, bgcolor: 'rgba(255,255,255,0.3)' }} />
+                        <Box sx={{
+                            flex: 1, px: 2.5, py: 2,
+                            background: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
+                            display: 'flex', alignItems: 'center', gap: 1.5,
+                        }}>
+                            <Typography sx={{ fontSize: '1.6rem', lineHeight: 1 }}>📋</Typography>
+                            <Box>
+                                <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700, letterSpacing: 1, fontSize: '0.72rem', display: 'block', mb: 0.3 }}>
+                                    PLANNING
+                                </Typography>
+                                <Typography fontWeight={800} color="#fff" sx={{ fontSize: '1rem', lineHeight: 1.3 }}>
+                                    현재 기획 중인 상품
+                                </Typography>
+                                <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', mt: 0.3 }}>
+                                    새롭게 준비하는 여행 프로그램
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Box>
+                )}
 
                 {/* 스켈레톤 */}
                 {loading && (
@@ -756,6 +861,7 @@ function HeroBanner() {
 export default function ClientHome() {
     return (
         <Box sx={{ bgcolor: '#f7f8fc', minHeight: '100vh' }}>
+            <NoticePopup />
             <HeroBanner />
             <Box sx={{ pt: 5 }}>
                 {SECTIONS.map(section => (

@@ -59,6 +59,13 @@ export default function PaymentPage() {
 
                 {/* 본문 */}
                 <Box sx={{ px: 4, py: 4 }}>
+                    {/* 별 5개 */}
+                    <Box sx={{ textAlign: 'center', mb: 2 }}>
+                        {[1,2,3,4,5].map(i => (
+                            <Typography key={i} component="span" sx={{ fontSize: 28, color: '#FFD700', mx: 0.3 }}>★</Typography>
+                        ))}
+                    </Box>
+
                     {/* 상태 안내 */}
                     <Box sx={{
                         bgcolor: '#f0f7ff',

@@ -12,6 +12,10 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useEffect, useState, useCallback } from 'react';
 import { getAdminStats } from '../../api/adminUserApi';
+import { getInquiryStats } from '../../api/inquiryApi';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 
 /* ── 통계 카드 ── */
 const StatCard = ({ icon, label, value, color }) => (
@@ -131,11 +135,16 @@ function buildYearlyChart(rawData) {
 /* ── 메인 ── */
 export default function AdminDashboard() {
     const [stats, setStats] = useState(null);
+    const [inquiryStats, setInquiryStats] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const fetchStats = useCallback(async () => {
         setLoading(true);
-        try { setStats(await getAdminStats()); }
+        try {
+            const [s, iq] = await Promise.all([getAdminStats(), getInquiryStats()]);
+            setStats(s);
+            setInquiryStats(iq);
+        }
         catch { /* ignore */ }
         finally { setLoading(false); }
     }, []);
@@ -175,33 +184,89 @@ export default function AdminDashboard() {
                         <Chip label="유효 RefreshToken 기준" size="small" sx={{ ml: 'auto', bgcolor: '#c8e6c9', color: '#1b5e20' }} />
                     </Paper>
 
-                    {/* ── 예약·결제 현황 ── */}
-                    <Paper variant="outlined" sx={{ p: 2.5, mb: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: { sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
-                            <Typography variant="subtitle1" fontWeight={700} color="text.secondary" sx={{ flexShrink: 0 }}>예약·결제 현황</Typography>
-                            <Alert severity="info" sx={{ py: 0.5 }}>
-                                전체 상품의 누적 인원 현황입니다. 개별 예약 건 관리는 <strong>예약 및 결제 관리 현황</strong> 메뉴를 이용하세요.
-                            </Alert>
-                        </Box>
-                        <Grid container spacing={2}>
-                            <Grid size={{ xs: 6, sm: 3 }}>
-                                <StatCard
-                                    icon={<EventNoteIcon />}
-                                    label={<>로이투어 전체 상품에 <span style={{ fontWeight: 900, color: '#1976d2' }}>예약된</span> 인원</>}
-                                    value={stats?.reservedPeople?.toLocaleString()}
-                                    color="#f57c00"
-                                />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 3 }}>
-                                <StatCard
-                                    icon={<HowToRegIcon />}
-                                    label={<>로이투어 전체 상품에 <span style={{ fontWeight: 900, color: '#388e3c' }}>확정된</span> 인원</>}
-                                    value={stats?.confirmedPeople?.toLocaleString()}
-                                    color="#388e3c"
-                                />
-                            </Grid>
+                    {/* ── 예약·결제 현황 + 문의 현황 (5:5) ── */}
+                    <Grid container spacing={3} sx={{ mb: 3 }}>
+
+                        {/* 예약·결제 현황 */}
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Paper variant="outlined" sx={{ p: 2.5, height: '100%' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                    <EventNoteIcon sx={{ color: '#f57c00' }} />
+                                    <Typography variant="subtitle1" fontWeight={700} color="text.secondary">예약·결제 현황</Typography>
+                                </Box>
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+                                    전체 상품 누적 인원 현황. 개별 예약 건 관리는 <strong>예약 및 결제 관리 현황</strong> 메뉴를 이용하세요.
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid size={{ xs: 6 }}>
+                                        <StatCard
+                                            icon={<EventNoteIcon />}
+                                            label={<>전체 상품 <span style={{ fontWeight: 900, color: '#1976d2' }}>예약</span> 인원</>}
+                                            value={stats?.reservedPeople?.toLocaleString()}
+                                            color="#f57c00"
+                                        />
+                                    </Grid>
+                                    <Grid size={{ xs: 6 }}>
+                                        <StatCard
+                                            icon={<HowToRegIcon />}
+                                            label={<>전체 상품 <span style={{ fontWeight: 900, color: '#388e3c' }}>확정</span> 인원</>}
+                                            value={stats?.confirmedPeople?.toLocaleString()}
+                                            color="#388e3c"
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Paper>
                         </Grid>
-                    </Paper>
+
+                        {/* 문의 현황 */}
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Paper variant="outlined" sx={{ p: 2.5, height: '100%' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                    <QuestionAnswerIcon sx={{ color: '#1565c0' }} />
+                                    <Typography variant="subtitle1" fontWeight={700} color="text.secondary">문의 현황</Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ ml: 'auto' }}>
+                                        전체 {inquiryStats?.total ?? 0}건
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 1.5, mb: 2.5 }}>
+                                    <StatusBadge label="답변대기" value={inquiryStats?.newCount ?? 0} color="#e65100" bgcolor="#fff3e0" />
+                                    <StatusBadge label="답변완료" value={inquiryStats?.completedCount ?? 0} color="#2e7d32" bgcolor="#e8f5e9" />
+                                </Box>
+
+                                {/* 유형별 통계 테이블 */}
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1, display: 'block' }}>유형별 현황</Typography>
+                                    {(!inquiryStats?.categoryStats || inquiryStats.categoryStats.length === 0) ? (
+                                        <Typography variant="body2" color="text.disabled">문의 내역이 없습니다.</Typography>
+                                    ) : (
+                                        <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                                            <Box component="thead">
+                                                <Box component="tr" sx={{ bgcolor: '#f5f5f5' }}>
+                                                    <Box component="th" sx={{ p: '6px 10px', textAlign: 'left', fontWeight: 700, borderBottom: '1px solid #e0e0e0' }}>유형</Box>
+                                                    <Box component="th" sx={{ p: '6px 10px', textAlign: 'right', fontWeight: 700, borderBottom: '1px solid #e0e0e0' }}>건수</Box>
+                                                    <Box component="th" sx={{ p: '6px 10px', textAlign: 'right', fontWeight: 700, borderBottom: '1px solid #e0e0e0' }}>비율</Box>
+                                                </Box>
+                                            </Box>
+                                            <Box component="tbody">
+                                                {inquiryStats.categoryStats.map((row, idx) => {
+                                                    const pct = inquiryStats.total > 0
+                                                        ? Math.round((Number(row.count) / inquiryStats.total) * 100)
+                                                        : 0;
+                                                    return (
+                                                        <Box component="tr" key={idx} sx={{ '&:hover': { bgcolor: '#fafafa' }, borderBottom: '1px solid #f0f0f0' }}>
+                                                            <Box component="td" sx={{ p: '6px 10px' }}>{row.category}</Box>
+                                                            <Box component="td" sx={{ p: '6px 10px', textAlign: 'right', fontWeight: 700 }}>{Number(row.count).toLocaleString()}</Box>
+                                                            <Box component="td" sx={{ p: '6px 10px', textAlign: 'right', color: 'text.secondary' }}>{pct}%</Box>
+                                                        </Box>
+                                                    );
+                                                })}
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    </Grid>
 
                     {/* ── 회원 현황 ── */}
                     <Paper variant="outlined" sx={{ p: 2.5, mb: 3 }}>

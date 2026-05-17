@@ -4,6 +4,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Outlet, NavLink, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getUncheckedCount } from '../api/bookingApi';
+import { getInquiryNewCount } from '../api/inquiryApi';
 //import logo from '../assets/rohitour.jpg'
 
 /* 관리자 레이아웃 */
@@ -12,6 +13,7 @@ export default function AdminLayout() {
     const [open, setOpen] = useState(false);
     const [showTop, setShowTop] = useState(false);
     const [uncheckedCount, setUncheckedCount] = useState(0);
+    const [inquiryNewCount, setInquiryNewCount] = useState(0);
 
     useEffect(() => {
         const onScroll = () => setShowTop(window.scrollY > 300);
@@ -20,11 +22,19 @@ export default function AdminLayout() {
     }, []);
 
     useEffect(() => {
-        const fetchCount = () =>
+        const fetchCount = () => {
             getUncheckedCount().then(r => setUncheckedCount(r.count ?? 0)).catch(() => {});
+            getInquiryNewCount().then(r => setInquiryNewCount(r.count ?? 0)).catch(() => {});
+        };
         fetchCount();
         const timer = setInterval(fetchCount, 30000);
-        return () => clearInterval(timer);
+        window.addEventListener('booking-status-changed', fetchCount);
+        window.addEventListener('inquiry-status-changed', fetchCount);
+        return () => {
+            clearInterval(timer);
+            window.removeEventListener('booking-status-changed', fetchCount);
+            window.removeEventListener('inquiry-status-changed', fetchCount);
+        };
     }, []);
     // 자바스크립트 배열안 요소 객체 키,값형태
     // 키 label, to 값 대시보드 등
@@ -37,6 +47,7 @@ export default function AdminLayout() {
         { label: '여행상품 관리', to: '/admin/products' },
         { label: '예약 및 결제 관리 현황', to: '/admin/bookings' },
         { label: '고객 리뷰 관리', to: '/admin/review' },
+        { label: '문의 관리', to: '/admin/inquiries' },
     ];
 
     return (
@@ -70,37 +81,57 @@ export default function AdminLayout() {
             }}>
                 <Toolbar />
                 <List>
-                    {items.map(i => (
-                        <ListItemButton
-                            key={i.to}
-                            component={NavLink}
-                            to={i.to}
-                            end
-                            sx={{ '&.active': { bgcolor: 'action.selected' } }}
-                        >
-                            {i.to === '/admin/bookings' ? (
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                                    <Box sx={{ flex: 1 }}>{i.label}</Box>
-                                    {uncheckedCount > 0 && (
-                                        <Box component="span" sx={{
-                                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                            minWidth: 22, height: 22, borderRadius: 11,
-                                            bgcolor: 'error.main', color: '#fff',
-                                            fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
-                                            '@keyframes pulse': {
-                                                '0%':   { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
-                                                '70%':  { boxShadow: '0 0 0 8px rgba(211,47,47,0)' },
-                                                '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
-                                            },
-                                            animation: 'pulse 1.5s infinite',
-                                        }}>
-                                            {uncheckedCount > 99 ? '99+' : uncheckedCount}
-                                        </Box>
-                                    )}
-                                </Box>
-                            ) : i.label}
-                        </ListItemButton>
-                    ))}
+                    {items.map(i => {
+                        const bookingBadge = i.to === '/admin/bookings' && uncheckedCount > 0;
+                        const inquiryBadge = i.to === '/admin/inquiries' && inquiryNewCount > 0;
+                        return (
+                            <ListItemButton
+                                key={i.to}
+                                component={NavLink}
+                                to={i.to}
+                                end
+                                sx={{ '&.active': { bgcolor: 'action.selected' } }}
+                            >
+                                {(bookingBadge || inquiryBadge) ? (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                                        <Box sx={{ flex: 1 }}>{i.label}</Box>
+                                        {bookingBadge && (
+                                            <Box component="span" sx={{
+                                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                                minWidth: 22, height: 22, borderRadius: 20,
+                                                bgcolor: 'error.main', color: '#fff',
+                                                fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
+                                                '@keyframes pulse': {
+                                                    '0%':   { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
+                                                    '70%':  { boxShadow: '0 0 0 8px rgba(211,47,47,0)' },
+                                                    '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
+                                                },
+                                                animation: 'pulse 1.5s infinite',
+                                            }}>
+                                                {uncheckedCount > 99 ? '99+' : uncheckedCount}
+                                            </Box>
+                                        )}
+                                        {inquiryBadge && (
+                                            <Box component="span" sx={{
+                                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                                minWidth: 22, height: 22, borderRadius: 20,
+                                                bgcolor: '#1565c0', color: '#fff',
+                                                fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
+                                                '@keyframes pulseBlue': {
+                                                    '0%':   { boxShadow: '0 0 0 0 rgba(21,101,192,0.7)' },
+                                                    '70%':  { boxShadow: '0 0 0 8px rgba(21,101,192,0)' },
+                                                    '100%': { boxShadow: '0 0 0 0 rgba(21,101,192,0)' },
+                                                },
+                                                animation: 'pulseBlue 1.5s infinite',
+                                            }}>
+                                                {inquiryNewCount > 99 ? '99+' : inquiryNewCount}
+                                            </Box>
+                                        )}
+                                    </Box>
+                                ) : i.label}
+                            </ListItemButton>
+                        );
+                    })}
                 </List>
             </Drawer>
 
@@ -109,38 +140,58 @@ export default function AdminLayout() {
                 display:{ md:'none' }, '& .MuiDrawer-paper':{ width:drawerWidth }
             }}>
                 <List>
-                    {items.map(i => (
-                        <ListItemButton
-                            key={i.to}
-                            component={NavLink}
-                            to={i.to}
-                            end
-                            onClick={()=>setOpen(false)}
-                            sx={{ '&.active': { bgcolor: 'action.selected' } }}
-                        >
-                            {i.to === '/admin/bookings' ? (
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                                    <Box sx={{ flex: 1 }}>{i.label}</Box>
-                                    {uncheckedCount > 0 && (
-                                        <Box component="span" sx={{
-                                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                            minWidth: 22, height: 22, borderRadius: 11,
-                                            bgcolor: 'error.main', color: '#fff',
-                                            fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
-                                            '@keyframes pulse': {
-                                                '0%':   { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
-                                                '70%':  { boxShadow: '0 0 0 8px rgba(211,47,47,0)' },
-                                                '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
-                                            },
-                                            animation: 'pulse 1.5s infinite',
-                                        }}>
-                                            {uncheckedCount > 99 ? '99+' : uncheckedCount}
-                                        </Box>
-                                    )}
-                                </Box>
-                            ) : i.label}
-                        </ListItemButton>
-                    ))}
+                    {items.map(i => {
+                        const bookingBadge = i.to === '/admin/bookings' && uncheckedCount > 0;
+                        const inquiryBadge = i.to === '/admin/inquiries' && inquiryNewCount > 0;
+                        return (
+                            <ListItemButton
+                                key={i.to}
+                                component={NavLink}
+                                to={i.to}
+                                end
+                                onClick={()=>setOpen(false)}
+                                sx={{ '&.active': { bgcolor: 'action.selected' } }}
+                            >
+                                {(bookingBadge || inquiryBadge) ? (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                                        <Box sx={{ flex: 1 }}>{i.label}</Box>
+                                        {bookingBadge && (
+                                            <Box component="span" sx={{
+                                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                                minWidth: 22, height: 22, borderRadius: 20,
+                                                bgcolor: 'error.main', color: '#fff',
+                                                fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
+                                                '@keyframes pulse': {
+                                                    '0%':   { boxShadow: '0 0 0 0 rgba(211,47,47,0.7)' },
+                                                    '70%':  { boxShadow: '0 0 0 8px rgba(211,47,47,0)' },
+                                                    '100%': { boxShadow: '0 0 0 0 rgba(211,47,47,0)' },
+                                                },
+                                                animation: 'pulse 1.5s infinite',
+                                            }}>
+                                                {uncheckedCount > 99 ? '99+' : uncheckedCount}
+                                            </Box>
+                                        )}
+                                        {inquiryBadge && (
+                                            <Box component="span" sx={{
+                                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                                minWidth: 22, height: 22, borderRadius: 20,
+                                                bgcolor: '#1565c0', color: '#fff',
+                                                fontSize: '0.68rem', fontWeight: 700, px: 0.6, flexShrink: 0,
+                                                '@keyframes pulseBlue': {
+                                                    '0%':   { boxShadow: '0 0 0 0 rgba(21,101,192,0.7)' },
+                                                    '70%':  { boxShadow: '0 0 0 8px rgba(21,101,192,0)' },
+                                                    '100%': { boxShadow: '0 0 0 0 rgba(21,101,192,0)' },
+                                                },
+                                                animation: 'pulseBlue 1.5s infinite',
+                                            }}>
+                                                {inquiryNewCount > 99 ? '99+' : inquiryNewCount}
+                                            </Box>
+                                        )}
+                                    </Box>
+                                ) : i.label}
+                            </ListItemButton>
+                        );
+                    })}
                 </List>
             </Drawer>
 
