@@ -93,6 +93,5 @@ http.interceptors.response.use(
         }
 
         return Promise.reject(error);
-        console.log("[HTTP] BASE_URL =", BASE_URL);
     }
 );
