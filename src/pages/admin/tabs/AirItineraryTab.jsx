@@ -15,7 +15,7 @@ import CloseIcon       from '@mui/icons-material/Close';
 import SaveIcon        from '@mui/icons-material/Save';
 import * as api from '../../../api/airApi';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../../config/imageConfig';
 
 const EMPTY_FORM = {
     dayNumber: '', title: '', description: '',

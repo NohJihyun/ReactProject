@@ -18,7 +18,7 @@ import * as reviewApi from '../../api/reviewApi';
 import { getProductsByCategory } from '../../api/clientApi';
 import { useAuth } from '../../auth/AuthProvider';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../config/imageConfig';
 const WRITER_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER: '선생님' };
 const WRITER_ICON  = { GENERAL: '👤', STUDENT: '👨‍🎓', TEACHER: '👨‍🏫' };
 const CATEGORIES = [

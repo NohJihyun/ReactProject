@@ -6,6 +6,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import * as api from '../../../api/productApi';
+import IMG_BASE from '../../../config/imageConfig';
 
 const FILE_TYPE_COLOR = {
     PDF:   'error',
@@ -145,7 +146,7 @@ export default function ProductFileTab({ productId, onUpdate, isEdit }) {
                                     <Stack direction="row" spacing={0.5} justifyContent="center">
                                         <IconButton
                                             size="small"
-                                            href={`http://localhost:8080${file.filePath}`}
+                                            href={`${IMG_BASE}${file.filePath}`}
                                             download={file.fileName}
                                             target="_blank"
                                         >

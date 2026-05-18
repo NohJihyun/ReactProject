@@ -12,7 +12,7 @@ import FlightIcon         from '@mui/icons-material/Flight';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 import { searchProducts } from '../../api/clientApi';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../config/imageConfig';
 
 const CATEGORY_PATH = {
     '국내여행':     'domestic',

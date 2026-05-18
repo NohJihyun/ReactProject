@@ -16,6 +16,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { getProductsByCategory } from '../../api/clientApi';
 import { getRecentReviews } from '../../api/reviewApi';
+import IMG_BASE from '../../config/imageConfig';
 
 const CATEGORY_META = {
     domestic: { icon: <LandscapeIcon sx={{ fontSize: 16 }} />,      color: '#2e7d32' },
@@ -34,8 +35,6 @@ const formatDt = (dt) => {
     const min = String(d.getMinutes()).padStart(2, '0');
     return `${m}.${day}(${wd}) ${h}:${min}`;
 };
-
-const IMG_BASE = 'http://localhost:8080';
 
 const SECTIONS = [
     {

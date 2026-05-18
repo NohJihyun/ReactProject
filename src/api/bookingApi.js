@@ -6,34 +6,34 @@ export const createBooking = (data) =>
 
 /* ── 관리자 ── */
 export const getAdminBookings = (params) =>
-    http.get('/admin/bookings', { params: Object.fromEntries(Object.entries(params).filter(([,v]) => v != null && v !== '')) }).then(r => r.data);
+    http.get('/api/admin/bookings', { params: Object.fromEntries(Object.entries(params).filter(([,v]) => v != null && v !== '')) }).then(r => r.data);
 
 export const exportBookings = (params) =>
-    http.get('/admin/bookings/export', {
+    http.get('/api/admin/bookings/export', {
         params: Object.fromEntries(Object.entries(params).filter(([,v]) => v != null && v !== '')),
         responseType: 'blob',
     }).then(r => r.data);
 
 export const getAdminBooking = (id) =>
-    http.get(`/admin/bookings/${id}`).then(r => r.data);
+    http.get(`/api/admin/bookings/${id}`).then(r => r.data);
 
 export const getUncheckedCount = () =>
-    http.get('/admin/bookings/new-count').then(r => r.data);
+    http.get('/api/admin/bookings/new-count').then(r => r.data);
 
 export const getBookingStats = () =>
-    http.get('/admin/bookings/stats').then(r => r.data);
+    http.get('/api/admin/bookings/stats').then(r => r.data);
 
 export const updateBookingStatus = (id, status) =>
-    http.patch(`/admin/bookings/${id}/status`, { status }).then(r => r.data);
+    http.patch(`/api/admin/bookings/${id}/status`, { status }).then(r => r.data);
 
 export const updatePaymentStatus = (id, paymentStatus, paymentMethod) =>
-    http.patch(`/admin/bookings/${id}/payment`, { paymentStatus, paymentMethod }).then(r => r.data);
+    http.patch(`/api/admin/bookings/${id}/payment`, { paymentStatus, paymentMethod }).then(r => r.data);
 
 export const updateBookingMemo = (id, adminMemo) =>
-    http.patch(`/admin/bookings/${id}/memo`, { adminMemo }).then(r => r.data);
+    http.patch(`/api/admin/bookings/${id}/memo`, { adminMemo }).then(r => r.data);
 
 export const markBookingChecked = (id) =>
-    http.patch(`/admin/bookings/${id}/check`).then(r => r.data);
+    http.patch(`/api/admin/bookings/${id}/check`).then(r => r.data);
 
 export const getMyBookings = () =>
     http.get('/api/bookings/me').then(r => r.data);

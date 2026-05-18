@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import * as api from '../../api/productApi';
 import { getUsedCategoryIds } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
+import IMG_BASE from '../../config/imageConfig';
 
 const STATUS_MAP = {
     DRAFT:     { label: '초안',   color: 'default' },
@@ -186,7 +187,7 @@ export default function ProductPage() {
                                         <td style={{ textAlign: 'center', padding: '4px' }}>
                                             {row.thumbnailPath ? (
                                                 <img
-                                                    src={`http://localhost:8080${row.thumbnailPath}`}
+                                                    src={`${IMG_BASE}${row.thumbnailPath}`}
                                                     alt="썸네일"
                                                     style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4, border: '1px solid #ddd', display: 'block', margin: '0 auto' }}
                                                 />

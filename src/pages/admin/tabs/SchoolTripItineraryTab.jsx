@@ -15,7 +15,7 @@ import SaveIcon        from '@mui/icons-material/Save';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import * as api from '../../../api/schoolTripApi';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../../config/imageConfig';
 
 const EMPTY_FORM = {
     dayNumber: '', title: '', description: '',

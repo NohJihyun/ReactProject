@@ -1,6 +1,6 @@
 import { http } from './http';
 
-const base = (productId) => `/admin/products/${productId}/domestic-itineraries`;
+const base = (productId) => `/api/admin/products/${productId}/domestic-itineraries`;
 
 export const getDomesticItineraries = (productId) =>
     http.get(base(productId)).then(res => res.data);
@@ -40,7 +40,7 @@ export const deleteDomesticSchedule = (productId, itineraryId, scheduleId) =>
     http.delete(`${base(productId)}/${itineraryId}/schedules/${scheduleId}`);
 
 export const getDomesticDetail = (productId) =>
-    http.get(`/admin/products/${productId}/domestic-details`).then(res => res.data);
+    http.get(`/api/admin/products/${productId}/domestic-details`).then(res => res.data);
 
 export const saveDomesticDetail = (productId, data) =>
-    http.put(`/admin/products/${productId}/domestic-details`, data).then(res => res.data);
+    http.put(`/api/admin/products/${productId}/domestic-details`, data).then(res => res.data);

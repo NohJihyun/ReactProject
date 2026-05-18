@@ -16,7 +16,7 @@ import CloseIcon   from '@mui/icons-material/Close';
 import { useAuth } from '../../auth/AuthProvider';
 import * as api from '../../api/reviewApi';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../config/imageConfig';
 
 const WRITER_TYPE_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER: '선생님' };
 const WRITER_TYPE_COLOR = { GENERAL: 'default', STUDENT: 'primary', TEACHER: 'success' };

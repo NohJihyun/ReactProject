@@ -33,7 +33,7 @@ import { getProductById, getProductImages, getProductFiles, getCruiseItineraries
 import { getReviewStats } from '../../api/reviewApi';
 import ReviewSection from '../../components/review/ReviewSection';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../config/imageConfig';
 
 const CATEGORY_MAP = {
     school:   '수학여행',

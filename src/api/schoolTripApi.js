@@ -1,6 +1,6 @@
 import { http } from './http';
 
-const base = (productId) => `/admin/products/${productId}/school-trip-itineraries`;
+const base = (productId) => `/api/admin/products/${productId}/school-trip-itineraries`;
 
 export const getSchoolTripItineraries = (productId) =>
     http.get(base(productId)).then(res => res.data);
@@ -40,7 +40,7 @@ export const deleteSchoolTripSchedule = (productId, itineraryId, scheduleId) =>
     http.delete(`${base(productId)}/${itineraryId}/schedules/${scheduleId}`);
 
 export const getSchoolTripDetail = (productId) =>
-    http.get(`/admin/products/${productId}/school-trip-details`).then(res => res.data);
+    http.get(`/api/admin/products/${productId}/school-trip-details`).then(res => res.data);
 
 export const saveSchoolTripDetail = (productId, data) =>
-    http.put(`/admin/products/${productId}/school-trip-details`, data).then(res => res.data);
+    http.put(`/api/admin/products/${productId}/school-trip-details`, data).then(res => res.data);

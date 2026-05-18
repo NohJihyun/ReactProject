@@ -15,7 +15,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import SearchIcon    from '@mui/icons-material/Search';
 import * as api from '../../api/reviewApi';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../config/imageConfig';
 const WRITER_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER: '선생님' };
 const WRITER_COLOR = { GENERAL: 'default', STUDENT: 'primary', TEACHER: 'success' };
 

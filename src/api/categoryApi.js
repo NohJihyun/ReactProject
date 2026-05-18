@@ -4,26 +4,26 @@
 import { http } from './http';
 
 /*export const getCategories = () =>
-    axios.get('/admin/categories').then(res => res.data);*/
+    axios.get('/api/admin/categories').then(res => res.data);*/
 
 export const getCategories = (search) =>
-    http.get('/admin/categories', {
+    http.get('/api/admin/categories', {
         params: search
     }).then(res => res.data);
 
 export const createCategory = (form) =>
-    http.post('/admin/categories', form);
+    http.post('/api/admin/categories', form);
 
 export const updateCategory = (id, form) =>
-    http.put(`/admin/categories/${id}`, form);
+    http.put(`/api/admin/categories/${id}`, form);
 
 /* 실제 삭제 (논리  삭제) */
 export const deactivateCategory = (id) =>
-    http.delete(`/admin/categories/${id}`);
+    http.delete(`/api/admin/categories/${id}`);
 
 /* 실제 삭제 (물리 삭제) */
 export const deleteCategory = (id) =>
-    http.delete(`/admin/categories/${id}/delete`);
+    http.delete(`/api/admin/categories/${id}/delete`);
 
 /* 벨리데이션체크 카테고리코드 + 정렬 검증 */
 export const checkCategoryDuplicate = ({
@@ -32,7 +32,7 @@ export const checkCategoryDuplicate = ({
                                            sortOrder,
                                            excludeId
                                        }) => {
-    return http.get('/admin/categories/duplicate', {
+    return http.get('/api/admin/categories/duplicate', {
         params: { depth, parentId, sortOrder, excludeId }
     });
 };

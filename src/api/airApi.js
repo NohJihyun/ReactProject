@@ -1,6 +1,6 @@
 import { http } from './http';
 
-const base = (productId) => `/admin/products/${productId}/air-itineraries`;
+const base = (productId) => `/api/admin/products/${productId}/air-itineraries`;
 
 /* 일정 목록 (이미지 + 스케줄 포함) */
 export const getAirItineraries = (productId) =>
@@ -52,7 +52,7 @@ export const deleteAirSchedule = (productId, itineraryId, scheduleId) =>
 
 /* 항공 상세 (포함/불포함, 가이드, 가격, 항공편 정보) */
 export const getAirDetail = (productId) =>
-    http.get(`/admin/products/${productId}/air-details`).then(res => res.data);
+    http.get(`/api/admin/products/${productId}/air-details`).then(res => res.data);
 
 export const saveAirDetail = (productId, data) =>
-    http.put(`/admin/products/${productId}/air-details`, data).then(res => res.data);
+    http.put(`/api/admin/products/${productId}/air-details`, data).then(res => res.data);

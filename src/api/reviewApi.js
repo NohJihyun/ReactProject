@@ -46,10 +46,10 @@ export const deleteComment = (productId, reviewId, commentId) =>
 
 /* ── 관리자 ── */
 export const adminGetReviews = (params) =>
-    http.get('/admin/reviews', { params }).then(r => r.data);
+    http.get('/api/admin/reviews', { params }).then(r => r.data);
 
 export const adminUpdateStatus = (reviewId, status) =>
-    http.patch(`/admin/reviews/${reviewId}/status`, { status }).then(r => r.data);
+    http.patch(`/api/admin/reviews/${reviewId}/status`, { status }).then(r => r.data);
 
 export const adminDeleteReview = (reviewId) =>
-    http.delete(`/admin/reviews/${reviewId}`);
+    http.delete(`/api/admin/reviews/${reviewId}`);

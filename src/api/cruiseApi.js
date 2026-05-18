@@ -1,6 +1,6 @@
 import { http } from './http';
 
-const base = (productId) => `/admin/products/${productId}/cruise-itineraries`;
+const base = (productId) => `/api/admin/products/${productId}/cruise-itineraries`;
 
 /* 일정 목록 (이미지 + 스케줄 포함) */
 export const getCruiseItineraries = (productId) =>
@@ -52,20 +52,20 @@ export const deleteCruiseSchedule = (productId, itineraryId, scheduleId) =>
 
 /* 크루즈 상세 (포함/불포함, 가이드, 유의사항) */
 export const getCruiseDetail = (productId) =>
-    http.get(`/admin/products/${productId}/cruise-details`).then(res => res.data);
+    http.get(`/api/admin/products/${productId}/cruise-details`).then(res => res.data);
 
 export const saveCruiseDetail = (productId, data) =>
-    http.put(`/admin/products/${productId}/cruise-details`, data).then(res => res.data);
+    http.put(`/api/admin/products/${productId}/cruise-details`, data).then(res => res.data);
 
 /* 크루즈 가격 */
 export const getCruisePrices = (productId) =>
-    http.get(`/admin/products/${productId}/cruise-prices`).then(res => res.data);
+    http.get(`/api/admin/products/${productId}/cruise-prices`).then(res => res.data);
 
 export const addCruisePrice = (productId, data) =>
-    http.post(`/admin/products/${productId}/cruise-prices`, data).then(res => res.data);
+    http.post(`/api/admin/products/${productId}/cruise-prices`, data).then(res => res.data);
 
 export const updateCruisePrice = (productId, priceId, data) =>
-    http.put(`/admin/products/${productId}/cruise-prices/${priceId}`, data).then(res => res.data);
+    http.put(`/api/admin/products/${productId}/cruise-prices/${priceId}`, data).then(res => res.data);
 
 export const deleteCruisePrice = (productId, priceId) =>
-    http.delete(`/admin/products/${productId}/cruise-prices/${priceId}`);
+    http.delete(`/api/admin/products/${productId}/cruise-prices/${priceId}`);

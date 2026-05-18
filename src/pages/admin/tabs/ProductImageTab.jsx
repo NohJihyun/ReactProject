@@ -10,7 +10,7 @@ import { SortableContext, useSortable, arrayMove, rectSortingStrategy } from '@d
 import { CSS } from '@dnd-kit/utilities';
 import * as api from '../../../api/productApi';
 
-const IMG_BASE = 'http://localhost:8080';
+import IMG_BASE from '../../../config/imageConfig';
 
 /* ── 드래그 가능한 상세이미지 아이템 ── */
 function SortableImage({ image, onDelete }) {

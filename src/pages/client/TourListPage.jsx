@@ -15,6 +15,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { getProductsByCategory } from '../../api/clientApi';
+import IMG_BASE from '../../config/imageConfig';
 
 const CATEGORY_META = {
     domestic: { icon: <LandscapeIcon sx={{ fontSize: 16 }} />,      color: '#2e7d32', gradient: 'linear-gradient(135deg, #2e7d32 0%, #43a047 100%)' },
@@ -33,8 +34,6 @@ const formatDt = (dt) => {
     const min = String(d.getMinutes()).padStart(2, '0');
     return `${m}.${day}(${wd}) ${h}:${min}`;
 };
-
-const IMG_BASE = 'http://localhost:8080';
 
 const CATEGORY_MAP = {
     school:   '수학여행',
