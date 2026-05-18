@@ -21,7 +21,7 @@ export const useAuth = () => useContext(AuthContext);
 export default function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(null); //AT는 메모리에만
-    const [bootstrapped, setBootstrapped] = useState(false);
+    const [bootstrapped, setBootstrapped] = useState(true);
 
     //토큰 저장/삭제를 한 함수로 통일
     const syncAccessToken = (token) => {
