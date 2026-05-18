@@ -660,7 +660,6 @@ function RecentReviewSection() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (!loading && reviews.length === 0) return null;
 
     return (
         <Box component="section" sx={{ bgcolor: '#fff8f1', pt: 6, pb: 6 }}>
@@ -727,6 +726,19 @@ function RecentReviewSection() {
                                 </SwiperSlide>
                             ))}
                         </Swiper>
+                    </Box>
+                )}
+
+                {/* 후기 없을 때 */}
+                {!loading && reviews.length === 0 && (
+                    <Box sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
+                        <RateReviewIcon sx={{ fontSize: 48, color: '#ffb300', mb: 1 }} />
+                        <Typography variant="body1" fontWeight={500}>
+                            아직 등록된 후기가 없어요
+                        </Typography>
+                        <Typography variant="body2" mt={0.5}>
+                            첫 번째 여행후기를 남겨주세요!
+                        </Typography>
                     </Box>
                 )}
             </Container>
