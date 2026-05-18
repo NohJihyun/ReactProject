@@ -141,8 +141,18 @@ export default function AuthProvider({ children }) {
         [user, accessToken, bootstrapped]
     );
 
-    //  부팅 완료 전에는 null 대신 loading 표시 (흰 화면 방지)
-    if (!bootstrapped) return <div style={{ padding: 16 }}>loading...</div>;
+    if (!bootstrapped) return (
+        <div style={{
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            height: '100vh', gap: 16,
+        }}>
+            <img src="/logo192.png" alt="로이투어" style={{ width: 64, height: 64, borderRadius: 16 }} />
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#e65100' }}>로이투어</div>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#ff6f00', animation: 'pulse 1s infinite alternate' }} />
+            <style>{`@keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }`}</style>
+        </div>
+    );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
