@@ -63,6 +63,12 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
     const handleSocialLogin = (provider) => {
         const url = OAUTH_START_URL[provider];
 
+        // 네이버는 popup을 인앱 브라우저로 감지해 차단 → 리다이렉트 방식
+        if (provider === "naver") {
+            window.location.href = url;
+            return;
+        }
+
         localStorage.setItem("oauth_popup_mode", "true");
         window.open(url, "socialLogin", "width=500,height=650,top=100,left=100,noopener,noreferrer");
 
