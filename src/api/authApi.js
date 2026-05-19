@@ -66,9 +66,9 @@ export async function findLoginIdApi(name, phone) {
     return res.data.loginId;
 }
 
-/** 비밀번호 재설정 이메일 발송 - loginId + 이름 + 휴대폰 */
-export async function sendPasswordResetApi(loginId, name, phone) {
-    await http.post("/api/auth/password/send", { loginId, name, phone }, { skipAuthRefresh: true });
+/** 비밀번호 재설정 이메일 발송 - 이메일 + 이름 + 휴대폰 */
+export async function sendPasswordResetApi(email, name, phone) {
+    await http.post("/api/auth/password/send", { email, name, phone }, { skipAuthRefresh: true });
 }
 
 /** 비밀번호 재설정 - 토큰 + 새 비밀번호 */

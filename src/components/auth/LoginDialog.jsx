@@ -209,22 +209,21 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                 <Box sx={{ display: findPwMode ? "block" : "none" }}>
                     <Stack spacing={2} sx={{ mt: 1 }}>
                         <Typography sx={{ color: "error.main", fontSize: 12, whiteSpace: "nowrap" }}>
-                            * 재설정 링크 받기를 클릭하시면 최초 회원가입 시 인증한 이메일로 발송됩니다.
+                            * 회원가입 시 인증한 이메일로 재설정 링크를 발송합니다.
                         </Typography>
                         {pwError && <Alert severity="error">{pwError}</Alert>}
                         {pwResult ? (
                             <Alert severity="success">
-                                입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다.<br />
-                                이메일을 확인해주세요.
+                                입력하신 이메일로 비밀번호 재설정 링크를 발송했습니다. 이메일을 확인해주세요.
                             </Alert>
                         ) : (
                             <>
                                 <TextField
-                                    label="아이디"
+                                    label="이메일"
                                     value={pwLoginId}
                                     onChange={(e) => setPwLoginId(e.target.value)}
                                     fullWidth
-                                    placeholder="가입 시 사용한 이메일 아이디"
+                                    placeholder="회원가입 시 인증한 이메일"
                                     slotProps={{ htmlInput: { translate: "no", spellCheck: "false" } }}
                                 />
                                 <TextField
