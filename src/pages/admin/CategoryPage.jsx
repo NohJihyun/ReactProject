@@ -393,7 +393,7 @@ export default function CategoryPage() {
                             <Button
                                 variant="contained"
                                 onClick={() => {
-                                    setSelected(null); // 수정상태없음 -> 등록폼
+                                    setSelected(null);
                                     setForm({
                                         depth: 1,
                                         parentId: null,
@@ -402,6 +402,7 @@ export default function CategoryPage() {
                                         sortOrder: 0,
                                         isActive: 'Y'
                                     });
+                                    loadParentOptions();
                                     setDialogMode('create');
                                     setDialogOpen(true);
                                 }}
