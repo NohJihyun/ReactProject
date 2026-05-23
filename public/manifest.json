@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "로이투어",
+  "name": "로이투어 - 특별한 여행, 특별한 추억",
   "icons": [
     {
       "src": "favicon.ico",
