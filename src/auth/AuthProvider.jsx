@@ -22,6 +22,7 @@ export default function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(null); //AT는 메모리에만
     const [bootstrapped, setBootstrapped] = useState(true);
+    const [checking, setChecking] = useState(true);
 
     //토큰 저장/삭제를 한 함수로 통일
     const syncAccessToken = (token) => {
@@ -52,6 +53,7 @@ export default function AuthProvider({ children }) {
             if (alive) {
                 console.log("[Auth] bootstrap timeout -> allow render");
                 setBootstrapped(true);
+                setChecking(false);
             }
         }, 8000);
         // 웹 켜짐 => meApi() 호출 => 성공(200) 로그인상태, => 실패(401) 비로그인상태
@@ -85,6 +87,7 @@ export default function AuthProvider({ children }) {
 
             clearTimeout(safetyTimer);
             setBootstrapped(true);
+            setChecking(false);
         })();
 
         return () => {
@@ -133,12 +136,13 @@ export default function AuthProvider({ children }) {
             user,
             accessToken,
             bootstrapped,
+            checking,
             isAuthenticated: !!user,
             login,
             loginWithToken,
             logout,
         }),
-        [user, accessToken, bootstrapped]
+        [user, accessToken, bootstrapped, checking]
     );
 
     if (!bootstrapped) return (

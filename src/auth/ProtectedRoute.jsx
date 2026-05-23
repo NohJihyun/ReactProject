@@ -15,11 +15,14 @@ import { useAuth } from "./AuthProvider";
  * roles 조건이 있으면 권한 없을 때 /forbidden으로 리턴
  */
 export default function ProtectedRoute({ roles = [] }) {
-    const { user } = useAuth(); //OAuth 로그인 후 user 객체 하나로 모든 판단
+    const { user, checking } = useAuth();
+
+    // bootstrap 완료 전: 리다이렉트 보류 (새로고침 시 빈 화면 방지)
+    if (checking) return null;
 
     // 로그인 안 됨
     if (!user) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/" replace />;
     }
 
     // 권한 체크

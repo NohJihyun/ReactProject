@@ -565,26 +565,47 @@ export default function ProductFormPage() {
                                     <MenuItem value="DOMESTIC_AIR">🛫 항공 (국내선)</MenuItem>
                                     <MenuItem value="BUS">🚌 버스</MenuItem>
                                 </TextField>
-                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
-                                    {[
-                                        { name: 'hasShopping',     label: '🛍️ 쇼핑',     hideForSchool: true },
-                                        { name: 'hasGuideFee',     label: '🪙 가이드비용', hideForSchool: false },
-                                        { name: 'hasEscort',       label: '🧑‍✈️ 인솔자',   hideForSchool: false },
-                                        { name: 'hasOptionalTour', label: '🎯 선택관광',  hideForSchool: true },
-                                    ].filter(({ hideForSchool }) => !(categoryType === 'school' && hideForSchool))
-                                    .map(({ name, label }) => (
-                                        <FormControlLabel
-                                            key={name}
-                                            control={
-                                                <Switch
-                                                    checked={form[name] === 'Y'}
-                                                    onChange={(e) => setForm({ ...form, [name]: e.target.checked ? 'Y' : 'N' })}
-                                                />
-                                            }
-                                            label={label}
-                                        />
-                                    ))}
-                                </Stack>
+                                {categoryType === 'school' ? (
+                                    <Stack direction="column" spacing={1}>
+                                        {[
+                                            { name: 'hasGuideFee', label: '🪙 가이드비용' },
+                                            { name: 'hasEscort',   label: '🧑‍✈️ 인솔자' },
+                                        ].map(({ name, label }) => (
+                                            <FormControlLabel
+                                                key={name}
+                                                control={
+                                                    <Switch
+                                                        checked={form[name] === 'Y'}
+                                                        onChange={(e) => setForm({ ...form, [name]: e.target.checked ? 'Y' : 'N' })}
+                                                    />
+                                                }
+                                                label={label}
+                                                labelPlacement="start"
+                                                sx={{ justifyContent: 'space-between', ml: 0, mr: 0 }}
+                                            />
+                                        ))}
+                                    </Stack>
+                                ) : (
+                                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
+                                        {[
+                                            { name: 'hasShopping',     label: '🛍️ 쇼핑' },
+                                            { name: 'hasGuideFee',     label: '🪙 가이드비용' },
+                                            { name: 'hasEscort',       label: '🧑‍✈️ 인솔자' },
+                                            { name: 'hasOptionalTour', label: '🎯 선택관광' },
+                                        ].map(({ name, label }) => (
+                                            <FormControlLabel
+                                                key={name}
+                                                control={
+                                                    <Switch
+                                                        checked={form[name] === 'Y'}
+                                                        onChange={(e) => setForm({ ...form, [name]: e.target.checked ? 'Y' : 'N' })}
+                                                    />
+                                                }
+                                                label={label}
+                                            />
+                                        ))}
+                                    </Stack>
+                                )}
                             </Stack>
                         </Box>
 
