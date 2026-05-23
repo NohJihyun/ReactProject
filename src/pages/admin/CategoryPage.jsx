@@ -108,23 +108,17 @@ export default function CategoryPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // 검색다이얼로그 => rows 변화와 무관 => 초기1회 로딩
-    useEffect(() => {
-        (async () => {
-            try {
-                const data = await api.getCategories({
-                    depth: 1,
-                    isActive: 'Y',
-                    page: 1,
-                    size: 1000
-                });
-                setParentOptions(data.list ?? []);
-            } catch (e) {
-                console.error(e);
-                setParentOptions([]);
-            }
-        })();
-    }, []);
+    const loadParentOptions = async () => {
+        try {
+            const data = await api.getCategories({ depth: 1, isActive: 'Y', page: 1, size: 1000 });
+            setParentOptions(data.list ?? []);
+        } catch (e) {
+            console.error(e);
+            setParentOptions([]);
+        }
+    };
+
+    useEffect(() => { loadParentOptions(); }, []);
 
     /* =========================
      SAVE (CREATE / UPDATE) API
@@ -157,7 +151,7 @@ export default function CategoryPage() {
             }                        // 함수의 판단 기준은 데이터가 아닌 상태 STATE
             setSelected(null); // NULL은 수정대상 없음을 의미 -> 등록
             setDialogOpen(false);
-            await load(search);      //검색조건유지
+            await Promise.all([load(search), loadParentOptions()]);
             setToast({
                 open: true,
                 msg: editing ? '카테고리가 수정되었습니다.' : '카테고리가 등록되었습니다.',
@@ -367,9 +361,14 @@ export default function CategoryPage() {
                             alignItems: 'center',
                             mb: 1
                         }}>
-                            <Typography variant="h6">
-                                카테고리{' '}리스트 {/* {' '} JSX 공백을 따로 추가 해야함 */}
-                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Typography variant="h6">
+                                    카테고리{' '}리스트
+                                </Typography>
+                                <Alert severity="info" sx={{ py: 0 }}>
+                                    1. 대분류 등록 &nbsp;|&nbsp; 2. 대분류 등록 후 다시 등록 버튼을 눌러 소분류 등록을 진행해주세요
+                                </Alert>
+                            </Box>
 
                         <Stack direction="row" spacing={1}>
                             {/* 초기화 추가 */}
