@@ -366,7 +366,8 @@ export default function CategoryPage() {
                                     카테고리{' '}리스트
                                 </Typography>
                                 <Alert severity="info" sx={{ py: 0 }}>
-                                    1. 대분류 등록 &nbsp;|&nbsp; 2. 대분류 등록 후 다시 등록 버튼을 눌러 소분류 등록을 진행해주세요
+                                    1. 대분류 등록<br />
+                                    2. 대분류 등록 후 다시 등록 버튼을 눌러 소분류 등록을 진행해주세요
                                 </Alert>
                             </Box>
 
