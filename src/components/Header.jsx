@@ -414,7 +414,7 @@ export default function Header() {
                                                         !
                                                     </Box>
                                                 )}
-                                                <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자페이지</Typography>
+                                                <Typography variant="caption" sx={{ fontSize: '0.65rem', mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자 페이지</Typography>
                                             </IconButton>
                                         </Tooltip>
                                     </Box>

@@ -43,7 +43,7 @@ export default function InquiryPage() {
 
     const handleSubmit = async () => {
         if (!form.name || !form.phone || !form.email || !form.category || !form.title || !form.content) {
-            setError('모든 항목을 입력해주세요.');
+            setError('모든 항목을 입력해 주세요.');
             return;
         }
         setLoading(true);

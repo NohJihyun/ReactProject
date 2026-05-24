@@ -364,7 +364,7 @@ export default function ProductFormPage() {
                 {/* 수정 시 기본정보 저장 후 안내 */}
                 {isEdit && basicInfoSaved && tab === 0 && (
                     <Alert severity="success" onClose={() => setBasicInfoSaved(false)} sx={{ mb: 2 }}>
-                        기본정보를 저장하였습니다.&nbsp;
+                        기본 정보를 저장하였습니다.&nbsp;
                         <strong>
                             [{categoryType === 'cruise'   ? '크루즈 일정 정보' :
                               categoryType === 'air'      ? '항공 일정 정보' :
@@ -382,13 +382,13 @@ export default function ProductFormPage() {
                 {!isEdit && !tabsUnlocked && (
                     <Alert severity="info" sx={{ mb: 2 }}>
                         {categoryType
-                            ? `기본정보를 저장하면 [${
+                            ? `기본 정보를 저장하면 [${
                                 categoryType === 'cruise'   ? '크루즈 일정 정보' :
                                 categoryType === 'air'      ? '항공 일정 정보' :
                                 categoryType === 'domestic' ? '국내여행 일정 정보' :
                                                               '수학여행 일정 정보'
                               }] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다.`
-                            : '기본정보를 저장하면 [일정 정보] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다. 카테고리를 선택하면 해당 일정 정보 탭도 함께 활성화됩니다.'
+                            : '기본 정보를 저장하면 [일정 정보] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다. 카테고리를 선택하면 해당 일정 정보 탭도 함께 활성화됩니다.'
                         } 동영상은 유튜브 URL로 등록합니다.
                     </Alert>
                 )}

@@ -344,7 +344,7 @@ export default function MyBookingPage() {
 
                 <Alert severity="info" sx={{ mb: 3, fontSize: '0.85rem', lineHeight: 1.8 }}>
                     예약 신청이 완료되면 담당자가 확인 후 연락드립니다.<br />
-                    담당자와 예약 및 결제 처리가 완료되면 <strong>예약상태</strong>와 <strong>결제상태</strong>가 자동으로 변경됩니다.<br />
+                    담당자와 예약 및 결제 처리가 완료되면 <strong>예약 상태</strong>와 <strong>결제 상태</strong>가 자동으로 변경됩니다.<br />
                     문의사항은 <strong>031-466-9600</strong> 으로 연락주세요.
                 </Alert>
 
@@ -386,8 +386,8 @@ export default function MyBookingPage() {
                                             { label: '상품명',    align: 'left'   },
                                             { label: '인원',      align: 'center' },
                                             { label: '출발일',    align: 'center' },
-                                            { label: '예약상태',  align: 'center' },
-                                            { label: '결제상태',  align: 'center' },
+                                            { label: '예약 상태',  align: 'center' },
+                                            { label: '결제 상태',  align: 'center' },
                                             { label: '신청일',    align: 'center' },
                                             { label: '관리',      align: 'center' },
                                         ].map(({ label, align }) => (
