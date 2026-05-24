@@ -53,14 +53,14 @@ import reviewImg from "../assets/travelreview.png";
 
 const CATEGORY_PATH = {
     '국내여행': 'domestic',
-    '항공 해외여행': 'air',
+    '국외여행': 'air',
     '크루즈 해외여행': 'cruise',
     '수학여행': 'school',
 };
 
 const NAV_ITEMS = [
     { label: '국내여행',       path: '/tour/domestic', icon: <LandscapeIcon fontSize="small" />,      color: '#2e7d32' },
-    { label: '항공 해외여행',  path: '/tour/air',      icon: <FlightIcon fontSize="small" />,         color: '#e65100' },
+    { label: '국외여행',  path: '/tour/air',      icon: <FlightIcon fontSize="small" />,         color: '#e65100' },
     { label: '크루즈 해외여행', path: '/tour/cruise',  icon: <DirectionsBoatIcon fontSize="small" />, color: '#0277bd' },
     { label: '수학여행',       path: '/tour/school',   icon: <SchoolIcon fontSize="small" />,         color: '#3f51b5' },
 ];

@@ -57,7 +57,7 @@ const VALUES = [
 const BUSINESSES = [
     { icon: <SchoolIcon />,         color: '#3f51b5', gradient: 'linear-gradient(135deg,#3f51b5,#5c6bc0)', label: '수학여행',       desc: '소중한 추억을 만드는 맞춤형 교육 여행' },
     { icon: <LandscapeIcon />,      color: '#2e7d32', gradient: 'linear-gradient(135deg,#2e7d32,#43a047)', label: '국내여행',       desc: '우리나라 곳곳의 숨겨진 명소 탐방' },
-    { icon: <FlightIcon />,         color: '#e65100', gradient: 'linear-gradient(135deg,#e65100,#ef6c00)', label: '항공 해외여행', desc: '세계 각지의 특별한 경험' },
+    { icon: <FlightIcon />,         color: '#e65100', gradient: 'linear-gradient(135deg,#e65100,#ef6c00)', label: '국외여행', desc: '세계 각지의 특별한 경험' },
     { icon: <DirectionsBoatIcon />, color: '#0277bd', gradient: 'linear-gradient(135deg,#0277bd,#0288d1)', label: '크루즈 해외여행', desc: '바다 위에서 즐기는 럭셔리 여행' },
 ];
 
@@ -163,7 +163,7 @@ export default function AboutPage() {
                     <Box sx={{ height: 4, width: 56, bgcolor: '#1976d2', borderRadius: 2, mb: 4 }} />
                     <Stack spacing={2.5} sx={{ maxWidth: 720 }}>
                         <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 2 }}>
-                            (주)로이투어는 경기도 안양에 본사를 둔 종합여행업 등록 여행사로, 수학여행·국내여행·항공 해외여행·크루즈 해외여행을 전문으로 기획·운영합니다.
+                            (주)로이투어는 경기도 안양에 본사를 둔 종합여행업 등록 여행사로, 수학여행·국내여행·국외여행·크루즈 해외여행을 전문으로 기획·운영합니다.
                         </Typography>
                         <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 2 }}>
                             고객 한 분 한 분의 여정이 단순한 이동이 아닌, 평생 기억에 남는 특별한 경험이 될 수 있도록 세심하게 준비합니다. 학생들의 첫 단체 여행부터 가족·단체의 해외 크루즈까지, 모든 여행에 로이투어의 전문성과 진심을 담습니다.

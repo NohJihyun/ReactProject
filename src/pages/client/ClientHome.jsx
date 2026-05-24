@@ -47,9 +47,9 @@ const SECTIONS = [
         desc:  '우리나라 곳곳의 숨겨진 명소 탐방',
     },
     {
-        key:   '항공 해외여행',
+        key:   '국외여행',
         id:    'air',
-        label: '항공 해외여행',
+        label: '국외여행',
         icon:  <FlightIcon />,
         color: '#e65100',
         gradient: 'linear-gradient(135deg, #e65100 0%, #ef6c00 100%)',
@@ -339,7 +339,7 @@ function ProductCard({ product, categorySlug, onClick }) {
 
 const CATEGORY_SLUG_MAP = {
     '국내여행': 'domestic',
-    '항공 해외여행': 'air',
+    '국외여행': 'air',
     '크루즈 해외여행': 'cruise',
     '수학여행': 'school',
 };

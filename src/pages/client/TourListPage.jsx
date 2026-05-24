@@ -38,7 +38,7 @@ const formatDt = (dt) => {
 const CATEGORY_MAP = {
     school:   '수학여행',
     domestic: '국내여행',
-    air:      '항공 해외여행',
+    air:      '국외여행',
     cruise:   '크루즈 해외여행',
 };
 

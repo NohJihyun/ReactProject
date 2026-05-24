@@ -26,7 +26,7 @@ import { getProducts } from '../../api/productApi';
 
 const CATEGORY_BADGE = {
     '국내여행':        { icon: <LandscapeIcon sx={{ fontSize: 14 }} />,         color: '#2e7d32', bg: '#e8f5e9' },
-    '항공 해외여행':   { icon: <FlightIcon sx={{ fontSize: 14 }} />,         color: '#e65100', bg: '#fff3e0' },
+    '국외여행':   { icon: <FlightIcon sx={{ fontSize: 14 }} />,         color: '#e65100', bg: '#fff3e0' },
     '크루즈 해외여행': { icon: <DirectionsBoatIcon sx={{ fontSize: 14 }} />, color: '#0277bd', bg: '#e1f5fe' },
     '수학여행':        { icon: <SchoolIcon sx={{ fontSize: 14 }} />,         color: '#3f51b5', bg: '#e8eaf6' },
 };

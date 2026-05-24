@@ -23,7 +23,7 @@ const WRITER_LABEL = { GENERAL: '일반회원', STUDENT: '학생', TEACHER: '선
 const WRITER_ICON  = { GENERAL: '👤', STUDENT: '👨‍🎓', TEACHER: '👨‍🏫' };
 const CATEGORIES = [
     { value: '국내여행',        label: '국내여행' },
-    { value: '항공 해외여행',   label: '항공 해외여행' },
+    { value: '국외여행',   label: '국외여행' },
     { value: '크루즈 해외여행', label: '크루즈 해외여행' },
     { value: '수학여행',        label: '수학여행' },
 ];

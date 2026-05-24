@@ -91,7 +91,7 @@ export default function ProductFormPage() {
         const root = cat.depth === 1 ? cat : categoryOptions.find(c => c.categoryId === cat.parentId);
         if (!root) return null;
         if (root.categoryName.includes('크루즈')) return 'cruise';
-        if (root.categoryName.includes('항공')) return 'air';
+        if (root.categoryName.includes('항공') || root.categoryName.includes('국외여행')) return 'air';
         if (root.categoryName.includes('국내')) return 'domestic';
         if (root.categoryName.includes('수학여행')) return 'school';
         return null;
