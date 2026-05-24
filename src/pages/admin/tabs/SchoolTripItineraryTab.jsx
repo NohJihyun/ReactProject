@@ -433,8 +433,12 @@ function ItinerarySection({ productId, onAfterSave }) {
                 setPendingSchedules([]);
                 setSnack({ open: true, msg: '저장되었습니다. 등록된 시간대를 확인하세요.' });
             }
-        } catch {
-            setToast('저장 중 오류가 발생했습니다.');
+        } catch (err) {
+            if (err?.response?.status === 413) {
+                setToast('이미지 용량이 너무 큽니다. 50MB 이하의 파일만 업로드 가능합니다.');
+            } else {
+                setToast('저장 중 오류가 발생했습니다.');
+            }
         } finally {
             setSaving(false);
         }
