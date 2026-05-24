@@ -439,7 +439,8 @@ function ItinerarySection({ productId, onAfterSave }) {
                 setActiveItineraryId(created.id);
                 setEditTarget(savedItem ?? created);
                 setPendingSchedules([]);
-                setSnack({ open: true, msg: '저장되었습니다. 등록된 시간대를 확인하세요.' });
+                setSnack({ open: true, msg: '저장되었습니다. 일정 추가를 원하시거나 수정을 원하시면 여행 일정 탭을 클릭하셔서 이동 후 처리하시면 됩니다.' });
+                setTimeout(() => onAfterSave?.(), 5500);
             }
         } catch (err) {
             if (err?.response?.status === 413) {
