@@ -279,14 +279,6 @@ export default function TourDetailPage() {
                 return '○○' + suffix;
             }
         );
-        // 2차: 약어 형태 (예: 안양서중, 부산고, 서울초) — 앞에 2~4글자 + 중/고/초
-        result = result.replace(
-            /[가-힣]{2,4}(?:중|고|초)/g,
-            (m) => {
-                const suffix = ['중','고','초'].find(s => m.endsWith(s));
-                return '○○' + suffix;
-            }
-        );
         return result;
     };
 

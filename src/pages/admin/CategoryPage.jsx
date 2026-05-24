@@ -367,7 +367,8 @@ export default function CategoryPage() {
                                 </Typography>
                                 <Alert severity="info" sx={{ py: 0 }}>
                                     1. 대분류 등록<br />
-                                    2. 대분류 등록 후 다시 등록 버튼을 눌러 소분류 등록을 진행해주세요
+                                    2. 대분류 등록 후 다시 등록 버튼을 눌러 소분류 등록을 진행해주세요<br />
+                                    3. 소분류 등록 시 상위 카테고리 데이터가 나오지 않는다면 페이지 새로고침 또는 강력 새로고침(Ctrl+Shift+R) 후 진행해주세요
                                 </Alert>
                             </Box>
 
