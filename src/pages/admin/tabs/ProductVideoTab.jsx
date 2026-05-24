@@ -11,7 +11,7 @@ const getYoutubeEmbedUrl = (url) => {
     return match ? `https://www.youtube.com/embed/${match[1]}` : null;
 };
 
-export default function ProductVideoTab({ productId, onUpdate, isEdit, onComplete }) {
+export default function ProductVideoTab({ productId, onUpdate, isEdit, onComplete, onGoToFileTab }) {
     const [youtubeUrl,   setYoutubeUrl]   = useState('');
     const [currentVideo, setCurrentVideo] = useState(null);
     const [loading,      setLoading]      = useState(false);
@@ -43,6 +43,7 @@ export default function ProductVideoTab({ productId, onUpdate, isEdit, onComplet
             onUpdate?.();
             setVideoSaved(true);
             if (onComplete) setTimeout(() => onComplete(), 1500);
+            else if (onGoToFileTab) setTimeout(() => onGoToFileTab(), 5500);
         } catch {
             setError('저장에 실패했습니다.');
         } finally {
@@ -77,8 +78,8 @@ export default function ProductVideoTab({ productId, onUpdate, isEdit, onComplet
                     {isEdit ? (
                         <>
                             유튜브 동영상을 저장하였습니다.&nbsp;
-                            <strong>[기본정보]&nbsp;[일정 정보]&nbsp;[메인화면 썸네일 이미지]&nbsp;[첨부파일]</strong>
-                            &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
+                            첨부파일 탭으로 화면 전환 및 이동 되오니 유튜브 동영상 저장 및 변경이 필요하시면&nbsp;
+                            <strong>유튜브 동영상</strong> 탭에 들어가셔서 수정하시면 됩니다.
                         </>
                     ) : (
                         '유튜브 URL이 저장되었습니다.'
@@ -119,7 +120,7 @@ export default function ProductVideoTab({ productId, onUpdate, isEdit, onComplet
             {/* 유튜브 URL 입력 */}
             {embedUrl && !showChange ? (
                 <Button variant="outlined" size="small" onClick={() => setShowChange(true)}>
-                    URL 변경
+                    URL 변경 저장
                 </Button>
             ) : (
                 <Box>

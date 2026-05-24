@@ -57,7 +57,7 @@ function SortableImage({ image, onDelete }) {
 }
 
 /* ── 이미지 탭 메인 ── */
-export default function ProductImageTab({ productId, onUpdate, onComplete }) {
+export default function ProductImageTab({ productId, onUpdate, onComplete, onGoToVideoTab }) {
     const [thumbnail,         setThumbnail]         = useState(null);
     const [details,           setDetails]           = useState([]);
     const [loading,           setLoading]           = useState(false);
@@ -91,7 +91,10 @@ export default function ProductImageTab({ productId, onUpdate, onComplete }) {
             await loadImages();
             onUpdate?.();
             if (onComplete) setRegisterThumbDone(true);
-            else            setThumbSaved(true);
+            else {
+                setThumbSaved(true);
+                if (onGoToVideoTab) setTimeout(() => onGoToVideoTab(), 5500);
+            }
         } catch {
             setError('썸네일 업로드에 실패했습니다.');
         } finally {
@@ -115,7 +118,10 @@ export default function ProductImageTab({ productId, onUpdate, onComplete }) {
             await loadImages();
             onUpdate?.();
             if (onComplete) setTimeout(() => onComplete(), 1500);
-            else            setDetailSaved(true);
+            else {
+                setDetailSaved(true);
+                if (onGoToVideoTab) setTimeout(() => onGoToVideoTab(), 5500);
+            }
         } catch {
             setError('이미지 업로드에 실패했습니다.');
         } finally {
@@ -169,16 +175,16 @@ export default function ProductImageTab({ productId, onUpdate, onComplete }) {
             {/* 수정 모드 알럿 */}
             {thumbSaved && (
                 <Alert severity="success" onClose={() => setThumbSaved(false)} sx={{ mb: 2 }}>
-                    썸네일 이미지를 저장하였습니다.&nbsp;
-                    <strong>[기본정보]&nbsp;[일정 정보]&nbsp;[유튜브 동영상]&nbsp;[첨부파일]</strong>
-                    &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
+                    썸네일 이미지 저장이 완료되었습니다.&nbsp;
+                    유튜브 동영상 탭으로 이동합니다.&nbsp;
+                    미등록된 이미지가 있으면 <strong>메인화면 썸네일 이미지</strong> 탭에서 썸네일 교체 및 이미지 추가저장 하시면 됩니다.
                 </Alert>
             )}
             {detailSaved && (
                 <Alert severity="success" onClose={() => setDetailSaved(false)} sx={{ mb: 2 }}>
-                    이미지 추가 완료되었습니다.&nbsp;
-                    <strong>[기본정보]&nbsp;[일정 정보]&nbsp;[유튜브 동영상]&nbsp;[첨부파일]</strong>
-                    &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
+                    이미지 추가 저장이 완료되었습니다.&nbsp;
+                    유튜브 동영상 탭으로 이동합니다.&nbsp;
+                    미등록된 이미지가 있으면 <strong>메인화면 썸네일 이미지</strong> 탭에서 썸네일 교체 및 이미지 추가저장 하시면 됩니다.
                 </Alert>
             )}
             {loading && (
@@ -220,7 +226,7 @@ export default function ProductImageTab({ productId, onUpdate, onComplete }) {
                     )}
                     <Box>
                         <Button variant="contained" component="label" disabled={loading}>
-                            {thumbnail ? '썸네일 교체 저장' : '썸네일 업로드'}
+                            {thumbnail ? '썸네일 교체 저장' : '썸네일 업로드 저장'}
                             <input type="file" hidden accept="image/*" onChange={handleThumbnailUpload} />
                         </Button>
                         <Typography variant="caption" display="block" color="text.secondary" mt={0.5}>

@@ -795,6 +795,7 @@ export default function ProductFormPage() {
                         productId={activeProductId}
                         onUpdate={() => loadMediaSummary(activeProductId)}
                         onComplete={!isEdit ? () => setTab(TAB_VIDEO) : undefined}
+                        onGoToVideoTab={isEdit ? () => setTab(TAB_VIDEO) : undefined}
                     />
                 )}
 
@@ -805,6 +806,7 @@ export default function ProductFormPage() {
                         onUpdate={() => loadMediaSummary(activeProductId)}
                         isEdit={isEdit}
                         onComplete={!isEdit ? () => setTab(TAB_FILE) : undefined}
+                        onGoToFileTab={isEdit ? () => setTab(TAB_FILE) : undefined}
                     />
                 )}
 
