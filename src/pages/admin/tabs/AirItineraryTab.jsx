@@ -101,7 +101,7 @@ export default function AirItineraryTab({ productId, onComplete }) {
         <Box>
             {pricesSaved && (
                 <Alert severity="success" onClose={() => setPricesSaved(false)} sx={{ mb: 2 }}>
-                    항공 일정 정보들을 저장하였습니다.&nbsp;
+                    국외 일정 정보들을 저장하였습니다.&nbsp;
                     <strong>[메인화면 썸네일 이미지]&nbsp;[유튜브 동영상]&nbsp;[첨부파일]&nbsp;[기본정보]</strong>
                     &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
                 </Alert>

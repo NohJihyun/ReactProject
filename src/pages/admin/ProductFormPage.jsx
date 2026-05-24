@@ -329,7 +329,7 @@ export default function ProductFormPage() {
                         disabled={!tabsUnlocked}
                         label={
                             categoryType === 'cruise'   ? '크루즈 일정 정보' :
-                            categoryType === 'air'      ? '항공 일정 정보' :
+                            categoryType === 'air'      ? '국외 일정 정보' :
                             categoryType === 'domestic' ? '국내여행 일정 정보' :
                             categoryType === 'school'   ? '수학여행 일정 정보' :
                                                           '일정 정보'
@@ -367,7 +367,7 @@ export default function ProductFormPage() {
                         기본 정보를 저장하였습니다.&nbsp;
                         <strong>
                             [{categoryType === 'cruise'   ? '크루즈 일정 정보' :
-                              categoryType === 'air'      ? '항공 일정 정보' :
+                              categoryType === 'air'      ? '국외 일정 정보' :
                               categoryType === 'domestic' ? '국내여행 일정 정보' :
                               categoryType === 'school'   ? '수학여행 일정 정보' : '일정 정보'}]&nbsp;
                             [메인화면 썸네일 이미지]&nbsp;
@@ -384,7 +384,7 @@ export default function ProductFormPage() {
                         {categoryType
                             ? `기본 정보를 저장하면 [${
                                 categoryType === 'cruise'   ? '크루즈 일정 정보' :
-                                categoryType === 'air'      ? '항공 일정 정보' :
+                                categoryType === 'air'      ? '국외 일정 정보' :
                                 categoryType === 'domestic' ? '국내여행 일정 정보' :
                                                               '수학여행 일정 정보'
                               }] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다.`
