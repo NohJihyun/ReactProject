@@ -62,9 +62,10 @@ export default function ProductImageTab({ productId, onUpdate, onComplete, onGoT
     const [details,           setDetails]           = useState([]);
     const [loading,           setLoading]           = useState(false);
     const [error,             setError]             = useState('');
-    const [thumbSaved,        setThumbSaved]        = useState(false);  // 수정 모드
-    const [detailSaved,       setDetailSaved]       = useState(false);  // 수정 모드
-    const [registerThumbDone, setRegisterThumbDone] = useState(false);  // 등록 모드
+    const [thumbSaved,          setThumbSaved]          = useState(false);  // 수정 모드
+    const [detailSaved,         setDetailSaved]         = useState(false);  // 수정 모드
+    const [registerThumbDone,   setRegisterThumbDone]   = useState(false);  // 등록 모드
+    const [registerDetailDone,  setRegisterDetailDone]  = useState(false);  // 등록 모드
 
     const loadImages = async () => {
         try {
@@ -90,8 +91,10 @@ export default function ProductImageTab({ productId, onUpdate, onComplete, onGoT
             await api.uploadProductImage(productId, fd);
             await loadImages();
             onUpdate?.();
-            if (onComplete) setRegisterThumbDone(true);
-            else {
+            if (onComplete) {
+                setRegisterThumbDone(true);
+                setTimeout(() => onComplete(), 5500);
+            } else {
                 setThumbSaved(true);
                 if (onGoToVideoTab) setTimeout(() => onGoToVideoTab(), 5500);
             }
@@ -117,8 +120,10 @@ export default function ProductImageTab({ productId, onUpdate, onComplete, onGoT
             }
             await loadImages();
             onUpdate?.();
-            if (onComplete) setTimeout(() => onComplete(), 1500);
-            else {
+            if (onComplete) {
+                setRegisterDetailDone(true);
+                setTimeout(() => onComplete(), 5500);
+            } else {
                 setDetailSaved(true);
                 if (onGoToVideoTab) setTimeout(() => onGoToVideoTab(), 5500);
             }
@@ -166,9 +171,18 @@ export default function ProductImageTab({ productId, onUpdate, onComplete, onGoT
             {/* 등록 모드: 썸네일 완료 안내 */}
             {registerThumbDone && (
                 <Alert severity="success" onClose={() => setRegisterThumbDone(false)} sx={{ mb: 2 }}>
-                    썸네일 이미지가 업로드 되었습니다.&nbsp;
-                    상세이미지를 추가 등록하려면 <strong>[이미지 추가 저장]</strong>을 클릭하세요.
-                    추가 등록이 완료되면 자동으로 다음 탭으로 이동합니다.
+                    <strong>[썸네일 업로드 저장]</strong>이 완료되었습니다.&nbsp;
+                    <strong>[썸네일 업로드 저장]</strong> <strong>[이미지 추가 저장]</strong>을 클릭하시면 자동으로 유튜브 동영상 탭으로 이동됩니다.&nbsp;
+                    추가로 수정을 원하시면 <strong>메인화면 썸네일 이미지</strong> 탭으로 이동하셔서 처리하시면 됩니다.
+                </Alert>
+            )}
+
+            {/* 등록 모드: 상세이미지 완료 안내 */}
+            {registerDetailDone && (
+                <Alert severity="success" onClose={() => setRegisterDetailDone(false)} sx={{ mb: 2 }}>
+                    <strong>[이미지 추가 저장]</strong>이 완료되었습니다.&nbsp;
+                    <strong>[썸네일 업로드 저장]</strong> <strong>[이미지 추가 저장]</strong>을 클릭하시면 자동으로 유튜브 동영상 탭으로 이동됩니다.&nbsp;
+                    추가로 수정을 원하시면 <strong>메인화면 썸네일 이미지</strong> 탭으로 이동하셔서 처리하시면 됩니다.
                 </Alert>
             )}
 
