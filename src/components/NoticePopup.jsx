@@ -243,7 +243,7 @@ export default function NoticePopup() {
                         />
                     }
                     label={
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
                             오늘 하루 보지 않기
                         </Typography>
                     }

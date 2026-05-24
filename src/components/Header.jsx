@@ -86,7 +86,6 @@ export default function Header() {
     const [searchOpen, setSearchOpen] = useState(false);
     const debounceRef = useRef(null);
     const pcInputRef = useRef(null);
-    const mobileInputRef = useRef(null);
 
     const runSearch = (kw) => {
         if (!kw.trim()) {
@@ -206,6 +205,7 @@ export default function Header() {
                         maxWidth: 1280,
                         mx: "auto",
                         display: "flex",
+                        flexWrap: { xs: 'wrap', md: 'nowrap' },
                         alignItems: "center",
                         gap: { xs: 1, md: 3 },
                         px: { xs: 1, md: 2 }
@@ -213,20 +213,23 @@ export default function Header() {
                 >
                     {/* 로고 */}
                     <Box sx={{ cursor: "pointer" }} onClick={() => { navigate("/"); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                        <Box component="img" src={logo} sx={{ height: { xs: 60, md: 190 } }} />
+                        <Box component="img" src={logo} sx={{ height: { xs: 80, md: 190 } }} />
                     </Box>
 
-                    {/* 검색 + 실시간 — PC만 표시 */}
+                    {/* 검색 + 실시간 */}
                     <Box
                         sx={{
-                            display: { xs: "none", md: "flex" },
+                            display: "flex",
                             alignItems: "center",
                             gap: 2,
                             flexShrink: 0,
+                            order: { xs: 3, md: 0 },
+                            flex: { xs: '1 0 100%', md: 'initial' },
+                            pb: { xs: 1, md: 0 },
                         }}
                     >
                         <ClickAwayListener onClickAway={closeSearch}>
-                            <Box sx={{ width: { md: 480, lg: 660 }, position: 'relative' }}>
+                            <Box sx={{ flex: { xs: 1, md: 'none' }, width: { md: 480, lg: 660 }, position: 'relative' }}>
                                 <Box
                                     ref={pcInputRef}
                                     sx={{
@@ -322,7 +325,7 @@ export default function Header() {
                     </Box>
 
                     {/* 사용자 영역 */}
-                    <Box sx={{ display: "flex", flexDirection: 'column', alignItems: "center", ml: 'auto', gap: 0.3, alignSelf: 'flex-end', pb: 1, pr: { md: 0 } }}>
+                    <Box sx={{ display: "flex", flexDirection: 'column', alignItems: "center", ml: 'auto', order: { xs: 2, md: 0 }, gap: 0.3, alignSelf: 'flex-end', pb: 1, pr: { md: 0 } }}>
                         {/* 버튼 가로 배치 */}
                         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0 }}>
                         {!user ? (
@@ -560,78 +563,6 @@ export default function Header() {
 
                 </Box>
             </Toolbar>
-            {/* ================= 모바일 검색바 ================= */}
-            <Box sx={{ display: { xs: 'block', md: 'none' }, borderTop: '1px solid #eee', px: 2, py: 1, position: 'relative' }}>
-                    <ClickAwayListener onClickAway={() => setSearchOpen(false)}>
-                        <Box>
-                            <Box
-                                ref={mobileInputRef}
-                                sx={{
-                                    display: 'flex', alignItems: 'center', px: 2,
-                                    border: '1px solid #ddd', borderRadius: 2, bgcolor: '#fff',
-                                }}
-                            >
-                                <SearchIcon sx={{ mr: 1, color: 'gray' }} />
-                                <InputBase
-                                    value={keyword}
-                                    onChange={handleKeywordChange}
-                                    onKeyDown={handleEnter}
-                                    placeholder="어디로 떠나실까요?"
-                                    sx={{ flex: 1 }}
-                                    inputProps={{ translate: 'no', lang: 'ko' }}
-                                />
-                                {keyword && (
-                                    <IconButton size="small" onClick={clearKeyword} sx={{ p: 0.3 }}>
-                                        <CloseIcon fontSize="small" />
-                                    </IconButton>
-                                )}
-                            </Box>
-
-                            {/* 모바일 실시간 검색어 */}
-                            <Box sx={{ mt: 1 }}>
-                                <RealTimeKeywords onKeywordClick={handlePopularClick} />
-                            </Box>
-
-                            {/* 모바일 검색 결과 */}
-                            {searchOpen && searchResults.length > 0 && (
-                                <Paper elevation={4} sx={{ mt: 0.5, maxHeight: 360, overflow: 'auto', borderRadius: 2 }}>
-                                    {searchResults.map((product, idx) => (
-                                        <Box
-                                            key={product.productId}
-                                            onClick={() => handleSelectResult(product)}
-                                            sx={{
-                                                display: 'flex', alignItems: 'center', gap: 1.5,
-                                                px: 2, py: 1.2, cursor: 'pointer',
-                                                borderTop: idx > 0 ? '1px solid #f0f0f0' : 'none',
-                                                '&:hover': { bgcolor: '#f9f9f9' },
-                                            }}
-                                        >
-                                            {product.thumbnailPath ? (
-                                                <Box
-                                                    component="img"
-                                                    src={product.thumbnailPath}
-                                                    sx={{ width: 56, height: 42, objectFit: 'cover', borderRadius: 1, flexShrink: 0 }}
-                                                />
-                                            ) : (
-                                                <Box sx={{ width: 56, height: 42, bgcolor: '#eee', borderRadius: 1, flexShrink: 0 }} />
-                                            )}
-                                            <Box sx={{ minWidth: 0 }}>
-                                                <Typography variant="body2" fontWeight={600} noWrap>{product.productName}</Typography>
-                                                <Typography variant="caption" color="text.secondary">{product.rootCategoryName}</Typography>
-                                            </Box>
-                                        </Box>
-                                    ))}
-                                </Paper>
-                            )}
-
-                            {searchOpen && searchResults.length === 0 && keyword.trim() && (
-                                <Paper elevation={4} sx={{ mt: 0.5, px: 2, py: 2, borderRadius: 2 }}>
-                                    <Typography variant="body2" color="text.secondary">검색 결과가 없습니다.</Typography>
-                                </Paper>
-                            )}
-                        </Box>
-                    </ClickAwayListener>
-            </Box>
         </AppBar>
 
         {/* 전체메뉴 Drawer */}
