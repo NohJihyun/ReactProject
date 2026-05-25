@@ -136,7 +136,7 @@ export default function PrivacyPage() {
                                     <TableRow key={i}>
                                         <TableCell sx={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{r.purpose}</TableCell>
                                         <TableCell sx={{ fontSize: '0.75rem' }}>{r.items}</TableCell>
-                                        <TableCell sx={{ fontSize: '0.75rem' }}>{r.period}</TableCell>
+                                        <TableCell sx={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{r.period}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
