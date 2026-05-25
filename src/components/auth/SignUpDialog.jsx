@@ -21,7 +21,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { sendEmailCodeApi, verifyEmailCodeApi, signUpApi } from "../../api/authApi";
 import { getErrorMessage } from "../../api/errorMessage";
 import { TERMS_CONTENT, AGREEMENT_ITEMS } from "../../constants/termsConstants";
@@ -57,6 +57,13 @@ export default function SignUpDialog({ open, onClose }) {
     const [submitting, setSubmitting]     = useState(false);
     const [error, setError]               = useState("");
     const [success, setSuccess]           = useState("");
+    const dialogContentRef = useRef(null);
+
+    useEffect(() => {
+        if (success && dialogContentRef.current) {
+            dialogContentRef.current.scrollTop = 0;
+        }
+    }, [success]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -196,7 +203,7 @@ export default function SignUpDialog({ open, onClose }) {
                 <IconButton onClick={handleClose}><CloseIcon /></IconButton>
             </DialogTitle>
 
-            <DialogContent>
+            <DialogContent ref={dialogContentRef}>
                 <Box className="notranslate" translate="no">
                     <Stack spacing={2} sx={{ mt: 1 }}>
 

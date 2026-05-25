@@ -6,6 +6,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useAuth } from '../../auth/AuthProvider';
 import { createInquiry, getMyInquiries } from '../../api/inquiryApi';
 import { useEffect } from 'react';
@@ -158,7 +160,11 @@ export default function InquiryPage() {
                                     key={inq.inquiryId}
                                     variant="outlined"
                                     onClick={() => setSelected(selected?.inquiryId === inq.inquiryId ? null : inq)}
-                                    sx={{ p: 2.5, borderRadius: 2, cursor: 'pointer', '&:hover': { bgcolor: '#f9f9f9' } }}>
+                                    sx={{
+                                        p: 2.5, borderRadius: 2, cursor: 'pointer',
+                                        borderColor: inq.status === 'COMPLETED' && selected?.inquiryId !== inq.inquiryId ? '#a5d6a7' : undefined,
+                                        '&:hover': { bgcolor: '#f9f9f9' },
+                                    }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                             <Box sx={{
@@ -173,14 +179,23 @@ export default function InquiryPage() {
                                                 {inq.category}
                                             </Box>
                                         </Box>
-                                        <Typography variant="caption" color="text.disabled">
-                                            {inq.createdAt}
-                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                            <Typography variant="caption" color="text.disabled">{inq.createdAt}</Typography>
+                                            {selected?.inquiryId === inq.inquiryId
+                                                ? <ExpandLessIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                                                : <ExpandMoreIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                                            }
+                                        </Box>
                                     </Box>
                                     <Typography variant="body2" fontWeight={700} sx={{ mb: 0.3 }}>{inq.title}</Typography>
                                     <Typography variant="caption" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                         {inq.content}
                                     </Typography>
+                                    {inq.status === 'COMPLETED' && selected?.inquiryId !== inq.inquiryId && (
+                                        <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.8, color: '#2e7d32', fontWeight: 600 }}>
+                                            💬 답변이 도착했어요 — 탭하여 확인하세요
+                                        </Typography>
+                                    )}
 
                                     {/* 펼치기 */}
                                     {selected?.inquiryId === inq.inquiryId && (
