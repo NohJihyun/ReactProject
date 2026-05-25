@@ -207,13 +207,20 @@ export default function Header() {
                         display: "flex",
                         flexWrap: { xs: 'wrap', md: 'nowrap' },
                         alignItems: "center",
-                        gap: { xs: 1, md: 3 },
+                        gap: { xs: 0, md: 3 },
                         px: { xs: 1, md: 2 }
                     }}
                 >
+                    {/* 모바일 햄버거 */}
+                    <Box sx={{ display: { xs: 'flex', md: 'none' }, flex: 1, alignItems: 'center' }}>
+                        <IconButton onClick={() => setDrawerOpen(true)} size="small" sx={{ p: 0.5 }}>
+                            <MenuIcon />
+                        </IconButton>
+                    </Box>
+
                     {/* 로고 */}
                     <Box sx={{ cursor: "pointer" }} onClick={() => { navigate("/"); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                        <Box component="img" src={logo} sx={{ height: { xs: 80, md: 190 } }} />
+                        <Box component="img" src={logo} sx={{ height: { xs: 100, md: 190 } }} />
                     </Box>
 
                     {/* 검색 + 실시간 */}
@@ -325,7 +332,7 @@ export default function Header() {
                     </Box>
 
                     {/* 사용자 영역 */}
-                    <Box sx={{ display: "flex", flexDirection: 'column', alignItems: "center", ml: 'auto', order: { xs: 2, md: 0 }, gap: 0.3, alignSelf: 'flex-end', pb: 1, pr: { md: 0 } }}>
+                    <Box sx={{ display: "flex", flexDirection: 'column', alignItems: { xs: 'flex-end', md: 'center' }, ml: { xs: 0, md: 'auto' }, order: { xs: 2, md: 0 }, gap: 0.3, alignSelf: { xs: 'center', md: 'flex-end' }, pb: { xs: 0, md: 1 }, pr: { md: 0 }, flex: { xs: 1, md: 'none' } }}>
                         {/* 버튼 가로 배치 */}
                         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0 }}>
                         {!user ? (
@@ -521,7 +528,8 @@ export default function Header() {
                 sx={{
                     minHeight: 48,
                     borderTop: "1px solid #eee",
-                    px: 0
+                    px: 0,
+                    display: { xs: 'none', md: 'flex' },
                 }}
             >
                 <Box
