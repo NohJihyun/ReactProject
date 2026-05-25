@@ -193,7 +193,7 @@ export default function InquiryPage() {
                                     </Typography>
                                     {inq.status === 'COMPLETED' && selected?.inquiryId !== inq.inquiryId && (
                                         <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.8, color: '#2e7d32', fontWeight: 600 }}>
-                                            💬 답변이 도착했어요 — 탭하여 확인하세요
+                                            💬 답변이 도착했어요 ^^ 클릭하면 답변이 밑으로 생성됩니다
                                         </Typography>
                                     )}
 
