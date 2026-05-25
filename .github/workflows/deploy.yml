@@ -17,4 +17,4 @@ jobs:
 
       - name: Deploy to VPS
         run: |
-          ssh -i ~/.ssh/deploy_key ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /app/frontend && git pull origin main && cd /app/backend && docker compose up -d --build frontend"
+          ssh -i ~/.ssh/deploy_key -o ServerAliveInterval=30 -o ServerAliveCountMax=20 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /app/frontend && git pull origin main && cd /app/backend && docker compose up -d --build frontend"
