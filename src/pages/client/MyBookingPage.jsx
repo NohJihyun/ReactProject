@@ -154,7 +154,13 @@ function EditDialog({ booking, open, onClose, onSaved }) {
         setSaving(true);
         setError('');
         try {
-            await updateBooking(booking.bookingId, form);
+            await updateBooking(booking.bookingId, {
+                ...form,
+                productId: booking.productId,
+                name: booking.name,
+                phone: booking.phone,
+                email: booking.email,
+            });
             onSaved();
             onClose();
         } catch (e) {
