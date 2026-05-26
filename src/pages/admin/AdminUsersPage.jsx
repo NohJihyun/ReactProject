@@ -6,11 +6,16 @@ import {
 import { useEffect, useState, useCallback } from 'react';
 import { getAdminUsers, changeUserRole } from '../../api/adminUserApi';
 import CommonPagination from '../../components/CommonPagination';
+import { useAuth } from '../../auth/AuthProvider';
+
+const SUPER_ADMINS = ['admin@rohitour.com'];
 
 const PROVIDER_LABEL = { LOCAL: '일반', KAKAO: '카카오', NAVER: '네이버', GOOGLE: '구글' };
 const PROVIDER_COLOR = { LOCAL: 'default', KAKAO: 'warning', NAVER: 'success', GOOGLE: 'error' };
 
 export default function AdminUsersPage() {
+    const { user } = useAuth();
+    const isSuperAdmin = user?.email && SUPER_ADMINS.includes(user.email);
     const [users, setUsers] = useState([]);
     const [totalPage, setTotalPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
@@ -99,13 +104,13 @@ export default function AdminUsersPage() {
                                     <TableCell>아이디</TableCell>
                                     <TableCell>가입방법</TableCell>
                                     <TableCell>역할</TableCell>
-                                    <TableCell align="center">역할 변경</TableCell>
+                                    {isSuperAdmin && <TableCell align="center">역할 변경</TableCell>}
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {users.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                                        <TableCell colSpan={isSuperAdmin ? 5 : 4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
                                             검색 결과가 없습니다.
                                         </TableCell>
                                     </TableRow>
@@ -129,17 +134,19 @@ export default function AdminUsersPage() {
                                                 size="small"
                                             />
                                         </TableCell>
-                                        <TableCell align="center">
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color={u.role === 'ADMIN' ? 'primary' : 'success'}
-                                                onClick={() => handleRoleToggle(u)}
-                                                sx={{ fontSize: 12, fontWeight: 700, px: 1.5, py: 0.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
-                                            >
-                                                {u.role === 'ADMIN' ? '→ 일반' : '→ 관리자'}
-                                            </Button>
-                                        </TableCell>
+                                        {isSuperAdmin && (
+                                            <TableCell align="center">
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color={u.role === 'ADMIN' ? 'primary' : 'success'}
+                                                    onClick={() => handleRoleToggle(u)}
+                                                    sx={{ fontSize: 12, fontWeight: 700, px: 1.5, py: 0.5, borderWidth: 2, '&:hover': { borderWidth: 2 } }}
+                                                >
+                                                    {u.role === 'ADMIN' ? '→ 일반' : '→ 관리자'}
+                                                </Button>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 ))}
                             </TableBody>
