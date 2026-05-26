@@ -693,7 +693,6 @@ function RecentReviewSection() {
                             color: '#757575',
                             fontSize: '0.8rem',
                             fontWeight: 500,
-                            whiteSpace: 'nowrap',
                         }}>
                             {user
                                 ? '✏️ 오른쪽 상단 여행후기 아이콘에서 후기를 관리하실 수 있습니다'

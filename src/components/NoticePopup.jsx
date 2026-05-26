@@ -35,7 +35,7 @@ function Slide1() {
             {/* 헤더 */}
             <Box sx={{
                 background: 'linear-gradient(135deg, #33691E 0%, #558B2F 40%, #7CB342 100%)',
-                px: 4, pt: 4, pb: 4,
+                px: { xs: 2, sm: 4 }, pt: 4, pb: 4,
                 textAlign: 'center',
                 position: 'relative',
                 overflow: 'hidden',
@@ -60,7 +60,7 @@ function Slide1() {
             </Box>
 
             {/* 본문 */}
-            <Box sx={{ px: 3.5, pt: 3, pb: 2.5 }}>
+            <Box sx={{ px: { xs: 2, sm: 3.5 }, pt: 3, pb: 2.5 }}>
                 {/* 안내 문구 */}
                 <Box sx={{
                     bgcolor: '#F1F8E9', borderRadius: 2, px: 2.5, py: 2, mb: 3,
@@ -82,19 +82,19 @@ function Slide1() {
                         <Box key={i} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Stack alignItems="center" spacing={0.5}>
                                 <Box sx={{
-                                    width: 46, height: 46, borderRadius: '50%',
+                                    width: { xs: 36, sm: 46 }, height: { xs: 36, sm: 46 }, borderRadius: '50%',
                                     bgcolor: '#F1F8E9',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     border: '2px solid #C5E1A5',
                                 }}>
                                     {s.icon}
                                 </Box>
-                                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ whiteSpace: 'nowrap', fontSize: '0.65rem' }}>
+                                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ whiteSpace: 'nowrap', fontSize: { xs: '0.58rem', sm: '0.65rem' } }}>
                                     {s.label}
                                 </Typography>
                             </Stack>
                             {i < STEPS.length - 1 && (
-                                <Box sx={{ width: 18, height: 2, bgcolor: '#C5E1A5', mx: 0.5, mb: 2, flexShrink: 0 }} />
+                                <Box sx={{ width: { xs: 10, sm: 18 }, height: 2, bgcolor: '#C5E1A5', mx: { xs: 0.2, sm: 0.5 }, mb: 2, flexShrink: 0 }} />
                             )}
                         </Box>
                     ))}
@@ -110,7 +110,7 @@ function Slide2() {
             {/* 헤더 */}
             <Box sx={{
                 background: 'linear-gradient(135deg, #4A148C 0%, #7B1FA2 50%, #AB47BC 100%)',
-                px: 4, pt: 4, pb: 4,
+                px: { xs: 2, sm: 4 }, pt: 4, pb: 4,
                 textAlign: 'center',
                 position: 'relative',
                 overflow: 'hidden',
@@ -139,7 +139,7 @@ function Slide2() {
             </Box>
 
             {/* 본문 */}
-            <Box sx={{ px: 3.5, pt: 3, pb: 2.5 }}>
+            <Box sx={{ px: { xs: 2, sm: 3.5 }, pt: 3, pb: 2.5 }}>
                 <Stack spacing={2}>
                     {WOMEN_BADGES.map((b, i) => (
                         <Box key={i} sx={{
