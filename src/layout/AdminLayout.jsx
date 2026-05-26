@@ -5,11 +5,16 @@ import { Outlet, NavLink, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { getUncheckedCount } from '../api/bookingApi';
 import { getInquiryNewCount } from '../api/inquiryApi';
+import { useAuth } from '../auth/AuthProvider';
 //import logo from '../assets/rohitour.jpg'
+
+const SUPER_ADMINS = ['admin@rohitour.com'];
 
 /* 관리자 레이아웃 */
 const drawerWidth = 240;
 export default function AdminLayout() {
+    const { user } = useAuth();
+    const isSuperAdmin = user?.email && SUPER_ADMINS.includes(user.email);
     const [open, setOpen] = useState(false);
     const [showTop, setShowTop] = useState(false);
     const [uncheckedCount, setUncheckedCount] = useState(0);
@@ -42,7 +47,7 @@ export default function AdminLayout() {
     // const : 재할당 불가
     const items = [
         { label: '홈페이지 이용 현황', to: '/admin' },
-        { label: '권한 관리', to: '/admin/users' },
+        ...(isSuperAdmin ? [{ label: '권한 관리', to: '/admin/users' }] : []),
         { label: '카테고리 관리', to: '/admin/categories' },
         { label: '여행상품 관리', to: '/admin/products' },
         { label: '예약 및 결제 관리 현황', to: '/admin/bookings' },
