@@ -252,7 +252,8 @@ export default function NoticePopup() {
 
                 {/* 슬라이드 컨트롤 + 닫기 */}
                 <Stack direction="row" alignItems="center" spacing={1}>
-                    <IconButton size="small" onClick={() => goTo(slide - 1)} disabled={slide === 0}>
+                    <IconButton size="small" onClick={() => goTo(slide - 1)} disabled={slide === 0}
+                        sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
                         <ArrowBackIosNewIcon sx={{ fontSize: 14 }} />
                     </IconButton>
                     {/* 점 인디케이터 */}
@@ -267,7 +268,8 @@ export default function NoticePopup() {
                             }} />
                         ))}
                     </Stack>
-                    <IconButton size="small" onClick={() => goTo(slide + 1)} disabled={slide === TOTAL - 1}>
+                    <IconButton size="small" onClick={() => goTo(slide + 1)} disabled={slide === TOTAL - 1}
+                        sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
                         <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
                     </IconButton>
                     <Button size="small" variant="contained" onClick={handleClose}
