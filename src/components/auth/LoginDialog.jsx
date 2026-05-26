@@ -208,7 +208,7 @@ export default function LoginDialog({ open, onClose, oauthError = "", onNeedsTer
                 {/* 비밀번호 찾기 화면 */}
                 <Box sx={{ display: findPwMode ? "block" : "none" }}>
                     <Stack spacing={2} sx={{ mt: 1 }}>
-                        <Typography sx={{ color: "error.main", fontSize: 12, whiteSpace: "nowrap" }}>
+                        <Typography sx={{ color: "error.main", fontSize: 12 }}>
                             * 회원가입 시 인증한 이메일로 재설정 링크를 발송합니다.
                         </Typography>
                         {pwError && <Alert severity="error">{pwError}</Alert>}
