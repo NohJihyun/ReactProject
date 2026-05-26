@@ -275,7 +275,7 @@ export default function NoticePopup() {
                         <ArrowForwardIosIcon sx={{ fontSize: 14 }} />
                     </IconButton>
                     <Button size="small" variant="contained" onClick={handleClose}
-                        sx={{ bgcolor: '#7CB342', '&:hover': { bgcolor: '#558B2F' }, fontWeight: 700, ml: 0.5, borderRadius: 2 }}>
+                        sx={{ bgcolor: '#7CB342', '&:hover': { bgcolor: '#558B2F' }, fontWeight: 700, ml: 0.5, borderRadius: 2, minWidth: { xs: 'auto' } }}>
                         닫기
                     </Button>
                 </Stack>
