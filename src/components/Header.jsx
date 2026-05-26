@@ -351,13 +351,6 @@ export default function Header() {
                                     <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>회원가입</Typography>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title="여행후기">
-                                <IconButton onClick={handleReviewClick} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
-                                    <Box component="img" src={reviewImg} alt="여행후기"
-                                        sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20 }} />
-                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
-                                </IconButton>
-                            </Tooltip>
                             <Tooltip title="문의하기">
                                 <IconButton onClick={() => { navigate('/inquiry'); window.scrollTo(0, 0); }} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
                                     <Box sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
