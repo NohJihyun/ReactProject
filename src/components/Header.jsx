@@ -220,7 +220,7 @@ export default function Header() {
 
                     {/* 로고 */}
                     <Box sx={{ cursor: "pointer" }} onClick={() => { navigate("/"); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                        <Box component="img" src={logo} sx={{ height: { xs: 120, md: 190 } }} />
+                        <Box component="img" src={logo} sx={{ height: { xs: 120, md: 190 }, '@media (max-width: 390px)': { height: 70 } }} />
                     </Box>
 
                     {/* 검색 + 실시간 */}
@@ -338,25 +338,25 @@ export default function Header() {
                         {!user ? (
                         <>
                             <Tooltip title="로그인">
-                                <IconButton onClick={() => openLoginModal()} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
+                                <IconButton onClick={() => openLoginModal()} sx={{ p: { xs: 0.2, md: 0.5 }, '@media (max-width: 390px)': { p: 0.1 }, flexDirection: 'column' }}>
                                     <Box component="img" src={loginImg} alt="login"
-                                        sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20 }} />
-                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>로그인</Typography>
+                                        sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, '@media (max-width: 390px)': { width: 16, height: 16 } }} />
+                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, '@media (max-width: 390px)': { fontSize: '0.5rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>로그인</Typography>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title="회원가입">
-                                <IconButton onClick={() => setSignupOpen(true)} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
+                                <IconButton onClick={() => setSignupOpen(true)} sx={{ p: { xs: 0.2, md: 0.5 }, '@media (max-width: 390px)': { p: 0.1 }, flexDirection: 'column' }}>
                                     <Box component="img" src={signupImg} alt="signup"
-                                        sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20 }} />
-                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>회원가입</Typography>
+                                        sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, '@media (max-width: 390px)': { width: 16, height: 16 } }} />
+                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, '@media (max-width: 390px)': { fontSize: '0.5rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>회원가입</Typography>
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title="문의하기">
-                                <IconButton onClick={() => { navigate('/inquiry'); window.scrollTo(0, 0); }} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
-                                    <Box sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <Typography sx={{ fontSize: { xs: '0.7rem', md: '1.1rem' } }}>💬</Typography>
+                                <IconButton onClick={() => { navigate('/inquiry'); window.scrollTo(0, 0); }} sx={{ p: { xs: 0.2, md: 0.5 }, '@media (max-width: 390px)': { p: 0.1 }, flexDirection: 'column' }}>
+                                    <Box sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center', '@media (max-width: 390px)': { width: 16, height: 16 } }}>
+                                        <Typography sx={{ fontSize: { xs: '0.7rem', md: '1.1rem' }, '@media (max-width: 390px)': { fontSize: '0.6rem' } }}>💬</Typography>
                                     </Box>
-                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>문의하기</Typography>
+                                    <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, '@media (max-width: 390px)': { fontSize: '0.5rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>문의하기</Typography>
                                 </IconButton>
                             </Tooltip>
                         </>
@@ -401,9 +401,9 @@ export default function Header() {
                                             ))}
                                         </Box>
                                         <Tooltip title="관리자 페이지">
-                                            <IconButton onClick={() => navigate("/admin")} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column', position: 'relative' }}>
+                                            <IconButton onClick={() => navigate("/admin")} sx={{ p: { xs: 0.2, md: 0.5 }, '@media (max-width: 390px)': { p: 0.1 }, flexDirection: 'column', position: 'relative' }}>
                                                 <Box component="img" src={adminImg} alt="admin"
-                                                    sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20 }} />
+                                                    sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, '@media (max-width: 390px)': { width: 16, height: 16 } }} />
                                                 {uncheckedCount > 0 && (
                                                     <Box sx={{
                                                         position: 'absolute', top: 0, right: 0,
@@ -417,7 +417,7 @@ export default function Header() {
                                                         !
                                                     </Box>
                                                 )}
-                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자 페이지</Typography>
+                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, '@media (max-width: 390px)': { fontSize: '0.5rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>관리자 페이지</Typography>
                                             </IconButton>
                                         </Tooltip>
                                     </Box>
@@ -425,26 +425,26 @@ export default function Header() {
                                 {!isAdmin && (
                                     <>
                                         <Tooltip title="여행후기">
-                                            <IconButton onClick={handleReviewClick} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
+                                            <IconButton onClick={handleReviewClick} sx={{ p: { xs: 0.2, md: 0.5 }, '@media (max-width: 390px)': { p: 0.1 }, flexDirection: 'column' }}>
                                                 <Box component="img" src={reviewImg} alt="여행후기"
-                                                    sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20 }} />
-                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
+                                                    sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, '@media (max-width: 390px)': { width: 16, height: 16 } }} />
+                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, '@media (max-width: 390px)': { fontSize: '0.5rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>여행후기</Typography>
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="예약 및 결제 이용내역">
-                                            <IconButton onClick={() => { navigate('/client/bookings'); window.scrollTo(0, 0); }} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
-                                                <Box sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Typography sx={{ fontSize: { xs: '0.7rem', md: '1.1rem' } }}>📋</Typography>
+                                            <IconButton onClick={() => { navigate('/client/bookings'); window.scrollTo(0, 0); }} sx={{ p: { xs: 0.2, md: 0.5 }, '@media (max-width: 390px)': { p: 0.1 }, flexDirection: 'column' }}>
+                                                <Box sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center', '@media (max-width: 390px)': { width: 16, height: 16 } }}>
+                                                    <Typography sx={{ fontSize: { xs: '0.7rem', md: '1.1rem' }, '@media (max-width: 390px)': { fontSize: '0.6rem' } }}>📋</Typography>
                                                 </Box>
-                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>이용내역</Typography>
+                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, '@media (max-width: 390px)': { fontSize: '0.5rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>이용내역</Typography>
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="문의하기">
-                                            <IconButton onClick={() => { navigate('/inquiry'); window.scrollTo(0, 0); }} sx={{ p: { xs: 0.2, md: 0.5 }, flexDirection: 'column' }}>
-                                                <Box sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <Typography sx={{ fontSize: { xs: '0.7rem', md: '1.1rem' } }}>💬</Typography>
+                                            <IconButton onClick={() => { navigate('/inquiry'); window.scrollTo(0, 0); }} sx={{ p: { xs: 0.2, md: 0.5 }, '@media (max-width: 390px)': { p: 0.1 }, flexDirection: 'column' }}>
+                                                <Box sx={{ width: { xs: 20, md: 36 }, height: { xs: 20, md: 36 }, borderRadius: 20, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center', '@media (max-width: 390px)': { width: 16, height: 16 } }}>
+                                                    <Typography sx={{ fontSize: { xs: '0.7rem', md: '1.1rem' }, '@media (max-width: 390px)': { fontSize: '0.6rem' } }}>💬</Typography>
                                                 </Box>
-                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>문의하기</Typography>
+                                                <Typography variant="caption" sx={{ fontSize: { xs: '0.55rem', md: '0.65rem' }, '@media (max-width: 390px)': { fontSize: '0.5rem' }, mt: 0.3, lineHeight: 1, color: '#000', fontWeight: 700 }}>문의하기</Typography>
                                             </IconButton>
                                         </Tooltip>
                                     </>
