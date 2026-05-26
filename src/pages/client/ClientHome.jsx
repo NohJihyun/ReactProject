@@ -17,6 +17,7 @@ import 'swiper/css/pagination';
 import { getProductsByCategory } from '../../api/clientApi';
 import { getRecentReviews } from '../../api/reviewApi';
 import IMG_BASE from '../../config/imageConfig';
+import { useAuth } from '../../auth/AuthProvider';
 
 const CATEGORY_META = {
     domestic: { icon: <LandscapeIcon sx={{ fontSize: 16 }} />,      color: '#2e7d32' },
@@ -643,6 +644,7 @@ function CategorySection({ section }) {
 
 /* ── 최근 후기 섹션 ── */
 function RecentReviewSection() {
+    const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [infoSnack, setInfoSnack] = useState(false);
@@ -693,7 +695,10 @@ function RecentReviewSection() {
                             fontWeight: 500,
                             whiteSpace: 'nowrap',
                         }}>
-                            ✏️ 등록한 글 관리는 오른쪽 상단 여행후기에서 하실 수 있어요
+                            {user
+                                ? '✏️ 오른쪽 상단 여행후기 아이콘에서 후기를 관리하실 수 있습니다'
+                                : '✏️ 등록한 글 관리는 회원가입된 고객만 이용 가능하며 로그인하면 사용자 영역에서 여행후기 아이콘을 확인하실 수 있습니다'
+                            }
                         </Box>
                     </Fade>
                 </Box>
