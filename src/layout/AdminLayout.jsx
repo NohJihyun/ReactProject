@@ -8,13 +8,13 @@ import { getInquiryNewCount } from '../api/inquiryApi';
 import { useAuth } from '../auth/AuthProvider';
 //import logo from '../assets/rohitour.jpg'
 
-const SUPER_ADMINS = ['admin@rohitour.com'];
+const SUPER_ADMINS = ['admin@rohitour.com', 'admin@test.com'];
 
 /* 관리자 레이아웃 */
 const drawerWidth = 240;
 export default function AdminLayout() {
     const { user } = useAuth();
-    const isSuperAdmin = user?.email && SUPER_ADMINS.includes(user.email);
+    const isSuperAdmin = user?.loginId && SUPER_ADMINS.includes(user.loginId);
     const [open, setOpen] = useState(false);
     const [showTop, setShowTop] = useState(false);
     const [uncheckedCount, setUncheckedCount] = useState(0);

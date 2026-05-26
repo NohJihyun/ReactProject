@@ -8,14 +8,14 @@ import { getAdminUsers, changeUserRole } from '../../api/adminUserApi';
 import CommonPagination from '../../components/CommonPagination';
 import { useAuth } from '../../auth/AuthProvider';
 
-const SUPER_ADMINS = ['admin@rohitour.com'];
+const SUPER_ADMINS = ['admin@rohitour.com', 'admin@test.com'];
 
 const PROVIDER_LABEL = { LOCAL: '일반', KAKAO: '카카오', NAVER: '네이버', GOOGLE: '구글' };
 const PROVIDER_COLOR = { LOCAL: 'default', KAKAO: 'warning', NAVER: 'success', GOOGLE: 'error' };
 
 export default function AdminUsersPage() {
     const { user } = useAuth();
-    const isSuperAdmin = user?.email && SUPER_ADMINS.includes(user.email);
+    const isSuperAdmin = user?.loginId && SUPER_ADMINS.includes(user.loginId);
     const [users, setUsers] = useState([]);
     const [totalPage, setTotalPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
