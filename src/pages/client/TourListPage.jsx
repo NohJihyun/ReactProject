@@ -82,7 +82,7 @@ function ProductCard({ product, categorySlug, onClick }) {
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
-                height: 420,
+                height: { xs: 'auto', sm: 420 },
                 '&:hover': {
                     transform: 'translateY(-6px)',
                     boxShadow: '0 8px 28px rgba(0,0,0,0.16)',
