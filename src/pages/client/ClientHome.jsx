@@ -325,9 +325,9 @@ function ProductCard({ product, categorySlug, onClick }) {
                 )}
 
                 {product.hashtags && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
                         {parseTags(product.hashtags).map((tag) => (
-                            <Typography key={tag} variant="caption" sx={{ color: meta.color ?? '#1976d2', fontSize: '0.68rem', fontWeight: 500, textAlign: 'center', flex: 1, whiteSpace: 'nowrap' }}>
+                            <Typography key={tag} variant="caption" sx={{ color: meta.color ?? '#1976d2', fontSize: '0.68rem', fontWeight: 500 }}>
                                 {tag}
                             </Typography>
                         ))}
