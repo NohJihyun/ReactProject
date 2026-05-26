@@ -221,7 +221,9 @@ export default function NoticePopup() {
         >
             {/* 슬라이드 */}
             <Box key={slide} sx={{ overflow: 'hidden', animation: `${dir === 'fromRight' ? slideFromRight : slideFromLeft} 0.3s ease` }}>
-                {slide === 0 ? <Slide1 /> : <Slide2 />}
+                <Box sx={{ overflowY: 'auto', maxHeight: { xs: '58vh', sm: 'none' } }}>
+                    {slide === 0 ? <Slide1 /> : <Slide2 />}
+                </Box>
             </Box>
 
             <Divider />
