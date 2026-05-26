@@ -216,7 +216,7 @@ export default function NoticePopup() {
             maxWidth="sm"
             fullWidth
             PaperProps={{
-                sx: { borderRadius: 3, overflow: 'hidden', m: { xs: 2, sm: 3 } }
+                sx: { borderRadius: 3, overflow: 'hidden', m: { xs: 1, sm: 2, md: 3 } }
             }}
         >
             {/* 슬라이드 */}
@@ -228,7 +228,7 @@ export default function NoticePopup() {
 
             {/* 하단 네비게이션 */}
             <Box sx={{
-                px: 2.5, py: 1.5,
+                px: { xs: 1.5, sm: 2.5 }, py: 1.5,
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 bgcolor: '#fafafa',
             }}>
