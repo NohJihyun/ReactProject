@@ -333,6 +333,22 @@ export default function Header() {
 
                     {/* 사용자 영역 */}
                     <Box sx={{ display: "flex", flexDirection: 'column', alignItems: { xs: 'flex-end', md: 'center' }, ml: { xs: 0, md: 'auto' }, order: { xs: 2, md: 0 }, gap: 0.3, alignSelf: { xs: 'center', md: 'flex-end' }, pb: { xs: 0, md: 1 }, pr: { md: 0 }, flex: { xs: 1, md: 'none' } }}>
+                        {/* Mypage 링크 — 로그인 + 일반 사용자만 */}
+                        {user && user.role !== 'ADMIN' && (
+                            <Typography
+                                onClick={() => { navigate('/client/mypage'); window.scrollTo(0, 0); }}
+                                sx={{
+                                    fontSize: '0.7rem', fontWeight: 700,
+                                    color: '#1976d2', cursor: 'pointer',
+                                    letterSpacing: 0.5,
+                                    '&:hover': { textDecoration: 'underline' },
+                                    alignSelf: 'flex-start',
+                                    mb: 0.2,
+                                }}
+                            >
+                                Mypage
+                            </Typography>
+                        )}
                         {/* 버튼 가로 배치 */}
                         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0 }}>
                         {!user ? (

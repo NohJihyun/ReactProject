@@ -28,6 +28,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminBookingPage from './pages/admin/AdminBookingPage';
 import MyReviewPage from './pages/client/MyReviewPage';
 import MyBookingPage from './pages/client/MyBookingPage';
+import MyPage from './pages/client/MyPage';
 import PaymentPage from './pages/client/PaymentPage';
 import InquiryPage from './pages/client/InquiryPage';
 import AdminInquiryPage from './pages/admin/AdminInquiryPage';
@@ -71,6 +72,7 @@ export default function App() {
                     >
                         <Route path="/client" element={<ClientHome />} />
                         <Route path="/client/other" element={<OtherClientPage />} />
+                        <Route path="/client/mypage" element={<MyPage />} />
                         <Route path="/client/reviews" element={<MyReviewPage />} />
                         <Route path="/client/bookings" element={<MyBookingPage />} />
                     </Route>

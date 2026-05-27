@@ -80,3 +80,19 @@ export async function resetPasswordApi(token, newPassword) {
 export async function agreeTermsApi(body) {
     await http.post("/api/users/terms", body, { skipAuthRefresh: true });
 }
+
+/** 내 프로필 전체 조회 (마이페이지용) */
+export async function getMyProfileApi() {
+    const res = await http.get("/api/users/me");
+    return res.data;
+}
+
+/** 프로필 수정 (이름·연락처·생년월일) */
+export async function updateProfileApi(body) {
+    await http.put("/api/users/me", body);
+}
+
+/** 비밀번호 변경 (LOCAL 계정만) */
+export async function changePasswordApi(body) {
+    await http.put("/api/users/me/password", body);
+}
