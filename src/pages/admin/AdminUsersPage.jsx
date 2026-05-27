@@ -72,13 +72,13 @@ export default function AdminUsersPage() {
                     </Alert>
                 </Box>
 
-                <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <Box component="form" onSubmit={handleSearch} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1, mb: 2 }}>
                     <TextField
                         size="small"
                         placeholder="이름 또는 아이디 검색"
                         value={inputKeyword}
                         onChange={e => setInputKeyword(e.target.value)}
-                        sx={{ width: 280 }}
+                        sx={{ width: { xs: '100%', sm: 280 } }}
                     />
                     <Button type="submit" variant="contained" size="small">검색</Button>
                     <Button
@@ -97,7 +97,8 @@ export default function AdminUsersPage() {
                     </Box>
                 ) : (
                     <>
-                        <Table size="small">
+                        <Box sx={{ overflowX: 'auto' }}>
+                    <Table size="small" sx={{ minWidth: 520 }}>
                             <TableHead>
                                 <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                                     <TableCell>이름</TableCell>
@@ -151,6 +152,7 @@ export default function AdminUsersPage() {
                                 ))}
                             </TableBody>
                         </Table>
+                    </Box>
 
                         <CommonPagination
                             count={totalPage}

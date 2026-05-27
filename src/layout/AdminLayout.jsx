@@ -144,6 +144,7 @@ export default function AdminLayout() {
             <Drawer open={open} onClose={()=>setOpen(false)} sx={{
                 display:{ md:'none' }, '& .MuiDrawer-paper':{ width:drawerWidth }
             }}>
+                <Toolbar />
                 <List>
                     {items.map(i => {
                         const bookingBadge = i.to === '/admin/bookings' && uncheckedCount > 0;
@@ -155,7 +156,7 @@ export default function AdminLayout() {
                                 to={i.to}
                                 end
                                 onClick={()=>setOpen(false)}
-                                sx={{ '&.active': { bgcolor: 'action.selected' } }}
+                                sx={{ '&.active': { bgcolor: 'action.selected' }, fontSize: { xs: '0.82rem', sm: '0.875rem' }, py: 1.2 }}
                             >
                                 {(bookingBadge || inquiryBadge) ? (
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>

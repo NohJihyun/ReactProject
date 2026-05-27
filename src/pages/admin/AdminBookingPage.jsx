@@ -423,21 +423,21 @@ export default function AdminBookingPage() {
                 <Alert severity="info" sx={{ mb: 2, fontSize: '0.92rem', fontWeight: 700 }}>각 상품에 예약된 현황을 확인 관리 하실수 있습니다.</Alert>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} flexWrap="wrap" useFlexGap alignItems="center">
                     <TextField select size="small" label="예약 상태" value={bookingStatus}
-                        onChange={e => { setBookingStatus(e.target.value); setPage(1); }} sx={{ minWidth: 130 }}>
+                        onChange={e => { setBookingStatus(e.target.value); setPage(1); }} sx={{ minWidth: { xs: '100%', sm: 130 } }}>
                         <MenuItem value="">전체</MenuItem>
                         {Object.entries(BOOKING_STATUS).map(([k, v]) => (
                             <MenuItem key={k} value={k}>{v.label}</MenuItem>
                         ))}
                     </TextField>
                     <TextField select size="small" label="결제 상태" value={paymentStatus}
-                        onChange={e => { setPaymentStatus(e.target.value); setPage(1); }} sx={{ minWidth: 130 }}>
+                        onChange={e => { setPaymentStatus(e.target.value); setPage(1); }} sx={{ minWidth: { xs: '100%', sm: 130 } }}>
                         <MenuItem value="">전체</MenuItem>
                         {Object.entries(PAYMENT_STATUS).map(([k, v]) => (
                             <MenuItem key={k} value={k}>{v.label}</MenuItem>
                         ))}
                     </TextField>
                     <TextField select size="small" label="상품별" value={productId}
-                        onChange={e => { setProductId(e.target.value); setPage(1); }} sx={{ minWidth: 180 }}>
+                        onChange={e => { setProductId(e.target.value); setPage(1); }} sx={{ minWidth: { xs: '100%', sm: 180 } }}>
                         <MenuItem value="">전체 상품</MenuItem>
                         {products.map(p => (
                             <MenuItem key={p.productId} value={p.productId}>{p.productName}</MenuItem>
@@ -446,7 +446,7 @@ export default function AdminBookingPage() {
                     <TextField size="small" placeholder="상품명 / 예약자명 / 연락처 / 예약번호"
                         value={searchInput} onChange={e => setSearchInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                        sx={{ minWidth: 280 }} />
+                        sx={{ minWidth: { xs: '100%', sm: 280 } }} />
                     <Button variant="contained" size="small" onClick={handleSearch}>검색</Button>
                     <Button variant="outlined"  size="small" onClick={handleReset}>초기화</Button>
                     <Box sx={{ flexGrow: 1 }} />
@@ -469,7 +469,7 @@ export default function AdminBookingPage() {
                     </Box>
                 ) : (
                     <Box sx={{ overflowX: 'auto' }}>
-                        <Table size="small">
+                        <Table size="small" sx={{ minWidth: 800 }}>
                             <TableHead>
                                 <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                                     <TableCell align="center" sx={{ fontWeight: 700 }}>예약번호</TableCell>

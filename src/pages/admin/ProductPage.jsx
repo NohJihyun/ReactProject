@@ -124,7 +124,7 @@ export default function ProductPage() {
                 {/* 테이블 */}
                 <Box sx={{ width: '100%', overflowX: 'auto' }}>
                     <table
-                        style={{ width: '100%', borderCollapse: 'collapse', boxSizing: 'border-box' }}
+                        style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse', boxSizing: 'border-box' }}
                         border="1"
                         cellPadding="8"
                     >

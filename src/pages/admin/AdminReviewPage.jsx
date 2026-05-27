@@ -138,8 +138,8 @@ export default function AdminReviewPage() {
                     size="small" placeholder="상품명 / 작성자 / 내용"
                     value={keyword} onChange={e => setKeyword(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                    sx={{ minWidth: 220 }} />
-                <FormControl size="small" sx={{ minWidth: 120 }}>
+                    sx={{ minWidth: { xs: '100%', sm: 220 } }} />
+                <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                     <InputLabel>상태</InputLabel>
                     <Select value={status} label="상태" onChange={e => setStatus(e.target.value)}>
                         <MenuItem value="">전체</MenuItem>
@@ -147,7 +147,7 @@ export default function AdminReviewPage() {
                         <MenuItem value="HIDDEN">숨김</MenuItem>
                     </Select>
                 </FormControl>
-                <FormControl size="small" sx={{ minWidth: 130 }}>
+                <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 130 } }}>
                     <InputLabel>작성자 유형</InputLabel>
                     <Select value={writerType} label="작성자 유형" onChange={e => setWriterType(e.target.value)}>
                         <MenuItem value="">전체</MenuItem>
@@ -172,7 +172,8 @@ export default function AdminReviewPage() {
                 <Box sx={{ py: 8, textAlign: 'center' }}><CircularProgress /></Box>
             ) : (
                 <>
-                    <Table size="small">
+                    <Box sx={{ overflowX: 'auto' }}>
+                    <Table size="small" sx={{ minWidth: 700 }}>
                         <TableHead>
                             <TableRow sx={{ bgcolor: 'grey.50' }}>
                                 <TableCell sx={{ fontWeight: 700, width: '18%' }}>상품명</TableCell>
@@ -249,6 +250,7 @@ export default function AdminReviewPage() {
                             )}
                         </TableBody>
                     </Table>
+                    </Box>
 
                     <CommonPagination
                         count={totalPage}

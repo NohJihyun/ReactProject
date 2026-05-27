@@ -78,24 +78,24 @@ export default function AdminInquiryPage() {
             </Box>
 
             {/* 검색 필터 */}
-            <Paper variant="outlined" sx={{ p: 2, mb: 2.5, display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Paper variant="outlined" sx={{ p: 2, mb: 2.5, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1.5, flexWrap: 'wrap', alignItems: { xs: 'stretch', sm: 'center' } }}>
                 <TextField
                     label="검색 (이름/제목/이메일)" value={keyword}
                     onChange={e => setKeyword(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                    size="small" sx={{ minWidth: 240 }} />
-                <TextField select label="유형" value={category} onChange={e => { setCategory(e.target.value); setPage(1); }} size="small" sx={{ minWidth: 120 }}>
+                    size="small" sx={{ minWidth: { xs: '100%', sm: 240 } }} />
+                <TextField select label="유형" value={category} onChange={e => { setCategory(e.target.value); setPage(1); }} size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                     {CATEGORIES.map(c => <MenuItem key={c} value={c}>{c || '전체'}</MenuItem>)}
                 </TextField>
-                <TextField select label="상태" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} size="small" sx={{ minWidth: 120 }}>
+                <TextField select label="상태" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
                     {STATUS_OPTIONS.map(s => <MenuItem key={s.value} value={s.value}>{s.label}</MenuItem>)}
                 </TextField>
                 <Button variant="contained" onClick={handleSearch} sx={{ fontWeight: 700 }}>검색</Button>
             </Paper>
 
             {/* 목록 */}
-            <Paper variant="outlined" sx={{ mb: 2 }}>
-                <Table size="small">
+            <Paper variant="outlined" sx={{ mb: 2, overflowX: 'auto' }}>
+                <Table size="small" sx={{ minWidth: 680 }}>
                     <TableHead>
                         <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                             <TableCell>회원구분</TableCell>
@@ -179,7 +179,7 @@ export default function AdminInquiryPage() {
                                     <Typography variant="caption" color="text.secondary">제목</Typography>
                                     <Typography variant="body1" fontWeight={700}>{selected.title}</Typography>
                                 </Box>
-                                <Box sx={{ display: 'flex', gap: 3 }}>
+                                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1.5, sm: 3 } }}>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">작성자</Typography>
                                         <Typography variant="body2">{selected.name}</Typography>
