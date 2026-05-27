@@ -531,48 +531,24 @@ function CategorySection({ section }) {
                 {/* 수학여행 전용 안내 배너 */}
                 {section.id === 'school' && (
                     <Box sx={{
-                        display: 'flex', flexDirection: { xs: 'column', sm: 'row' },
-                        gap: { xs: 1.5, sm: 0 },
                         mb: 3, borderRadius: 2.5, overflow: 'hidden',
                         border: '1px solid #c5cae9',
                         boxShadow: '0 2px 12px rgba(63,81,181,0.1)',
+                        px: 2.5, py: 2,
+                        background: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
+                        display: 'flex', alignItems: 'center', gap: 1.5,
                     }}>
-                        <Box sx={{
-                            flex: 1, px: 2.5, py: 2,
-                            background: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
-                            display: 'flex', alignItems: 'center', gap: 1.5,
-                        }}>
-                            <Typography sx={{ fontSize: '1.6rem', lineHeight: 1 }}>🏆</Typography>
-                            <Box>
-                                <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700, letterSpacing: 1, fontSize: '0.72rem', display: 'block', mb: 0.3 }}>
-                                    TRACK RECORD
-                                </Typography>
-                                <Typography fontWeight={800} color="#fff" sx={{ fontSize: '1.15rem', lineHeight: 1.3 }}>
-                                    직접 동행한 진행 실적
-                                </Typography>
-                                <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', mt: 0.3 }}>
-                                    실제 운영·관리한 수학여행
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <Box sx={{ width: { xs: '100%', sm: 2 }, height: { xs: 2, sm: 'auto' }, bgcolor: 'rgba(255,255,255,0.3)' }} />
-                        <Box sx={{
-                            flex: 1, px: 2.5, py: 2,
-                            background: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
-                            display: 'flex', alignItems: 'center', gap: 1.5,
-                        }}>
-                            <Typography sx={{ fontSize: '1.6rem', lineHeight: 1 }}>📋</Typography>
-                            <Box>
-                                <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700, letterSpacing: 1, fontSize: '0.72rem', display: 'block', mb: 0.3 }}>
-                                    PLANNING
-                                </Typography>
-                                <Typography fontWeight={800} color="#fff" sx={{ fontSize: '1rem', lineHeight: 1.3 }}>
-                                    현재 기획 중인 상품
-                                </Typography>
-                                <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', mt: 0.3 }}>
-                                    새롭게 준비하는 여행 프로그램
-                                </Typography>
-                            </Box>
+                        <Typography sx={{ fontSize: '1.6rem', lineHeight: 1 }}>🏆</Typography>
+                        <Box>
+                            <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700, letterSpacing: 1, fontSize: '0.72rem', display: 'block', mb: 0.3 }}>
+                                TRACK RECORD
+                            </Typography>
+                            <Typography fontWeight={800} color="#fff" sx={{ fontSize: '1.15rem', lineHeight: 1.3 }}>
+                                직접 동행한 진행 실적
+                            </Typography>
+                            <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', mt: 0.3 }}>
+                                실제 운영·관리한 수학여행
+                            </Typography>
                         </Box>
                     </Box>
                 )}
