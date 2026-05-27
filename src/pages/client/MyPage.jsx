@@ -81,7 +81,7 @@ export default function MyPage() {
         setSaving(true);
         setProfileError('');
         try {
-            await updateProfileApi({ name: form.name.trim(), phone: form.phone, birth: form.birth || null });
+            await updateProfileApi({ name: form.name.trim(), phone: form.phone || null, birth: form.birth || null });
             setProfile(prev => ({ ...prev, name: form.name.trim(), phone: form.phone, birth: form.birth }));
             setEditMode(false);
             showSnack('프로필이 저장되었습니다.');
