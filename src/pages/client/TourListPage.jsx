@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    Box, Container, Typography, Chip, Skeleton, Stack,
+    Box, Container, Typography, Chip, Skeleton, Stack, Button,
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PeopleIcon         from '@mui/icons-material/People';
 import AttachMoneyIcon    from '@mui/icons-material/AttachMoney';
 import SchoolIcon         from '@mui/icons-material/School';
@@ -301,6 +302,15 @@ export default function TourListPage() {
     return (
         <Box sx={{ bgcolor: '#f7f8fc', minHeight: '100vh', py: 5 }}>
             <Container maxWidth="xl">
+                {/* 홈으로 */}
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => { navigate('/'); window.scrollTo(0, 0); }}
+                    sx={{ mb: 2, color: 'text.secondary' }}
+                >
+                    홈으로
+                </Button>
+
                 {/* 페이지 헤더 */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                     <Box sx={{
