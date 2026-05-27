@@ -8,6 +8,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import WifiIcon from '@mui/icons-material/Wifi';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useEffect, useState, useCallback } from 'react';
@@ -170,7 +171,7 @@ export default function AdminDashboard() {
             ) : (
                 <>
                     {/* ── 활성 세션 배너 ── */}
-                    <Paper variant="outlined" sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: '#e8f5e9' }}>
+                    <Paper variant="outlined" sx={{ p: 2, mb: 1.5, display: 'flex', alignItems: 'center', gap: 2, bgcolor: '#e8f5e9' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#43a047', boxShadow: '0 0 0 3px #a5d6a7' }} />
                             <WifiIcon sx={{ color: '#388e3c' }} />
@@ -182,6 +183,24 @@ export default function AdminDashboard() {
                             </Typography>
                         </Box>
                         <Chip label="유효 RefreshToken 기준" size="small" sx={{ ml: 'auto', bgcolor: '#c8e6c9', color: '#1b5e20' }} />
+                    </Paper>
+
+                    {/* ── 오늘 방문자 배너 ── */}
+                    <Paper variant="outlined" sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: '#e3f2fd' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#1976d2', boxShadow: '0 0 0 3px #90caf9' }} />
+                            <VisibilityIcon sx={{ color: '#1565c0' }} />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary">오늘 방문자 (비회원 포함 전체)</Typography>
+                            <Typography variant="h6" fontWeight={700} color="#1565c0">
+                                {stats?.todayVisitors?.toLocaleString() ?? '-'} 명
+                                <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1.5 }}>
+                                    PC {stats?.todayPcVisitors ?? 0} · 모바일 {stats?.todayMobileVisitors ?? 0}
+                                </Typography>
+                            </Typography>
+                        </Box>
+                        <Chip label="오늘 기준 UUID 방문 수" size="small" sx={{ ml: 'auto', bgcolor: '#bbdefb', color: '#0d47a1' }} />
                     </Paper>
 
                     {/* ── 예약·결제 현황 + 문의 현황 (5:5) ── */}

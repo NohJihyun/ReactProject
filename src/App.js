@@ -35,11 +35,19 @@ import AdminInquiryPage from './pages/admin/AdminInquiryPage';
 // auth
 import AuthProvider from "./auth/AuthProvider";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import { useEffect } from 'react';
+import { trackVisit } from './utils/visitTracker';
+
+function VisitTracker() {
+    useEffect(() => { trackVisit(); }, []);
+    return null;
+}
 
 export default function App() {
     return (
         <Router>
             <AuthProvider>
+                <VisitTracker />
                 <Routes>
 
                     {/* 메인 / 공용 (비인증) */}
