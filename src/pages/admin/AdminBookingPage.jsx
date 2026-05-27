@@ -419,25 +419,45 @@ export default function AdminBookingPage() {
 
             {/* 목록 */}
             <Paper variant="outlined" sx={{ p: 2.5 }}>
-                <Typography variant="h6" fontWeight={800} color="text.primary" mb={1}>예약 목록 관리</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="h6" fontWeight={800} color="text.primary">예약 목록 관리</Typography>
+                    <Stack direction="row" spacing={0.5} sx={{ display: { xs: 'flex', sm: 'none' } }}>
+                        <Button variant="contained" size="small" onClick={handleSearch}>검색</Button>
+                        <Button variant="outlined" size="small" onClick={handleReset}>초기화</Button>
+                        <Button
+                            variant="contained"
+                            size="small"
+                            color="success"
+                            startIcon={exporting ? <CircularProgress size={12} color="inherit" /> : <DownloadIcon />}
+                            onClick={handleExport}
+                            disabled={exporting}
+                            sx={{ whiteSpace: 'nowrap', fontWeight: 700 }}
+                        >
+                            엑셀
+                        </Button>
+                    </Stack>
+                </Box>
                 <Alert severity="info" sx={{ mb: 2, fontSize: '0.92rem', fontWeight: 700 }}>각 상품에 예약된 현황을 확인 관리 하실수 있습니다.</Alert>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} mb={2} flexWrap="wrap" useFlexGap alignItems="center">
+                <Stack direction="row" spacing={1.5} mb={2} flexWrap="wrap" useFlexGap alignItems="center">
                     <TextField select size="small" label="예약 상태" value={bookingStatus}
-                        onChange={e => { setBookingStatus(e.target.value); setPage(1); }} sx={{ minWidth: { xs: '100%', sm: 130 } }}>
+                        onChange={e => { setBookingStatus(e.target.value); setPage(1); }}
+                        sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: { xs: 0, sm: 130 } }}>
                         <MenuItem value="">전체</MenuItem>
                         {Object.entries(BOOKING_STATUS).map(([k, v]) => (
                             <MenuItem key={k} value={k}>{v.label}</MenuItem>
                         ))}
                     </TextField>
                     <TextField select size="small" label="결제 상태" value={paymentStatus}
-                        onChange={e => { setPaymentStatus(e.target.value); setPage(1); }} sx={{ minWidth: { xs: '100%', sm: 130 } }}>
+                        onChange={e => { setPaymentStatus(e.target.value); setPage(1); }}
+                        sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: { xs: 0, sm: 130 } }}>
                         <MenuItem value="">전체</MenuItem>
                         {Object.entries(PAYMENT_STATUS).map(([k, v]) => (
                             <MenuItem key={k} value={k}>{v.label}</MenuItem>
                         ))}
                     </TextField>
                     <TextField select size="small" label="상품별" value={productId}
-                        onChange={e => { setProductId(e.target.value); setPage(1); }} sx={{ minWidth: { xs: '100%', sm: 180 } }}>
+                        onChange={e => { setProductId(e.target.value); setPage(1); }}
+                        sx={{ width: { xs: '100%', sm: 'auto' }, minWidth: { xs: 0, sm: 180 } }}>
                         <MenuItem value="">전체 상품</MenuItem>
                         {products.map(p => (
                             <MenuItem key={p.productId} value={p.productId}>{p.productName}</MenuItem>
@@ -446,10 +466,12 @@ export default function AdminBookingPage() {
                     <TextField size="small" placeholder="상품명 / 예약자명 / 연락처 / 예약번호"
                         value={searchInput} onChange={e => setSearchInput(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                        sx={{ minWidth: { xs: '100%', sm: 280 } }} />
-                    <Button variant="contained" size="small" onClick={handleSearch}>검색</Button>
-                    <Button variant="outlined"  size="small" onClick={handleReset}>초기화</Button>
-                    <Box sx={{ flexGrow: 1 }} />
+                        sx={{ flex: { xs: 1, sm: 'none' }, minWidth: { xs: 0, sm: 280 } }} />
+                    <Button variant="contained" size="small" onClick={handleSearch}
+                        sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>검색</Button>
+                    <Button variant="outlined" size="small" onClick={handleReset}
+                        sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>초기화</Button>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }} />
                     <Button
                         variant="contained"
                         size="small"
@@ -457,7 +479,7 @@ export default function AdminBookingPage() {
                         startIcon={exporting ? <CircularProgress size={14} color="inherit" /> : <DownloadIcon />}
                         onClick={handleExport}
                         disabled={exporting}
-                        sx={{ whiteSpace: 'nowrap', fontWeight: 700 }}
+                        sx={{ whiteSpace: 'nowrap', fontWeight: 700, display: { xs: 'none', sm: 'inline-flex' } }}
                     >
                         {exporting ? '다운로드 중...' : '엑셀 다운로드'}
                     </Button>
