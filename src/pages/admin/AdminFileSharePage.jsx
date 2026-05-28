@@ -1,3 +1,4 @@
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
     Box, Typography, Paper, Button, IconButton, List, ListItemButton,
     ListItemText, ListItemIcon, Collapse, Table, TableHead, TableRow,
@@ -15,7 +16,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
 import HistoryIcon from '@mui/icons-material/History';
-import { useEffect, useRef, useState, useCallback } from 'react';
 import {
     getFolders, createFolder, renameFolder, deleteFolder,
     getFiles, getVersions, uploadFile, uploadVersion, downloadFile, deleteFile
@@ -30,7 +30,10 @@ const formatSize = (bytes) => {
 
 const formatDate = (dt) => {
     if (!dt) return '-';
-    return new Date(dt).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return new Date(dt).toLocaleString('ko-KR', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+    });
 };
 
 function FolderTreeItem({ folder, selectedId, onSelect, onRename, onDelete, depth = 0 }) {
@@ -46,9 +49,14 @@ function FolderTreeItem({ folder, selectedId, onSelect, onRename, onDelete, dept
                 sx={{ pl: 2 + depth * 2, py: 0.8, borderRadius: 1, mb: 0.3 }}
             >
                 <ListItemIcon sx={{ minWidth: 32 }}>
-                    {isSelected ? <FolderOpenIcon color="warning" fontSize="small" /> : <FolderIcon color="action" fontSize="small" />}
+                    {isSelected
+                        ? <FolderOpenIcon color="warning" fontSize="small" />
+                        : <FolderIcon color="action" fontSize="small" />}
                 </ListItemIcon>
-                <ListItemText primary={folder.name} primaryTypographyProps={{ fontSize: 14, fontWeight: isSelected ? 700 : 400 }} />
+                <ListItemText
+                    primary={folder.name}
+                    primaryTypographyProps={{ fontSize: 14, fontWeight: isSelected ? 700 : 400 }}
+                />
                 <Box sx={{ display: 'flex', gap: 0.3, opacity: 0.6 }}>
                     <Tooltip title="이름 변경">
                         <IconButton size="small" onClick={e => { e.stopPropagation(); onRename(folder); }}>
@@ -92,7 +100,6 @@ export default function AdminFileSharePage() {
     const [fileLoading, setFileLoading] = useState(false);
     const [snack, setSnack] = useState({ open: false, msg: '', severity: 'success' });
 
-    // Dialog states
     const [folderDialog, setFolderDialog] = useState({ open: false, mode: 'create', folder: null, name: '', parentId: null });
     const [deleteDialog, setDeleteDialog] = useState({ open: false, type: '', target: null });
 
@@ -102,33 +109,58 @@ export default function AdminFileSharePage() {
 
     const showSnack = (msg, severity = 'success') => setSnack({ open: true, msg, severity });
 
-    const loadFolders = useCallback(async () => {
-        setLoading(true);
+    // silent=true → 로딩 스피너·상태 초기화 없이 데이터만 갱신 (폴링용)
+    const loadFolders = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             const data = await getFolders();
             setFolders(data);
         } catch {
-            showSnack('폴더 목록을 불러오지 못했습니다.', 'error');
+            if (!silent) showSnack('폴더 목록을 불러오지 못했습니다.', 'error');
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, []);
 
-    useEffect(() => { loadFolders(); }, [loadFolders]);
-
-    const loadFiles = useCallback(async (folderId) => {
-        setFileLoading(true);
-        setExpandedGroups({});
-        setVersions({});
+    const loadFiles = useCallback(async (folderId, silent = false) => {
+        if (!silent) {
+            setFileLoading(true);
+            setExpandedGroups({});
+            setVersions({});
+        }
         try {
             const data = await getFiles(folderId);
             setFiles(data);
         } catch {
-            showSnack('파일 목록을 불러오지 못했습니다.', 'error');
+            if (!silent) showSnack('파일 목록을 불러오지 못했습니다.', 'error');
         } finally {
-            setFileLoading(false);
+            if (!silent) setFileLoading(false);
         }
     }, []);
+
+    // 초기 로드
+    useEffect(() => { loadFolders(); }, [loadFolders]);
+
+    // 파일 폴링 — 15초마다 현재 폴더 파일 목록 갱신 (탭 숨김 시 스킵)
+    useEffect(() => {
+        if (!selectedFolder) return;
+        const id = setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                loadFiles(selectedFolder.id, true);
+            }
+        }, 15000);
+        return () => clearInterval(id);
+    }, [selectedFolder, loadFiles]);
+
+    // 폴더 폴링 — 30초마다 폴더 트리 갱신
+    useEffect(() => {
+        const id = setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                loadFolders(true);
+            }
+        }, 30000);
+        return () => clearInterval(id);
+    }, [loadFolders]);
 
     const handleSelectFolder = (folder) => {
         setSelectedFolder(folder);
@@ -190,13 +222,11 @@ export default function AdminFileSharePage() {
         const file = e.target.files[0];
         if (!file || !selectedFolder) return;
         e.target.value = '';
-
         const duplicate = files.find(f => f.displayName === file.name);
         if (duplicate) {
-            showSnack(`"${file.name}" 파일이 이미 존재합니다. 새 버전 업로드(↑ 초록색 버튼)를 이용해주세요.`, 'warning');
+            showSnack(`"${file.name}" 파일이 이미 존재합니다. 새 버전 업로드(↑ 초록색)를 이용해주세요.`, 'warning');
             return;
         }
-
         try {
             await uploadFile(selectedFolder.id, file);
             showSnack('파일이 업로드되었습니다.');
@@ -251,19 +281,40 @@ export default function AdminFileSharePage() {
 
     return (
         <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-                <Typography variant="h5" fontWeight={700}>파일 공유</Typography>
-                <Alert severity="info" sx={{ py: 0.3, flex: 1 }}>
-                    1. 버튼 안내: <strong>↑(파란색)</strong> 파일 업로드 &nbsp;|&nbsp; <strong>↑(초록색)</strong> 새 버전 업로드 &nbsp;|&nbsp; <strong>↓</strong> 다운로드 &nbsp;|&nbsp; <strong>🗑</strong> 삭제<br />
-                    2. 버전 안내: <strong>v숫자 칩</strong> 클릭 시 이전 버전 목록 펼침 → 각 버전별 다운로드 가능<br />
-                    3. 파일 내려받고 다시 업로드 시 파일명 버전을 업그레이드 해주세요
+            {/* 헤더 */}
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>파일 공유</Typography>
+                <Alert severity="info" sx={{ py: 0.5, '& .MuiAlert-message': { fontSize: { xs: 12, sm: 13 }, lineHeight: 1.6 } }}>
+                    <strong>↑ 파란색</strong> 파일업로드 &nbsp;|&nbsp;
+                    <strong>↑ 초록색</strong> 버전업로드 &nbsp;|&nbsp;
+                    <strong>↓</strong> 다운로드 &nbsp;|&nbsp;
+                    <strong>🗑</strong> 삭제
+                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                        &nbsp;|&nbsp; <strong>v칩</strong> 클릭 시 버전 히스토리 펼침
+                    </Box>
+                    <Box sx={{ display: { xs: 'block', sm: 'none' }, mt: 0.3, fontSize: 11, color: 'text.secondary' }}>
+                        v칩 클릭 → 버전 히스토리 | 15초마다 자동 동기화
+                    </Box>
+                    <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                        &nbsp;|&nbsp; 15초마다 자동 동기화
+                    </Box>
                 </Alert>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+            {/* 2컬럼 레이아웃: xs → 세로 stacked, md+ → 가로 side-by-side */}
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flexDirection: { xs: 'column', md: 'row' } }}>
 
                 {/* 폴더 트리 */}
-                <Paper variant="outlined" sx={{ width: 240, flexShrink: 0, p: 1.5 }}>
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        width: { xs: '100%', md: 240 },
+                        flexShrink: 0,
+                        p: 1.5,
+                        maxHeight: { xs: 200, md: 'none' },
+                        overflowY: { xs: 'auto', md: 'visible' },
+                    }}
+                >
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                         <Typography variant="subtitle2" fontWeight={700} color="text.secondary">폴더</Typography>
                         <Tooltip title="새 폴더">
@@ -298,15 +349,25 @@ export default function AdminFileSharePage() {
                 </Paper>
 
                 {/* 파일 목록 */}
-                <Paper variant="outlined" sx={{ flex: 1, p: 2 }}>
+                <Paper variant="outlined" sx={{ flex: 1, p: { xs: 1.5, sm: 2 }, width: { xs: '100%', md: 'auto' }, minWidth: 0 }}>
                     {!selectedFolder ? (
                         <Box sx={{ py: 6, textAlign: 'center', color: 'text.secondary' }}>
                             <FolderIcon sx={{ fontSize: 48, mb: 1, opacity: 0.3 }} />
-                            <Typography>왼쪽에서 폴더를 선택하세요</Typography>
+                            <Typography variant="body2">
+                                {window.innerWidth < 600 ? '위에서 폴더를 선택하세요' : '왼쪽에서 폴더를 선택하세요'}
+                            </Typography>
                         </Box>
                     ) : (
                         <>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                            {/* 파일 패널 헤더 */}
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: { xs: 'flex-start', sm: 'center' },
+                                justifyContent: 'space-between',
+                                mb: 2,
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                gap: 1,
+                            }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <FolderOpenIcon color="warning" />
                                     <Typography variant="subtitle1" fontWeight={700}>{selectedFolder.name}</Typography>
@@ -321,6 +382,7 @@ export default function AdminFileSharePage() {
                                     size="small"
                                     startIcon={<UploadIcon />}
                                     onClick={() => fileInputRef.current.click()}
+                                    sx={{ alignSelf: { xs: 'flex-start', sm: 'auto' } }}
                                 >
                                     파일 업로드
                                 </Button>
@@ -336,12 +398,12 @@ export default function AdminFileSharePage() {
                                 <Alert severity="info">파일이 없습니다. 파일을 업로드해보세요.</Alert>
                             ) : (
                                 <Box sx={{ overflowX: 'auto' }}>
-                                    <Table size="small" sx={{ minWidth: 500 }}>
+                                    <Table size="small" sx={{ minWidth: 520 }}>
                                         <TableHead>
                                             <TableRow sx={{ bgcolor: '#f5f5f5' }}>
                                                 <TableCell>파일명</TableCell>
-                                                <TableCell>올린 사람</TableCell>
-                                                <TableCell>날짜</TableCell>
+                                                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>올린 사람</TableCell>
+                                                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>날짜</TableCell>
                                                 <TableCell>크기</TableCell>
                                                 <TableCell align="center">버전</TableCell>
                                                 <TableCell align="center">액션</TableCell>
@@ -349,11 +411,11 @@ export default function AdminFileSharePage() {
                                         </TableHead>
                                         <TableBody>
                                             {files.map(f => (
-                                                <>
-                                                    <TableRow key={f.id} hover>
-                                                        <TableCell sx={{ fontWeight: 600 }}>{f.displayName}</TableCell>
-                                                        <TableCell sx={{ fontSize: 13 }}>{f.uploadedBy}</TableCell>
-                                                        <TableCell sx={{ fontSize: 13 }}>{formatDate(f.uploadedAt)}</TableCell>
+                                                <React.Fragment key={f.id}>
+                                                    <TableRow hover>
+                                                        <TableCell sx={{ fontWeight: 600, fontSize: { xs: 12, sm: 14 } }}>{f.displayName}</TableCell>
+                                                        <TableCell sx={{ fontSize: 13, display: { xs: 'none', sm: 'table-cell' } }}>{f.uploadedBy}</TableCell>
+                                                        <TableCell sx={{ fontSize: 13, display: { xs: 'none', sm: 'table-cell' } }}>{formatDate(f.uploadedAt)}</TableCell>
                                                         <TableCell sx={{ fontSize: 13 }}>{formatSize(f.fileSize)}</TableCell>
                                                         <TableCell align="center">
                                                             <Chip
@@ -388,11 +450,11 @@ export default function AdminFileSharePage() {
                                                     </TableRow>
                                                     {expandedGroups[f.groupId] && versions[f.groupId]?.map(v => (
                                                         <TableRow key={v.id} sx={{ bgcolor: '#fafafa' }}>
-                                                            <TableCell sx={{ pl: 4, fontSize: 13, color: 'text.secondary' }}>
+                                                            <TableCell sx={{ pl: { xs: 2, sm: 4 }, fontSize: 12, color: 'text.secondary' }}>
                                                                 └ {v.originalName}
                                                             </TableCell>
-                                                            <TableCell sx={{ fontSize: 12, color: 'text.secondary' }}>{v.uploadedBy}</TableCell>
-                                                            <TableCell sx={{ fontSize: 12, color: 'text.secondary' }}>{formatDate(v.uploadedAt)}</TableCell>
+                                                            <TableCell sx={{ fontSize: 12, color: 'text.secondary', display: { xs: 'none', sm: 'table-cell' } }}>{v.uploadedBy}</TableCell>
+                                                            <TableCell sx={{ fontSize: 12, color: 'text.secondary', display: { xs: 'none', sm: 'table-cell' } }}>{formatDate(v.uploadedAt)}</TableCell>
                                                             <TableCell sx={{ fontSize: 12, color: 'text.secondary' }}>{formatSize(v.fileSize)}</TableCell>
                                                             <TableCell align="center">
                                                                 <Chip label={`v${v.version}`} size="small" variant="outlined" sx={{ fontSize: 11 }} />
@@ -413,7 +475,7 @@ export default function AdminFileSharePage() {
                                                             </TableCell>
                                                         </TableRow>
                                                     ))}
-                                                </>
+                                                </React.Fragment>
                                             ))}
                                         </TableBody>
                                     </Table>
@@ -425,7 +487,12 @@ export default function AdminFileSharePage() {
             </Box>
 
             {/* 폴더 생성/이름변경 다이얼로그 */}
-            <Dialog open={folderDialog.open} onClose={() => setFolderDialog(d => ({ ...d, open: false }))} maxWidth="xs" fullWidth>
+            <Dialog
+                open={folderDialog.open}
+                onClose={() => setFolderDialog(d => ({ ...d, open: false }))}
+                maxWidth="xs"
+                fullWidth
+            >
                 <DialogTitle>{folderDialog.mode === 'create' ? '새 폴더' : '이름 변경'}</DialogTitle>
                 <DialogContent>
                     <TextField
@@ -442,7 +509,12 @@ export default function AdminFileSharePage() {
             </Dialog>
 
             {/* 삭제 확인 다이얼로그 */}
-            <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, type: '', target: null })} maxWidth="xs" fullWidth>
+            <Dialog
+                open={deleteDialog.open}
+                onClose={() => setDeleteDialog({ open: false, type: '', target: null })}
+                maxWidth="xs"
+                fullWidth
+            >
                 <DialogTitle>삭제 확인</DialogTitle>
                 <DialogContent>
                     <Typography>
