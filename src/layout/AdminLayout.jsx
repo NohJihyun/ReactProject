@@ -53,6 +53,7 @@ export default function AdminLayout() {
         { label: '예약 및 결제 관리 현황', to: '/admin/bookings' },
         { label: '고객 리뷰 관리', to: '/admin/review' },
         { label: '문의 관리', to: '/admin/inquiries' },
+        ...(user?.fileShareAdmin ? [{ label: '파일 공유', to: '/admin/file-share' }] : []),
     ];
 
     return (

@@ -32,6 +32,7 @@ import MyPage from './pages/client/MyPage';
 import PaymentPage from './pages/client/PaymentPage';
 import InquiryPage from './pages/client/InquiryPage';
 import AdminInquiryPage from './pages/admin/AdminInquiryPage';
+import AdminFileSharePage from './pages/admin/AdminFileSharePage';
 
 // auth
 import AuthProvider from "./auth/AuthProvider";
@@ -91,6 +92,7 @@ export default function App() {
                             <Route path="/admin/bookings" element={<AdminBookingPage />} />
                             <Route path="/admin/review" element={<AdminReviewPage />} />
                             <Route path="/admin/inquiries" element={<AdminInquiryPage />} />
+                            <Route path="/admin/file-share" element={<AdminFileSharePage />} />
                         </Route>
                     </Route>
 
