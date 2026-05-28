@@ -362,10 +362,9 @@ export default function AdminFileSharePage() {
                             {/* 파일 패널 헤더 */}
                             <Box sx={{
                                 display: 'flex',
-                                alignItems: { xs: 'flex-start', sm: 'center' },
+                                alignItems: 'center',
                                 justifyContent: 'space-between',
                                 mb: 2,
-                                flexDirection: { xs: 'column', sm: 'row' },
                                 gap: 1,
                             }}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -382,7 +381,7 @@ export default function AdminFileSharePage() {
                                     size="small"
                                     startIcon={<UploadIcon />}
                                     onClick={() => fileInputRef.current.click()}
-                                    sx={{ alignSelf: { xs: 'flex-start', sm: 'auto' } }}
+                                    sx={{ flexShrink: 0 }}
                                 >
                                     파일 업로드
                                 </Button>
