@@ -68,7 +68,7 @@ const SECTIONS = [
     {
         key:   '수학여행',
         id:    'school',
-        label: '수학여행',
+        label: '체험학습',
         icon:  <SchoolIcon />,
         color: '#3f51b5',
         gradient: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)',
@@ -106,7 +106,7 @@ const getStatusChip = (exposureEndAt, isSchool = false) => {
         const year = new Date().getFullYear();
         if (!exposureEndAt) return { label: `★ ${year} ~ 함께 기록할 여정 기획`, color: '#3f51b5', bg: '#e8eaf6' };
         const days = Math.ceil((new Date(exposureEndAt) - new Date()) / 86400000);
-        if (days <= 0) return { label: '🏆 로이투어와 함께한 수학여행 추억 기록', color: '#fff', bg: '#3f51b5' };
+        if (days <= 0) return { label: '🏆 로이투어와 함께한 체험학습 추억 기록', color: '#fff', bg: '#3f51b5' };
         return             { label: `★ ${year} ~ 함께 기록할 여정 기획`, color: '#3f51b5', bg: '#e8eaf6' };
     }
     if (!exposureEndAt) return { label: '상시운영', color: '#2e7d32', bg: '#e8f5e9' };

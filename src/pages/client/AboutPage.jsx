@@ -55,7 +55,7 @@ const VALUES = [
 ];
 
 const BUSINESSES = [
-    { icon: <SchoolIcon />,         color: '#3f51b5', gradient: 'linear-gradient(135deg,#3f51b5,#5c6bc0)', label: '수학여행',       desc: '소중한 추억을 만드는 맞춤형 교육 여행' },
+    { icon: <SchoolIcon />,         color: '#3f51b5', gradient: 'linear-gradient(135deg,#3f51b5,#5c6bc0)', label: '체험학습',       desc: '소중한 추억을 만드는 맞춤형 교육 여행' },
     { icon: <LandscapeIcon />,      color: '#2e7d32', gradient: 'linear-gradient(135deg,#2e7d32,#43a047)', label: '국내여행',       desc: '우리나라 곳곳의 숨겨진 명소 탐방' },
     { icon: <FlightIcon />,         color: '#e65100', gradient: 'linear-gradient(135deg,#e65100,#ef6c00)', label: '국외여행', desc: '세계 각지의 특별한 경험' },
     { icon: <DirectionsBoatIcon />, color: '#0277bd', gradient: 'linear-gradient(135deg,#0277bd,#0288d1)', label: '크루즈 해외여행', desc: '바다 위에서 즐기는 럭셔리 여행' },

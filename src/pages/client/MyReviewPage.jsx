@@ -25,7 +25,7 @@ const CATEGORIES = [
     { value: '국내여행',        label: '국내여행' },
     { value: '국외여행',   label: '국외여행' },
     { value: '크루즈 해외여행', label: '크루즈 해외여행' },
-    { value: '수학여행',        label: '수학여행' },
+    { value: '수학여행',        label: '체험학습' },
 ];
 const EMPTY_FORM = { writerType: 'GENERAL', rating: 5, content: '' };
 const maskName = (name) => {

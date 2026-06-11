@@ -25,7 +25,7 @@ const CATEGORY_META = {
     domestic: { icon: <LandscapeIcon sx={{ fontSize: 14 }} />,      color: '#2e7d32', label: '국내여행' },
     air:      { icon: <FlightIcon sx={{ fontSize: 14 }} />,         color: '#e65100', label: '국외여행' },
     cruise:   { icon: <DirectionsBoatIcon sx={{ fontSize: 14 }} />, color: '#0277bd', label: '크루즈 해외여행' },
-    school:   { icon: <SchoolIcon sx={{ fontSize: 14 }} />,         color: '#3f51b5', label: '수학여행' },
+    school:   { icon: <SchoolIcon sx={{ fontSize: 14 }} />,         color: '#3f51b5', label: '체험학습' },
 };
 
 const formatPrice = (price) =>

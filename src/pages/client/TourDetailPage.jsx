@@ -36,7 +36,7 @@ import ReviewSection from '../../components/review/ReviewSection';
 import IMG_BASE from '../../config/imageConfig';
 
 const CATEGORY_MAP = {
-    school:   '수학여행',
+    school:   '체험학습',
     domestic: '국내여행',
     air:      '국외여행',
     cruise:   '크루즈 해외여행',
