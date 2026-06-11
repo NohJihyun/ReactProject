@@ -67,8 +67,7 @@ function Slide1() {
                     borderLeft: '4px solid #7CB342',
                 }}>
                     <Typography variant="body2" color="#33691E" lineHeight={1.85} fontWeight={500}>
-                        현재 <strong>온라인 결제 기능을 개발 검토 중</strong>입니다.
-                        지금은 원하시는 상품을 예약 신청해 주시면
+                        원하시는 상품을 예약 신청해 주시면
                         담당자가 직접 확인 후 빠르게 연락드려 여행 준비를 도와드립니다. 😊
                     </Typography>
                 </Box>

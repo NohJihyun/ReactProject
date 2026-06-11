@@ -76,7 +76,7 @@ const CONTACT_ITEMS = [
 
 const INQUIRY_ACTION_BUTTONS = {
     school:  { icon: <AssignmentIcon fontSize="small" />, label: '입찰 견적 요청하기' },
-    default: { icon: <AssignmentIcon fontSize="small" />, label: '예약 및 결제 신청' },
+    default: { icon: <AssignmentIcon fontSize="small" />, label: '예약 신청' },
 };
 
 const TRAVEL_TYPE_LABEL = {
@@ -2172,6 +2172,7 @@ export default function TourDetailPage() {
                                 </Typography>
                             </Box>
                         )}
+                        {/* 결제하기 버튼 — PG 연동 후 활성화 예정
                         <Button
                             variant="contained"
                             fullWidth
@@ -2188,16 +2189,25 @@ export default function TourDetailPage() {
                             }}>
                             결제하기
                         </Button>
-                        <Typography variant="caption" color="text.disabled" sx={{ textAlign: 'center', display: 'block' }}>
-                            문의: 031-466-9600 · with@rohitour.com
-                        </Typography>
+                        */}
+                        <Box sx={{
+                            bgcolor: '#1976d2', borderRadius: 2, px: 2.5, py: 1.5,
+                            textAlign: 'center',
+                        }}>
+                            <Typography variant="body2" color="#fff" fontWeight={600}>
+                                문의: 031-466-9600
+                            </Typography>
+                            <Typography variant="body2" color="rgba(255,255,255,0.85)">
+                                with@rohitour.com
+                            </Typography>
+                        </Box>
                     </Stack>
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 3, pt: 1, gap: 1 }}>
                     <Button variant="contained" onClick={() => setBookingSuccess(false)}
                         sx={{ flex: 1, borderRadius: 2 }}>확인</Button>
                     <Button variant="contained" onClick={() => { setBookingSuccess(false); navigate('/client/bookings'); }}
-                        sx={{ flex: 2, borderRadius: 2, fontWeight: 700 }}>
+                        sx={{ flex: 1, borderRadius: 2, fontWeight: 700 }}>
                         이용내역 보기
                     </Button>
                 </DialogActions>
