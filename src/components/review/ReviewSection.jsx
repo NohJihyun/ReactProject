@@ -201,7 +201,7 @@ const ReviewSection = forwardRef(function ReviewSection({ productId }, ref) {
     };
 
     return (
-        <Box ref={ref}>
+        <Box ref={ref} sx={{ scrollMarginTop: '90px' }}>
             <Divider />
             <Box sx={{ p: { xs: 2.5, md: 4 } }}>
 
@@ -210,7 +210,7 @@ const ReviewSection = forwardRef(function ReviewSection({ productId }, ref) {
                     alignItems={{ sm: 'center' }} justifyContent="space-between"
                     spacing={1.5} sx={{ mb: 3 }}>
                     <Box>
-                        <Typography variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' } }}>
+                        <Typography id="review-section-title" variant="h6" fontWeight={800} sx={{ fontSize: { xs: '1rem', md: '1.15rem' }, scrollMarginTop: '90px' }}>
                             고객 후기
                         </Typography>
                         <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mt: 0.5 }}>

@@ -25,6 +25,7 @@ import ImageIcon           from '@mui/icons-material/Image';
 import DownloadIcon        from '@mui/icons-material/Download';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import SchoolIcon          from '@mui/icons-material/School';
+import ExploreIcon         from '@mui/icons-material/Explore';
 import LandscapeIcon       from '@mui/icons-material/Landscape';
 import FlightIcon          from '@mui/icons-material/Flight';
 import DirectionsBoatIcon  from '@mui/icons-material/DirectionsBoat';
@@ -40,6 +41,7 @@ const CATEGORY_MAP = {
     domestic: '국내여행',
     air:      '국외여행',
     cruise:   '크루즈 해외여행',
+    pilgrim:  'ROHI PILGRIM',
 };
 
 const CATEGORY_META = {
@@ -47,6 +49,7 @@ const CATEGORY_META = {
     air:      { icon: <FlightIcon sx={{ fontSize: 18 }} />,         color: '#e65100' },
     cruise:   { icon: <DirectionsBoatIcon sx={{ fontSize: 18 }} />, color: '#0277bd' },
     school:   { icon: <SchoolIcon sx={{ fontSize: 18 }} />,         color: '#3f51b5' },
+    pilgrim:  { icon: <ExploreIcon sx={{ fontSize: 18 }} />,        color: '#6a1b9a' },
 };
 
 const formatDt = (dt) => {
@@ -131,6 +134,9 @@ export default function TourDetailPage() {
     const [schoolTripDetail,      setSchoolTripDetail]      = useState(null);
     const [reviewStats,           setReviewStats]           = useState({ totalCount: 0, averageRating: 0 });
     const reviewSectionRef = useRef(null);
+    const scrollToReview = () => {
+        reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
 
     const [bookingOpen,       setBookingOpen]       = useState(false);
     const [bookingSuccess,    setBookingSuccess]    = useState(false);
@@ -140,7 +146,7 @@ export default function TourDetailPage() {
     const [bookingCabinType,  setBookingCabinType]  = useState('');
 
     const priceInfo = category === 'air'      ? { adult: airDetail?.priceAdult,       child: airDetail?.priceChild,       infant: airDetail?.priceInfant }
-                    : category === 'domestic' ? { adult: domesticDetail?.priceAdult,   child: domesticDetail?.priceChild,   infant: domesticDetail?.priceInfant }
+                    : (category === 'domestic' || category === 'pilgrim') ? { adult: domesticDetail?.priceAdult,   child: domesticDetail?.priceChild,   infant: domesticDetail?.priceInfant }
                     : category === 'school'   ? { adult: schoolTripDetail?.priceAdult, child: schoolTripDetail?.priceChild, infant: schoolTripDetail?.priceInfant }
                     : category === 'cruise'   ? (() => { const p = cruisePrices.find(p => p.cabinType === bookingCabinType) || cruisePrices[0]; return p ? { adult: p.priceAdult, child: p.priceChild, infant: p.priceInfant } : null; })()
                     : null;
@@ -212,7 +218,7 @@ export default function TourDetailPage() {
     }, [id, category]);
 
     useEffect(() => {
-        if (category !== 'domestic') return;
+        if (category !== 'domestic' && category !== 'pilgrim') return;
         Promise.all([getDomesticItineraries(id), getDomesticDetail(id)])
             .then(([its, det]) => {
                 setDomesticItineraries(its || []);
@@ -643,7 +649,7 @@ export default function TourDetailPage() {
                                         <Typography variant="caption" fontWeight={700} sx={{ color: '#111', fontSize: '0.75rem' }}>SNS</Typography>
                                     </Stack>
                                     <Stack direction="row" alignItems="center" spacing={0.4}
-                                        onClick={() => reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                        onClick={scrollToReview}
                                         sx={{ cursor: 'pointer', '&:hover': { opacity: 0.7 } }}>
                                         <Typography sx={{ fontSize: '1rem' }}>💬</Typography>
                                         <Typography variant="caption" fontWeight={600} color="text.secondary">
@@ -651,7 +657,7 @@ export default function TourDetailPage() {
                                         </Typography>
                                     </Stack>
                                     <Stack direction="row" alignItems="center" spacing={0.4}
-                                        onClick={() => reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                        onClick={scrollToReview}
                                         sx={{ cursor: 'pointer', '&:hover': { opacity: 0.7 } }}>
                                         <Typography sx={{ fontSize: '1rem' }}>⭐</Typography>
                                         <Typography variant="caption" fontWeight={600} color="text.secondary">
@@ -1408,8 +1414,8 @@ export default function TourDetailPage() {
                     </>
                 )}
 
-                {/* ── 국내여행 전용 섹션 ── */}
-                {category === 'domestic' && (
+                {/* ── 국내여행 / ROHI PILGRIM 전용 섹션 ── */}
+                {(category === 'domestic' || category === 'pilgrim') && (
                     <>
                         {/* 여행 일정 */}
                         <Box>

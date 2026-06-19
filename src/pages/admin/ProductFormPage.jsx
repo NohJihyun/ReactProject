@@ -94,9 +94,18 @@ export default function ProductFormPage() {
         if (root.categoryName.includes('항공') || root.categoryName.includes('국외여행')) return 'air';
         if (root.categoryName.includes('국내')) return 'domestic';
         if (root.categoryName.includes('수학여행')) return 'school';
+        if (root.categoryName.includes('순례자')) return 'pilgrim';
         return null;
     };
     const categoryType = getCategoryType();
+    const ITINERARY_LABEL = {
+        cruise:  '크루즈 일정 정보',
+        air:     '국외 일정 정보',
+        domestic:'국내여행 일정 정보',
+        school:  '수학여행 일정 정보',
+        pilgrim: '순례자 일정 정보',
+    };
+    const itineraryLabel = ITINERARY_LABEL[categoryType] ?? '일정 정보';
     const TAB_IMAGE = 2;
     const TAB_VIDEO = 3;
     const TAB_FILE  = 4;
@@ -327,13 +336,7 @@ export default function ProductFormPage() {
                     <Tab label="기본정보" />
                     <Tab
                         disabled={!tabsUnlocked}
-                        label={
-                            categoryType === 'cruise'   ? '크루즈 일정 정보' :
-                            categoryType === 'air'      ? '국외 일정 정보' :
-                            categoryType === 'domestic' ? '국내여행 일정 정보' :
-                            categoryType === 'school'   ? '수학여행 일정 정보' :
-                                                          '일정 정보'
-                        }
+                        label={itineraryLabel}
                     />
                     <Tab
                         disabled={!tabsUnlocked}
@@ -366,10 +369,7 @@ export default function ProductFormPage() {
                     <Alert severity="success" onClose={() => setBasicInfoSaved(false)} sx={{ mb: 2 }}>
                         기본 정보를 저장하였습니다.&nbsp;
                         <strong>
-                            [{categoryType === 'cruise'   ? '크루즈 일정 정보' :
-                              categoryType === 'air'      ? '국외 일정 정보' :
-                              categoryType === 'domestic' ? '국내여행 일정 정보' :
-                              categoryType === 'school'   ? '수학여행 일정 정보' : '일정 정보'}]&nbsp;
+                            [{itineraryLabel}]&nbsp;
                             [메인화면 썸네일 이미지]&nbsp;
                             [유튜브 동영상]&nbsp;
                             [첨부파일]
@@ -382,12 +382,7 @@ export default function ProductFormPage() {
                 {!isEdit && !tabsUnlocked && (
                     <Alert severity="info" sx={{ mb: 2 }}>
                         {categoryType
-                            ? `기본 정보를 저장하면 [${
-                                categoryType === 'cruise'   ? '크루즈 일정 정보' :
-                                categoryType === 'air'      ? '국외 일정 정보' :
-                                categoryType === 'domestic' ? '국내여행 일정 정보' :
-                                                              '수학여행 일정 정보'
-                              }] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다.`
+                            ? `기본 정보를 저장하면 [${itineraryLabel}] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다.`
                             : '기본 정보를 저장하면 [일정 정보] [이미지] [유튜브 동영상] [첨부파일] 탭이 활성화됩니다. 카테고리를 선택하면 해당 일정 정보 탭도 함께 활성화됩니다.'
                         } 동영상은 유튜브 URL로 등록합니다.
                     </Alert>
@@ -770,10 +765,11 @@ export default function ProductFormPage() {
                             productId={activeProductId}
                             onComplete={!isEdit ? () => setTab(TAB_IMAGE) : undefined}
                         />
-                    ) : categoryType === 'domestic' ? (
+                    ) : (categoryType === 'domestic' || categoryType === 'pilgrim') ? (
                         <DomesticItineraryTab
                             productId={activeProductId}
-                            onComplete={!isEdit ? () => setTab(TAB_IMAGE) : undefined}
+                            categoryType={categoryType}
+                            onComplete={() => setTab(TAB_IMAGE)}
                         />
                     ) : categoryType === 'school' ? (
                         <SchoolTripItineraryTab

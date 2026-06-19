@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import NoticePopup from '../../components/NoticePopup';
 import { Box, Typography, Chip, Container, Skeleton, Stack, Rating, Fade } from '@mui/material';
 import SchoolIcon           from '@mui/icons-material/School';
+import ExploreIcon          from '@mui/icons-material/Explore';
 import LandscapeIcon        from '@mui/icons-material/Landscape';
 import FlightIcon           from '@mui/icons-material/Flight';
 import DirectionsBoatIcon   from '@mui/icons-material/DirectionsBoat';
@@ -24,6 +25,7 @@ const CATEGORY_META = {
     air:      { icon: <FlightIcon sx={{ fontSize: 16 }} />,         color: '#e65100' },
     cruise:   { icon: <DirectionsBoatIcon sx={{ fontSize: 16 }} />, color: '#0277bd' },
     school:   { icon: <SchoolIcon sx={{ fontSize: 16 }} />,         color: '#3f51b5' },
+    pilgrim:  { icon: <ExploreIcon sx={{ fontSize: 16 }} />,        color: '#6a1b9a' },
 };
 
 const formatDt = (dt) => {
@@ -38,6 +40,15 @@ const formatDt = (dt) => {
 };
 
 const SECTIONS = [
+    {
+        key:   '순례자 프로그램',
+        id:    'pilgrim',
+        label: 'ROHI PILGRIM',
+        icon:  <ExploreIcon />,
+        color: '#6a1b9a',
+        gradient: 'linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%)',
+        desc:  '목사님과 함께하는 특별한 성지순례 여행 프로그램',
+    },
     {
         key:   '국내여행',
         id:    'domestic',
@@ -489,6 +500,8 @@ function CategorySection({ section }) {
             .finally(() => setLoading(false));
     }, [section.key]);
 
+    if (!loading && products.length === 0) return null;
+
     return (
         <Box component="section" sx={{ pt: 1, pb: 0 }}>
             <Container maxWidth="lg">
@@ -557,16 +570,6 @@ function CategorySection({ section }) {
                 {loading && (
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
                         {[1, 2, 3].map(i => <CardSkeleton key={i} />)}
-                    </Box>
-                )}
-
-                {/* 상품 없음 */}
-                {!loading && products.length === 0 && (
-                    <Box sx={{
-                        py: 8, textAlign: 'center', borderRadius: 3,
-                        bgcolor: '#f9f9f9', border: '1px dashed #ddd',
-                    }}>
-                        <Typography color="text.disabled">등록된 상품이 없습니다.</Typography>
                     </Box>
                 )}
 

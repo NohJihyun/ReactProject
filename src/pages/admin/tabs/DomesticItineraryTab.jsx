@@ -55,7 +55,7 @@ const EMPTY_DETAIL = {
     surchargeInfo: '', terms: '', reservationNotes: '',
 };
 
-export default function DomesticItineraryTab({ productId, onComplete }) {
+export default function DomesticItineraryTab({ productId, categoryType, onComplete }) {
     const [activeTab, setActiveTab] = useState(0);
 
     const [detail,       setDetail]       = useState(EMPTY_DETAIL);
@@ -84,11 +84,9 @@ export default function DomesticItineraryTab({ productId, onComplete }) {
             showSnack('저장되었습니다.');
             if (activeTab < 4) setActiveTab(prev => prev + 1);
             else {
-                onComplete?.();
-                if (!onComplete) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    setTimeout(() => setPricesSaved(true), 400);
-                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => setPricesSaved(true), 400);
+                if (onComplete) setTimeout(onComplete, 5500);
             }
         } catch { showSnack('저장 중 오류가 발생했습니다.', 'error'); }
         finally { setDetailSaving(false); }
@@ -98,7 +96,7 @@ export default function DomesticItineraryTab({ productId, onComplete }) {
         <Box>
             {pricesSaved && (
                 <Alert severity="success" onClose={() => setPricesSaved(false)} sx={{ mb: 2 }}>
-                    국내여행 일정 정보를 저장하였습니다.&nbsp;
+                    {categoryType === 'pilgrim' ? '순례자 일정 정보를 저장하였습니다.' : '국내여행 일정 정보를 저장하였습니다.'}&nbsp;
                     <strong>[메인화면 썸네일 이미지]&nbsp;[유튜브 동영상]&nbsp;[첨부파일]&nbsp;[기본정보]</strong>
                     &nbsp;더 이상 수정하실 게 없으면 <strong>수정완료</strong> 버튼을 클릭해주세요.
                 </Alert>

@@ -10,6 +10,7 @@ import SchoolIcon         from '@mui/icons-material/School';
 import LandscapeIcon      from '@mui/icons-material/Landscape';
 import FlightIcon         from '@mui/icons-material/Flight';
 import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import ExploreIcon        from '@mui/icons-material/Explore';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -23,6 +24,7 @@ const CATEGORY_META = {
     air:      { icon: <FlightIcon sx={{ fontSize: 16 }} />,         color: '#e65100', gradient: 'linear-gradient(135deg, #e65100 0%, #ef6c00 100%)' },
     cruise:   { icon: <DirectionsBoatIcon sx={{ fontSize: 16 }} />, color: '#0277bd', gradient: 'linear-gradient(135deg, #0277bd 0%, #0288d1 100%)' },
     school:   { icon: <SchoolIcon sx={{ fontSize: 16 }} />,         color: '#3f51b5', gradient: 'linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)' },
+    pilgrim:  { icon: <ExploreIcon sx={{ fontSize: 16 }} />,        color: '#6a1b9a', gradient: 'linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%)' },
 };
 
 const formatDt = (dt) => {
@@ -41,6 +43,7 @@ const CATEGORY_MAP = {
     domestic: '국내여행',
     air:      '국외여행',
     cruise:   '크루즈 해외여행',
+    pilgrim:  '순례자 프로그램',
 };
 
 const formatPrice = (price) => {

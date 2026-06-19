@@ -27,6 +27,7 @@ import LandscapeIcon from "@mui/icons-material/Landscape";
 import FlightIcon from "@mui/icons-material/Flight";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import SchoolIcon from "@mui/icons-material/School";
+import ExploreIcon from "@mui/icons-material/Explore";
 import SearchIcon from "@mui/icons-material/Search";
 import BusinessIcon from "@mui/icons-material/Business";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -56,11 +57,13 @@ const CATEGORY_PATH = {
     '국외여행': 'air',
     '크루즈 해외여행': 'cruise',
     '수학여행': 'school',
+    '순례자 프로그램': 'pilgrim',
 };
 
 const NAV_ITEMS = [
+    { label: 'ROHI PILGRIM',   path: '/tour/pilgrim',  icon: <ExploreIcon fontSize="small" />,        color: '#6a1b9a' },
     { label: '국내여행',       path: '/tour/domestic', icon: <LandscapeIcon fontSize="small" />,      color: '#2e7d32' },
-    { label: '국외여행',  path: '/tour/air',      icon: <FlightIcon fontSize="small" />,         color: '#e65100' },
+    { label: '국외여행',       path: '/tour/air',      icon: <FlightIcon fontSize="small" />,         color: '#e65100' },
     { label: '크루즈 해외여행', path: '/tour/cruise',  icon: <DirectionsBoatIcon fontSize="small" />, color: '#0277bd' },
     { label: '체험학습',       path: '/tour/school',   icon: <SchoolIcon fontSize="small" />,         color: '#3f51b5' },
 ];
