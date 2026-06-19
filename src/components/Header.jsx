@@ -35,7 +35,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { useUiStore } from "../pages/store/uiStore";
 import logo from "../assets/rohitourlogo.png";
 import { useState, useEffect, useRef } from "react";
-import { searchProducts, logSearch } from "../api/clientApi";
+import { searchProducts, logSearch, getProductsByCategory } from "../api/clientApi";
 import { getUncheckedCount } from "../api/bookingApi";
 import { getInquiryNewCount } from "../api/inquiryApi";
 import RealTimeKeywords from "./RealTimeKeywords";
@@ -61,11 +61,11 @@ const CATEGORY_PATH = {
 };
 
 const NAV_ITEMS = [
-    { label: 'ROHI PILGRIM',   path: '/tour/pilgrim',  icon: <ExploreIcon fontSize="small" />,        color: '#6a1b9a' },
-    { label: '국내여행',       path: '/tour/domestic', icon: <LandscapeIcon fontSize="small" />,      color: '#2e7d32' },
-    { label: '국외여행',       path: '/tour/air',      icon: <FlightIcon fontSize="small" />,         color: '#e65100' },
-    { label: '크루즈 해외여행', path: '/tour/cruise',  icon: <DirectionsBoatIcon fontSize="small" />, color: '#0277bd' },
-    { label: '체험학습',       path: '/tour/school',   icon: <SchoolIcon fontSize="small" />,         color: '#3f51b5' },
+    { label: 'ROHI PILGRIM',   path: '/tour/pilgrim',  categoryKey: '순례자 프로그램', icon: <ExploreIcon fontSize="small" />,        color: '#6a1b9a' },
+    { label: '국내여행',       path: '/tour/domestic', categoryKey: '국내여행',        icon: <LandscapeIcon fontSize="small" />,      color: '#2e7d32' },
+    { label: '국외여행',       path: '/tour/air',      categoryKey: '국외여행',        icon: <FlightIcon fontSize="small" />,         color: '#e65100' },
+    { label: '크루즈 해외여행', path: '/tour/cruise',  categoryKey: '크루즈 해외여행', icon: <DirectionsBoatIcon fontSize="small" />, color: '#0277bd' },
+    { label: '체험학습',       path: '/tour/school',   categoryKey: '수학여행',        icon: <SchoolIcon fontSize="small" />,         color: '#3f51b5' },
 ];
 
 const BRAND_GREEN = '#2e7d32';
@@ -89,6 +89,20 @@ export default function Header() {
     const [searchOpen, setSearchOpen] = useState(false);
     const debounceRef = useRef(null);
     const pcInputRef = useRef(null);
+    const [visibleNavItems, setVisibleNavItems] = useState(NAV_ITEMS);
+
+    useEffect(() => {
+        Promise.all(
+            NAV_ITEMS.map(item =>
+                getProductsByCategory(item.categoryKey)
+                    .then(products => ({ key: item.categoryKey, hasProducts: products.length > 0 }))
+                    .catch(() => ({ key: item.categoryKey, hasProducts: true }))
+            )
+        ).then(results => {
+            const activeKeys = new Set(results.filter(r => r.hasProducts).map(r => r.key));
+            setVisibleNavItems(NAV_ITEMS.filter(item => activeKeys.has(item.categoryKey)));
+        });
+    }, []);
 
     const runSearch = (kw) => {
         if (!kw.trim()) {
@@ -564,7 +578,7 @@ export default function Header() {
                     </Box>
 
                     <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
-                        {NAV_ITEMS.map(item => (
+                        {visibleNavItems.map(item => (
                             <Typography
                                 key={item.path}
                                 variant="body2"
@@ -610,7 +624,7 @@ export default function Header() {
                     </ListItem>
                     <Divider sx={{ mx: 2 }} />
                     {/* 카테고리 */}
-                    {NAV_ITEMS.map(item => (
+                    {visibleNavItems.map(item => (
                         <ListItem key={item.path} disablePadding>
                             <ListItemButton
                                 selected={location.pathname.startsWith(item.path)}
