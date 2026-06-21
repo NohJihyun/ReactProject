@@ -736,7 +736,7 @@ const HERO_SLIDES = [
         bg: 'linear-gradient(135deg, #1a237e 0%, #283593 40%, #1565c0 100%)',
         overline: 'ROHITOUR',
         title: '특별한 여행,\n특별한 추억',
-        sub: '수학여행부터 국내·해외 개인·단체여행까지\n로이투어가 함께합니다.',
+        sub: '체험학습부터 국내·해외 개인·단체여행까지\n로이투어가 함께합니다.',
         circles: [
             { size: 400, top: -120, right: -80,  opacity: 0.06 },
             { size: 250, bottom: -60, left: -60, opacity: 0.08 },

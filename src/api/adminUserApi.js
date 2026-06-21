@@ -8,3 +8,9 @@ export const changeUserRole = (userId, role) =>
 
 export const getAdminStats = () =>
     http.get('/api/admin/stats').then(r => r.data);
+
+export const updateAdminUser = (userId, data) =>
+    http.put(`/api/admin/users/${userId}`, data);
+
+export const deleteAdminUser = (userId) =>
+    http.delete(`/api/admin/users/${userId}`);
